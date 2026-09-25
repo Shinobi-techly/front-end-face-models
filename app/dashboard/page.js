@@ -120,28 +120,28 @@ export default function DashboardPage() {
                 }} />
 
                 {/* ── Top School Banner ── */}
-                <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-emerald-950 text-white text-[10px] sm:text-[11px] py-1.5 mobile-px-safe sm:px-4 font-semibold tracking-wide border-b border-white/10">
+                <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-emerald-950 text-white text-[10px] sm:text-[11px] py-1 px-3 sm:px-4 font-semibold tracking-wide border-b border-white/10">
                     <div className="flex items-center justify-between gap-2 max-w-7xl mx-auto">
                         <div className="flex items-center gap-1.5 min-w-0">
-                            <span className="flex-shrink-0">🛡️</span>
-                            <span className="truncate">Salvation Heritage Schools • Admin</span>
+                            <span className="flex-shrink-0 text-xs">🛡️</span>
+                            <span className="truncate">Salvation Heritage Schools • Admin Portal</span>
                         </div>
-                        <div className="text-emerald-400 font-bold text-[9px] sm:text-[10px] flex-shrink-0 hidden sm:block">
-                            Admin Authorization Active
+                        <div className="text-emerald-400 font-bold text-[9px] sm:text-[10px] flex-shrink-0 hidden xs:block">
+                            Session Active
                         </div>
                     </div>
                 </div>
 
                 {/* ── Navbar ── */}
                 <header className="sticky top-0 z-40 w-full bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/40">
-                    <div className="max-w-7xl mx-auto mobile-px-safe sm:px-6 h-14 sm:h-16 md:h-20 flex items-center justify-between gap-2 sm:gap-4">
+                    <div className="max-w-7xl mx-auto px-3 sm:px-6 h-13 sm:h-16 md:h-20 flex items-center justify-between gap-2 sm:gap-4">
                         <Link href="/" className="flex items-center gap-2 sm:gap-3 no-underline flex-shrink-0 min-w-0">
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-black text-xs sm:text-sm md:text-base shadow-lg shadow-blue-600/30 bg-gradient-to-tr from-blue-700 via-blue-600 to-emerald-500">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-black text-xs sm:text-sm md:text-base shadow-lg shadow-blue-600/30 bg-gradient-to-tr from-blue-700 via-blue-600 to-emerald-500 flex-shrink-0">
                                 SH
                             </div>
                             <div className="min-w-0">
                                 <div className="flex items-center gap-1 sm:gap-2">
-                                    <span className="font-black text-white text-sm sm:text-base md:text-lg truncate">Salvation Heritage</span>
+                                    <span className="font-black text-white text-xs sm:text-base md:text-lg truncate">Salvation Heritage</span>
                                     <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex-shrink-0">
                                         Analytics
                                     </span>
@@ -150,7 +150,7 @@ export default function DashboardPage() {
                             </div>
                         </Link>
 
-                        {/* Desktop Navbar (Faculty removed from admin navbar) */}
+                        {/* Desktop Navbar */}
                         <nav className="hidden md:flex items-center gap-1 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800">
                             <Link href="/" className="px-3 md:px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all no-underline">
                                 Kiosk
@@ -166,19 +166,20 @@ export default function DashboardPage() {
                             </Link>
                         </nav>
 
-                        <div className="flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0">
+                        <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
                             <div className="hidden sm:block text-right">
                                 <p className="text-[10px] sm:text-xs text-slate-400">{now.toLocaleDateString('en-MY', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
                                 <p className="text-xs sm:text-sm font-mono font-bold text-emerald-400">{now.toLocaleTimeString()}</p>
                             </div>
                             <button onClick={fetchData}
-                                className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-md shadow-blue-600/30 active:scale-95 transition-all">
-                                <span>↻</span>
+                                aria-label="Refresh data"
+                                className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-md shadow-blue-600/30 active:scale-95 transition-all">
+                                <span className={loading ? "inline-block animate-spin" : ""}>↻</span>
                                 <span className="hidden xs:inline">Refresh</span>
                             </button>
                             <button onClick={() => setMobileOpen(v => !v)}
                                 aria-label="Toggle mobile menu"
-                                className="md:hidden w-8 h-8 sm:w-10 sm:h-10 touch-target flex items-center justify-center rounded-lg sm:rounded-xl bg-slate-900 text-slate-200 border border-slate-800 hover:bg-slate-800 transition-colors">
+                                className="md:hidden w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg sm:rounded-xl bg-slate-900 text-slate-200 border border-slate-800 hover:bg-slate-800 transition-colors">
                                 {mobileOpen ? '✕' : '☰'}
                             </button>
                         </div>
@@ -186,62 +187,62 @@ export default function DashboardPage() {
 
                     {/* Mobile Navigation Dropdown */}
                     {mobileOpen && (
-                        <div className="md:hidden border-t border-slate-800 bg-slate-950 mobile-px-safe py-3 space-y-2">
-                            <Link href="/" onClick={() => setMobileOpen(false)} className="mobile-nav-item text-slate-300 hover:bg-slate-900">
-                                <span className="text-lg">📸</span>
-                                <span className="text-xs font-bold">Attendance Kiosk</span>
+                        <div className="md:hidden border-t border-slate-800 bg-slate-950 px-3 py-3 space-y-2">
+                            <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2 px-3 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-900 no-underline">
+                                <span className="text-base">📸</span>
+                                <span>Attendance Kiosk</span>
                             </Link>
-                            <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="mobile-nav-item text-white bg-blue-600">
-                                <span className="text-lg">📊</span>
-                                <span className="text-xs font-bold">Admin Dashboard</span>
+                            <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2 px-3 rounded-xl text-xs font-bold text-white bg-blue-600 no-underline">
+                                <span className="text-base">📊</span>
+                                <span>Admin Dashboard</span>
                             </Link>
-                            <Link href="/students" onClick={() => setMobileOpen(false)} className="mobile-nav-item text-slate-300 hover:bg-slate-900">
-                                <span className="text-lg">👥</span>
-                                <span className="text-xs font-bold">Student Directory</span>
+                            <Link href="/students" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2 px-3 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-900 no-underline">
+                                <span className="text-base">👥</span>
+                                <span>Student Directory</span>
                             </Link>
-                            <Link href="/register" onClick={() => setMobileOpen(false)} className="mobile-nav-item text-emerald-400 hover:bg-slate-900">
-                                <span className="text-lg">📝</span>
-                                <span className="text-xs font-bold">Register Student</span>
+                            <Link href="/register" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2 px-3 rounded-xl text-xs font-bold text-emerald-400 hover:bg-slate-900 no-underline">
+                                <span className="text-base">📝</span>
+                                <span>Register Student</span>
                             </Link>
                         </div>
                     )}
                 </header>
 
                 {/* ── Main Content ── */}
-                <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1">
-                    {/* ── Stats Grid ── */}
+                <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8 flex-1 w-full pb-24 md:pb-8">
+                    {/* ── Stats Grid: 2 columns on mobile, 4 on desktop ── */}
                     {stats && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-5 sm:mb-8">
                             {/* Total Students */}
-                            <div className="relative overflow-hidden rounded-3xl p-6 transition-all duration-300 hover:scale-105" style={card}>
-                                <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 bg-blue-500" />
+                            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 lg:p-6 transition-all duration-300 hover:scale-[1.02]" style={card}>
+                                <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 rounded-full blur-3xl opacity-20 bg-blue-500 pointer-events-none" />
                                 <div className="relative">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Enrolled</span>
-                                        <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-blue-500/15 border border-blue-500/30">
-                                            <span className="text-lg">🎓</span>
+                                    <div className="flex items-center justify-between mb-2 sm:mb-3">
+                                        <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Enrolled</span>
+                                        <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center bg-blue-500/15 border border-blue-500/30 flex-shrink-0">
+                                            <span className="text-xs sm:text-lg">🎓</span>
                                         </div>
                                     </div>
-                                    <div className="flex items-end gap-2">
-                                        <span className="text-4xl font-black text-white">{stats.total_students || 0}</span>
-                                        <span className="text-sm font-semibold text-slate-400 mb-1">students</span>
+                                    <div className="flex items-baseline gap-1 sm:gap-2">
+                                        <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">{stats.total_students || 0}</span>
+                                        <span className="text-[10px] sm:text-sm font-semibold text-slate-400 truncate">students</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Present Today */}
-                            <div className="relative overflow-hidden rounded-3xl p-6 transition-all duration-300 hover:scale-105" style={card}>
-                                <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 bg-emerald-500" />
+                            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 lg:p-6 transition-all duration-300 hover:scale-[1.02]" style={card}>
+                                <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 rounded-full blur-3xl opacity-20 bg-emerald-500 pointer-events-none" />
                                 <div className="relative">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Present Today</span>
-                                        <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-emerald-500/15 border border-emerald-500/30">
-                                            <span className="text-lg">✓</span>
+                                    <div className="flex items-center justify-between mb-2 sm:mb-3">
+                                        <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Present</span>
+                                        <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center bg-emerald-500/15 border border-emerald-500/30 flex-shrink-0">
+                                            <span className="text-xs sm:text-lg text-emerald-400 font-bold">✓</span>
                                         </div>
                                     </div>
-                                    <div className="flex items-end gap-2">
-                                        <span className="text-4xl font-black text-emerald-400">{stats.today_present || 0}</span>
-                                        <span className="text-sm font-semibold text-slate-400 mb-1">
+                                    <div className="flex items-baseline gap-1.5 sm:gap-2">
+                                        <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-emerald-400">{stats.today_present || 0}</span>
+                                        <span className="text-[10px] sm:text-sm font-semibold text-emerald-400/80">
                                             {stats.total_students > 0 ? `${Math.round(((stats.today_present || 0) / stats.total_students) * 100)}%` : '0%'}
                                         </span>
                                     </div>
@@ -249,18 +250,18 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Absent Today */}
-                            <div className="relative overflow-hidden rounded-3xl p-6 transition-all duration-300 hover:scale-105" style={card}>
-                                <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 bg-amber-500" />
+                            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 lg:p-6 transition-all duration-300 hover:scale-[1.02]" style={card}>
+                                <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 rounded-full blur-3xl opacity-20 bg-amber-500 pointer-events-none" />
                                 <div className="relative">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Absent Today</span>
-                                        <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-amber-500/15 border border-amber-500/30">
-                                            <span className="text-lg">⏳</span>
+                                    <div className="flex items-center justify-between mb-2 sm:mb-3">
+                                        <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Absent</span>
+                                        <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center bg-amber-500/15 border border-amber-500/30 flex-shrink-0">
+                                            <span className="text-xs sm:text-lg">⏳</span>
                                         </div>
                                     </div>
-                                    <div className="flex items-end gap-2">
-                                        <span className="text-4xl font-black text-amber-400">{absent}</span>
-                                        <span className="text-sm font-semibold text-slate-400 mb-1">
+                                    <div className="flex items-baseline gap-1.5 sm:gap-2">
+                                        <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-amber-400">{absent}</span>
+                                        <span className="text-[10px] sm:text-sm font-semibold text-amber-400/80">
                                             {stats.total_students > 0 ? `${Math.round((absent / stats.total_students) * 100)}%` : '0%'}
                                         </span>
                                     </div>
@@ -268,124 +269,173 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Avg Attendance */}
-                            <div className="relative overflow-hidden rounded-3xl p-6 transition-all duration-300 hover:scale-105" style={card}>
-                                <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 bg-cyan-500" />
+                            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 lg:p-6 transition-all duration-300 hover:scale-[1.02]" style={card}>
+                                <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 rounded-full blur-3xl opacity-20 bg-cyan-500 pointer-events-none" />
                                 <div className="relative">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Average Rate</span>
-                                        <Ring value={stats.average_attendance || 0} max={100} size={36} stroke={4} color="#06b6d4" />
+                                    <div className="flex items-center justify-between mb-2 sm:mb-3">
+                                        <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider truncate">Avg Rate</span>
+                                        <div className="flex-shrink-0">
+                                            <Ring value={stats.average_attendance || 0} max={100} size={28} stroke={3.5} color="#06b6d4" />
+                                        </div>
                                     </div>
-                                    <div className="flex items-end gap-2">
-                                        <span className="text-4xl font-black text-cyan-400">
+                                    <div className="flex items-baseline gap-1 sm:gap-2">
+                                        <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-cyan-400">
                                             {Math.round(stats.average_attendance || 0)}%
                                         </span>
-                                        <span className="text-sm font-semibold text-slate-400 mb-1">overall</span>
+                                        <span className="text-[10px] sm:text-sm font-semibold text-slate-400 truncate">overall</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* ── Student Attendance Roster Table ── */}
-                    <div className="rounded-3xl p-6 mb-8" style={card}>
-                        <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
+                    {/* ── Student Attendance Roster Section ── */}
+                    <div className="rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 mb-8" style={card}>
+                        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-4 sm:mb-6">
                             <div>
-                                <h3 className="text-xl font-bold text-white">Student Attendance Records</h3>
-                                <p className="text-xs text-slate-400">Salvation Heritage live biometric attendance tracking</p>
+                                <h3 className="text-base sm:text-xl font-bold text-white">Student Attendance Records</h3>
+                                <p className="text-[11px] sm:text-xs text-slate-400">Salvation Heritage live biometric attendance tracking</p>
                             </div>
-                            <div className="relative w-full md:w-80">
+                            <div className="relative w-full sm:w-72 md:w-80">
                                 <input
                                     type="text"
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
-                                    placeholder="Search students..."
-                                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl text-xs bg-slate-950 text-white placeholder-slate-500 border border-slate-700 focus:outline-none focus:border-emerald-500"
+                                    placeholder="Search by name, ID or class..."
+                                    className="w-full pl-9 pr-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs bg-slate-950 text-white placeholder-slate-500 border border-slate-700 focus:outline-none focus:border-emerald-500"
                                 />
-                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">🔍</span>
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">🔍</span>
                             </div>
                         </div>
 
                         {loading ? (
-                            <div className="py-16 text-center">
-                                <div className="w-10 h-10 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mx-auto mb-3" />
+                            <div className="py-12 sm:py-16 text-center">
+                                <div className="w-9 h-9 border-3 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mx-auto mb-3" />
                                 <p className="text-slate-400 text-xs">Loading records...</p>
                             </div>
                         ) : filtered.length === 0 ? (
-                            <div className="py-12 text-center text-slate-500 text-xs">
+                            <div className="py-10 text-center text-slate-500 text-xs">
                                 No student records found.
                             </div>
                         ) : (
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm min-w-[650px]">
-                                    <thead>
-                                        <tr className="border-b border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-400">
-                                            <th className="text-left py-3 px-4">Student</th>
-                                            <th className="text-left py-3 px-4">Class</th>
-                                            <th className="text-left py-3 px-4">Term</th>
-                                            <th className="text-left py-3 px-4">Attendance Rate</th>
-                                            <th className="text-left py-3 px-4">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-800/60">
-                                        {filtered.map(s => {
-                                            const pct = s.attendance_percentage ?? 0;
-                                            return (
-                                                <tr key={s.student_id || s.id} className="hover:bg-slate-800/30 transition-colors">
-                                                    <td className="py-3.5 px-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex-shrink-0">
-                                                                <img src={PHOTO(s.student_id)} alt={s.full_name} className="w-full h-full object-cover" />
-                                                            </div>
-                                                            <div>
-                                                                <p className="font-bold text-white text-sm">{s.full_name}</p>
-                                                                <p className="text-xs text-slate-400 font-mono">{s.student_id}</p>
-                                                            </div>
+                            <>
+                                {/* Mobile Cards View (sm:hidden) */}
+                                <div className="sm:hidden space-y-2.5">
+                                    {filtered.map(s => {
+                                        const pct = s.attendance_percentage ?? 0;
+                                        return (
+                                            <div key={s.student_id || s.id} className="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-2.5">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <div className="flex items-center gap-2.5 min-w-0">
+                                                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-900 border border-slate-800 flex-shrink-0">
+                                                            <img src={PHOTO(s.student_id)} alt={s.full_name} className="w-full h-full object-cover" />
                                                         </div>
-                                                    </td>
-                                                    <td className="py-3.5 px-4 text-xs font-bold text-slate-300">{s.department}</td>
-                                                    <td className="py-3.5 px-4">
-                                                        <span className="text-xs font-bold px-2.5 py-1 rounded-xl text-white bg-blue-600/80">
+                                                        <div className="min-w-0">
+                                                            <p className="font-bold text-white text-xs sm:text-sm truncate">{s.full_name}</p>
+                                                            <p className="text-[10px] text-slate-400 font-mono">{s.student_id}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex-shrink-0">
+                                                        <Badge pct={pct} />
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center justify-between gap-2 text-[11px] pt-1 border-t border-slate-800/50">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="font-bold text-slate-300 px-2 py-0.5 rounded-lg bg-blue-950/60 border border-blue-500/20 text-[10px]">
+                                                            {s.department}
+                                                        </span>
+                                                        <span className="font-bold text-slate-400 px-1.5 py-0.5 rounded-lg bg-slate-900 text-[10px]">
                                                             {s.semester === 1 ? '1st Term' : s.semester === 2 ? '2nd Term' : s.semester === 3 ? '3rd Term' : `Term ${s.semester}`}
                                                         </span>
-                                                    </td>
-                                                    <td className="py-3.5 px-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="w-24 h-2 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
-                                                                <div className="h-full bg-gradient-to-r from-blue-600 to-emerald-500 rounded-full" style={{ width: `${Math.min(100, pct)}%` }} />
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="text-[10px] text-slate-400">Rate:</span>
+                                                        <span className="text-xs font-bold text-emerald-400">{pct}%</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="w-full h-1.5 rounded-full bg-slate-900 overflow-hidden border border-slate-800">
+                                                    <div className="h-full bg-gradient-to-r from-blue-600 to-emerald-500 rounded-full" style={{ width: `${Math.min(100, pct)}%` }} />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Tablet/Desktop Table View (hidden sm:block) */}
+                                <div className="hidden sm:block overflow-x-auto">
+                                    <table className="w-full text-sm min-w-[650px]">
+                                        <thead>
+                                            <tr className="border-b border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-400">
+                                                <th className="text-left py-3 px-4">Student</th>
+                                                <th className="text-left py-3 px-4">Class</th>
+                                                <th className="text-left py-3 px-4">Term</th>
+                                                <th className="text-left py-3 px-4">Attendance Rate</th>
+                                                <th className="text-left py-3 px-4">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-800/60">
+                                            {filtered.map(s => {
+                                                const pct = s.attendance_percentage ?? 0;
+                                                return (
+                                                    <tr key={s.student_id || s.id} className="hover:bg-slate-800/30 transition-colors">
+                                                        <td className="py-3.5 px-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-10 h-10 rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex-shrink-0">
+                                                                    <img src={PHOTO(s.student_id)} alt={s.full_name} className="w-full h-full object-cover" />
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-bold text-white text-sm">{s.full_name}</p>
+                                                                    <p className="text-xs text-slate-400 font-mono">{s.student_id}</p>
+                                                                </div>
                                                             </div>
-                                                            <span className="text-xs font-bold text-white">{pct}%</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-3.5 px-4">
-                                                        <Badge pct={pct} />
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                        </td>
+                                                        <td className="py-3.5 px-4 text-xs font-bold text-slate-300">{s.department}</td>
+                                                        <td className="py-3.5 px-4">
+                                                            <span className="text-xs font-bold px-2.5 py-1 rounded-xl text-white bg-blue-600/80">
+                                                                {s.semester === 1 ? '1st Term' : s.semester === 2 ? '2nd Term' : s.semester === 3 ? '3rd Term' : `Term ${s.semester}`}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-3.5 px-4">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-24 h-2 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
+                                                                    <div className="h-full bg-gradient-to-r from-blue-600 to-emerald-500 rounded-full" style={{ width: `${Math.min(100, pct)}%` }} />
+                                                                </div>
+                                                                <span className="text-xs font-bold text-white">{pct}%</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-3.5 px-4">
+                                                            <Badge pct={pct} />
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
                         )}
                     </div>
                 </main>
 
                 {/* Mobile Bottom Bar */}
-                <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 py-2 px-3 flex items-center justify-around shadow-2xl shadow-black">
-                    <Link href="/" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
-                        <span className="text-xl">📸</span>
-                        <span className="text-[10px] font-bold">Kiosk</span>
+                <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 py-1.5 px-3 flex items-center justify-around shadow-2xl shadow-black">
+                    <Link href="/" className="flex flex-col items-center gap-0.5 py-1 px-3 text-slate-400 hover:text-white no-underline active:scale-95 transition-all">
+                        <span className="text-lg">📸</span>
+                        <span className="text-[10px] font-medium">Kiosk</span>
                     </Link>
-                    <Link href="/register" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
-                        <span className="text-xl">📝</span>
-                        <span className="text-[10px] font-bold">Register</span>
+                    <Link href="/register" className="flex flex-col items-center gap-0.5 py-1 px-3 text-slate-400 hover:text-white no-underline active:scale-95 transition-all">
+                        <span className="text-lg">📝</span>
+                        <span className="text-[10px] font-medium">Register</span>
                     </Link>
-                    <Link href="/dashboard" className="flex flex-col items-center gap-1 py-1 px-3 text-emerald-400 font-black no-underline">
-                        <span className="text-xl">📊</span>
-                        <span className="text-[10px] font-bold">Admin</span>
+                    <Link href="/dashboard" className="flex flex-col items-center gap-0.5 py-1 px-3 text-emerald-400 font-bold no-underline active:scale-95 transition-all">
+                        <span className="text-lg">📊</span>
+                        <span className="text-[10px] font-black text-emerald-400">Admin</span>
                     </Link>
-                    <Link href="/students" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
-                        <span className="text-xl">👥</span>
-                        <span className="text-[10px] font-bold">Students</span>
+                    <Link href="/students" className="flex flex-col items-center gap-0.5 py-1 px-3 text-slate-400 hover:text-white no-underline active:scale-95 transition-all">
+                        <span className="text-lg">👥</span>
+                        <span className="text-[10px] font-medium">Students</span>
                     </Link>
                 </div>
             </div>
