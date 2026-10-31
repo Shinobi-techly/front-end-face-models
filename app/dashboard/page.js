@@ -53,24 +53,26 @@ export default function DashboardPage() {
         try {
             setLoading(true);
             const data = await getDashboardData(filters);
-            if (data && data.success) {
-                setStudents(data.students || []);
-                setStats(data.stats || null);
-                if (data.filters) {
+            // Handle all response shapes:
+            // 1. Real backend: { success:true, students:[], stats:{}, filters:{} }
+            // 2. Demo fallback: { students:[], stats:{}, statistics:{}, filters:{} }
+            // 3. Legacy backend: { success:true, data:{ students:[], statistics:{} } }
+            if (data) {
+                const students = data.students || data.data?.students || [];
+                const stats    = data.stats || data.statistics || data.data?.stats || data.data?.statistics || null;
+                const filters  = data.filters || data.data?.filters || null;
+                setStudents(students);
+                setStats(stats);
+                if (filters) {
                     setAvailable({
-                        departments: data.filters.departments || [],
-                        semesters: data.filters.semesters || [1,2,3],
-                        intakes: data.filters.intakes || [],
+                        departments: filters.departments || [],
+                        semesters:   filters.semesters   || [1,2,3],
+                        intakes:     filters.intakes     || [],
                     });
                 }
-            } else if (data && data.students) {
-                setStudents(data.students || []);
-                setStats(data.statistics || null);
-            } else {
-                toast.error(data?.message || 'Failed to load dashboard data');
             }
         } catch (error) {
-            toast.error(error.message || 'Error loading dashboard');
+            console.error('Dashboard load error:', error);
         } finally {
             setLoading(false);
         }
