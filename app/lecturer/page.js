@@ -20,22 +20,47 @@ const PHOTO_URL = (id) =>
 
 const FALLBACK_SVG = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230f172a"/><text x="50" y="58" text-anchor="middle" fill="%2338bdf8" font-size="34" font-family="sans-serif">👤</text></svg>`;
 
+const pad2 = (n) => String(n).padStart(2, '0');
+
+function localDateStr(d) {
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+// Parse "YYYY-MM-DD HH:MM:SS" safely on all browsers (iOS Safari rejects the space)
+function parseDT(s) {
+    if (!s) return new Date(NaN);
+    return new Date(String(s).replace(' ', 'T'));
+}
+
+// "HH:MM" (24h) N minutes from now, rounded up to the next 5 minutes
+function timeFromNow(minutes) {
+    const d = new Date(Date.now() + minutes * 60000);
+    const m = Math.ceil(d.getMinutes() / 5) * 5;
+    d.setMinutes(m, 0, 0);
+    return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+
+function format12h(timeStr) {
+    if (!timeStr) return '';
+    const [h, m] = timeStr.split(':').map(Number);
+    return `${h % 12 || 12}:${pad2(m)} ${h >= 12 ? 'PM' : 'AM'}`;
+}
+
 function toDatetimeString(timeStr) {
     const now = new Date();
-    const today = now.toISOString().slice(0, 10);
-    const selectedDateTime = new Date(`${today} ${timeStr}:00`);
+    const today = localDateStr(now);
+    const selectedDateTime = parseDT(`${today} ${timeStr}:00`);
     if (selectedDateTime <= now) {
         const tomorrow = new Date(now);
         tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowDate = tomorrow.toISOString().slice(0, 10);
-        return `${tomorrowDate} ${timeStr}:00`;
+        return `${localDateStr(tomorrow)} ${timeStr}:00`;
     }
     return `${today} ${timeStr}:00`;
 }
 
 function formatCountdown(endsAt) {
-    const diff = new Date(endsAt) - new Date();
-    if (diff <= 0) return '00:00:00';
+    const diff = parseDT(endsAt) - new Date();
+    if (!(diff > 0)) return '00:00:00';
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
@@ -44,10 +69,10 @@ function formatCountdown(endsAt) {
 
 function Countdown({ endsAt }) {
     const [display, setDisplay] = useState(formatCountdown(endsAt));
-    const [expired, setExpired] = useState(new Date(endsAt) <= new Date());
+    const [expired, setExpired] = useState(parseDT(endsAt) <= new Date());
     useEffect(() => {
         const t = setInterval(() => {
-            const isExpired = new Date(endsAt) <= new Date();
+            const isExpired = parseDT(endsAt) <= new Date();
             setExpired(isExpired);
             setDisplay(isExpired ? '00:00:00' : formatCountdown(endsAt));
         }, 1000);
@@ -319,7 +344,7 @@ function SessionPanel({ lecturer, onLogout }) {
         semester: 1,
         course_code: '',
         course_name: '',
-        end_time: '',
+        end_time: timeFromNow(60),
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
@@ -716,9 +741,32 @@ function SessionPanel({ lecturer, onLogout }) {
                                                     <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
                                                         Class End Time <span className="text-emerald-400">*</span>
                                                     </label>
-                                                    <input type="time" value={form.end_time}
-                                                        onChange={e => setForm(p => ({ ...p, end_time: e.target.value }))}
-                                                        className={inputCls('end_time')} />
+                                                    <div className="grid grid-cols-3 gap-2 mb-2.5">
+                                                        {[[30, '30 min'], [45, '45 min'], [60, '1 hour'], [90, '1.5 hours'], [120, '2 hours'], [180, '3 hours']].map(([mins, label]) => (
+                                                            <button key={mins} type="button"
+                                                                onClick={() => { setForm(p => ({ ...p, end_time: timeFromNow(mins) })); setErrors(e => ({ ...e, end_time: undefined })); }}
+                                                                className="py-2.5 rounded-xl text-xs font-bold bg-slate-950 border border-slate-700 text-slate-300 hover:bg-slate-800 active:scale-95 transition-all">
+                                                                {label}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                    
+                                                    {/* Direct Time Input Field */}
+                                                    <input 
+                                                        type="time" 
+                                                        value={form.end_time || ''}
+                                                        onChange={(e) => { 
+                                                            setForm(p => ({ ...p, end_time: e.target.value })); 
+                                                            setErrors(e => ({ ...e, end_time: undefined })); 
+                                                        }}
+                                                        className={inputCls('end_time')}
+                                                        style={{ colorScheme: 'dark' }}
+                                                    />
+                                                    
+                                                    <p className="text-xs text-emerald-400 mt-2 font-semibold">
+                                                        ⏰ Class ends at {format12h(form.end_time)}
+                                                    </p>
+                                                    {errors.end_time && <p className="text-rose-400 text-xs mt-1">⚠ {errors.end_time}</p>}
                                                 </div>
 
                                                 <button onClick={handleStart} disabled={loading}
