@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import AOSInit from '../../components/AOSInit';
 import toast, { Toaster } from 'react-hot-toast';
-import { validateLecturer, startSession, stopSession, getSessionStatus, getLecturerHistory, loginLecturer, NIGERIAN_FACULTY } from '../../lib/api';
+import { startSession, stopSession, getSessionStatus, getLecturerHistory, loginLecturer, NIGERIAN_FACULTY } from '../../lib/api';
 
 const DEPARTMENTS = [
     'JSS1',

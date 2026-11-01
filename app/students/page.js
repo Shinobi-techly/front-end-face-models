@@ -78,7 +78,8 @@ function StudentCard({ student, onDelete }) {
 
                 {/* Term badge */}
                 <div className="absolute top-3 left-3 z-10">
-                    <span className="text-[10px] font-black px-2.5 py-1 rounded-xl text-white shadow-lg bg-slate-900/80 backdrop-blur border border-white/20">
+                    <span className="text-[10px] font-black px-2.5 py-1 rounded-xl text-white shadow-lg bg-slate-900/80 backdrop-blur border"
+                        style={{ borderColor: `${col}80` }}>
                         {student.semester === 1 ? '1st Term' : student.semester === 2 ? '2nd Term' : student.semester === 3 ? '3rd Term' : `Term ${student.semester}`}
                     </span>
                 </div>

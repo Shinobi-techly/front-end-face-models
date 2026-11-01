@@ -38,11 +38,9 @@ export default function HomePage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [lastAttendance, setLastAttendance] = useState(null);
-    const [capturedImage, setCapturedImage] = useState(null);
     const [todayCount, setTodayCount] = useState(0);
     const [totalStudents, setTotalStudents] = useState(0);
     const [debugInfo, setDebugInfo] = useState(null);
-    const [showDebug, setShowDebug] = useState(false);
     const [showDebugConsole, setShowDebugConsole] = useState(false);
 
     // Active Logged-in Faculty state
@@ -94,7 +92,6 @@ export default function HomePage() {
 
     const handleCapture = useCallback(async (imageDataUrl) => {
         if (!isMounted.current) return;
-        setCapturedImage(imageDataUrl);
         setIsLoading(true);
         setDebugInfo({ status: 'Sending image to biometric engine...', time: new Date().toLocaleTimeString() });
         try {
@@ -128,7 +125,7 @@ export default function HomePage() {
                 });
                 fetchStats();
                 setTimeout(() => {
-                    if (isMounted.current) { setLastAttendance(null); setCapturedImage(null); }
+                    if (isMounted.current) { setLastAttendance(null); }
                 }, 5000);
             } else {
                 const msg = result.message || 'Face not recognized. Please try again.';
