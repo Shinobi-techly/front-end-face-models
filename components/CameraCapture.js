@@ -317,9 +317,15 @@ export default function CameraCapture({
                         autoPlay
                         playsInline
                         muted
-                        className={`w-full aspect-video object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+                        webkit-playsinline="true"
+                        className={`w-full aspect-video object-cover bg-slate-950 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
                         onLoadedMetadata={() => {
                             if (videoRef.current) {
+                                videoRef.current.play().catch(() => {});
+                            }
+                        }}
+                        onCanPlay={() => {
+                            if (videoRef.current && videoRef.current.paused) {
                                 videoRef.current.play().catch(() => {});
                             }
                         }}
@@ -478,7 +484,7 @@ export default function CameraCapture({
             {/* Status footer */}
             <div className="mt-3 text-center">
                 <p className="text-[11px] text-slate-400">
-                    🎓 Salvation Heritage Attendance Kiosk • Instant Biometric Verification
+                    🎓 Salvation Heritage Attendance Kiosk • Instant Biometric Verification v2.1
                 </p>
                 <p className="text-[10px] text-slate-500 mt-0.5">
                     {uploadedPreview
