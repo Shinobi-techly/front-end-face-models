@@ -64,25 +64,35 @@ export default function CameraCapture({
             return;
         }
 
+        const withTimeout = (promise, ms = 10000) => Promise.race([
+            promise,
+            new Promise((_, reject) => setTimeout(() => {
+                const e = new Error('Camera took too long to start.');
+                e.name = 'TimeoutError';
+                reject(e);
+            }, ms)),
+        ]);
+
         try {
             let mediaStream = null;
             // Primary attempt with desired facingMode and ideal resolution
             try {
-                mediaStream = await navigator.mediaDevices.getUserMedia({
+                mediaStream = await withTimeout(navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: { ideal: targetFacingMode },
                         width: { ideal: 1280, min: 480 },
                         height: { ideal: 720, min: 360 },
                     },
                     audio: false,
-                });
+                }));
             } catch (constraintErr) {
+                if (constraintErr.name === 'TimeoutError') throw constraintErr;
                 // Fallback attempt with minimal constraints (compatible with older mobile phones / webcams)
                 console.warn('Ideal constraints failed, falling back to basic video constraint:', constraintErr);
-                mediaStream = await navigator.mediaDevices.getUserMedia({
+                mediaStream = await withTimeout(navigator.mediaDevices.getUserMedia({
                     video: true,
                     audio: false,
-                });
+                }));
             }
 
             streamRef.current = mediaStream;
@@ -105,6 +115,8 @@ export default function CameraCapture({
                 errorMessage = 'No camera found on this device. You can use "Upload Photo" or "Simulate Test Face" below, or open this page on your phone.';
             } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
                 errorMessage = 'Camera is currently in use by another application. Please close other camera apps and retry.';
+            } else if (err.name === 'TimeoutError') {
+                errorMessage = 'Camera did not start. Allow camera permission, or open this link in Chrome (not inside WhatsApp), then tap Retry. You can also use "Upload Photo".';
             } else if (err.name === 'OverconstrainedError') {
                 errorMessage = 'Camera does not satisfy required settings. Retrying basic mode...';
             } else {
