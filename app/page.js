@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import CameraCapture from '../components/CameraCapture';
 import DebugConsole from '../components/DebugConsole';
 import AOSInit from '../components/AOSInit';
+import AnimatedIcon from '../components/AnimatedIcon';
 import { recognizeFace, getStats, loginLecturer, NIGERIAN_FACULTY } from '../lib/api';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -241,7 +242,7 @@ export default function HomePage() {
             <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-emerald-950 text-white text-[10px] sm:text-[11px] py-2 mobile-px-safe sm:px-4 border-b border-white/10">
                 <div className="flex items-center justify-between gap-2 max-w-7xl mx-auto">
                     <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                        <span>🏛️</span>
+                        <AnimatedIcon type="school" size={16} className="text-emerald-300 flex-shrink-0" />
                         <span className="font-bold text-[10px] sm:text-[11px] truncate">Salvation Heritage High School</span>
                         <span className="text-slate-400 hidden sm:inline">•</span>
                         <span className="text-emerald-300 font-semibold text-[9px] sm:text-[11px] truncate">Contactless Face Attendance Active</span>
@@ -251,7 +252,7 @@ export default function HomePage() {
                         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                             <button onClick={handleFacultyAction}
                                 className="flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold text-emerald-300 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 transition-all">
-                                <span>👨🏾‍🏫</span>
+                                <AnimatedIcon type="faculty" size={14} className="text-emerald-300" />
                                 <span className="hidden xs:inline">{activeLecturer.full_name}</span>
                                 <span className="xs:hidden">Portal</span>
                                 <span className="hidden sm:inline">(Portal Active)</span>
@@ -266,7 +267,7 @@ export default function HomePage() {
                     ) : (
                         <button onClick={handleFacultyAction}
                             className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-black text-white bg-blue-600/60 hover:bg-blue-600 border border-blue-400/40 shadow-sm transition-all flex-shrink-0">
-                            <span>👨🏾‍🏫</span>
+                            <AnimatedIcon type="faculty" size={14} className="text-white" />
                             <span className="hidden xs:inline">Faculty Portal</span>
                             <span className="xs:hidden">Faculty</span>
                         </button>
@@ -300,14 +301,16 @@ export default function HomePage() {
 
                     {/* Desktop Navigation Links */}
                     <div className="hidden md:flex items-center gap-1 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800">
-                        <Link href="/" className="px-3 md:px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 shadow-md shadow-blue-600/30 no-underline">
-                            📸 Attendance Kiosk
+                        <Link href="/" className="px-3 md:px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 shadow-md shadow-blue-600/30 no-underline flex items-center gap-1.5">
+                            <AnimatedIcon type="scan" size={16} className="text-white" />
+                            <span>Attendance Kiosk</span>
                         </Link>
-                        <Link href="/register" className="px-3 md:px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all no-underline">
-                            📝 Register Student
+                        <Link href="/register" className="px-3 md:px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all no-underline flex items-center gap-1.5">
+                            <AnimatedIcon type="register" size={16} className="text-slate-400" />
+                            <span>Register Student</span>
                         </Link>
                         <Link href="/dashboard" className="px-3 md:px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all no-underline flex items-center gap-1.5">
-                            <span>📊</span>
+                            <AnimatedIcon type="dashboard" size={16} className="text-slate-400" />
                             <span>Admin Portal</span>
                             <span className="text-[9px] px-1 py-0.2 rounded bg-slate-800 text-slate-400 font-mono">PIN</span>
                         </Link>
@@ -318,14 +321,14 @@ export default function HomePage() {
                         {activeLecturer ? (
                             <button onClick={handleFacultyAction}
                                 className="hidden sm:inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-md shadow-emerald-600/30 active:scale-95 transition-all">
-                                <span>👨🏾‍🏫</span>
+                                <AnimatedIcon type="faculty" size={16} className="text-white" />
                                 <span className="hidden md:inline">My Terminal ({activeLecturer.full_name.split(' ')[0]})</span>
                                 <span className="md:hidden">Terminal</span>
                             </button>
                         ) : (
                             <button onClick={handleFacultyAction}
                                 className="hidden sm:inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black text-white bg-gradient-to-r from-blue-600 via-blue-700 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-md shadow-blue-600/30 active:scale-95 transition-all">
-                                <span>👨🏾‍🏫</span>
+                                <AnimatedIcon type="faculty" size={16} className="text-white" />
                                 <span className="hidden md:inline">Faculty Sign In</span>
                                 <span className="md:hidden">Faculty</span>
                             </button>
@@ -334,7 +337,7 @@ export default function HomePage() {
                         <button onClick={() => setShowDebugConsole(true)}
                             title="Open Diagnostic Console"
                             className="text-xs text-slate-400 hover:text-white transition-colors p-2 sm:p-2.5 rounded-lg sm:rounded-xl hover:bg-slate-900 border border-slate-800">
-                            ⚙️
+                            <AnimatedIcon type="settings" size={18} className="text-slate-400" />
                         </button>
 
                         {/* Hamburger Button for Mobile */}
@@ -357,20 +360,20 @@ export default function HomePage() {
                             <Link href="/"
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="mobile-nav-item bg-blue-600 text-white shadow-md shadow-blue-600/30">
-                                <span className="text-lg">📸</span>
+                                <AnimatedIcon type="scan" size={20} className="text-white" />
                                 <span className="text-xs font-bold">Attendance Kiosk</span>
                             </Link>
                             <Link href="/register"
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="mobile-nav-item text-slate-200 hover:bg-slate-900">
-                                <span className="text-lg">📝</span>
+                                <AnimatedIcon type="register" size={20} className="text-blue-400" />
                                 <span className="text-xs font-bold">Register New Student</span>
                             </Link>
                             <Link href="/dashboard"
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="mobile-nav-item text-slate-200 hover:bg-slate-900">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-lg">📊</span>
+                                    <AnimatedIcon type="dashboard" size={20} className="text-emerald-400" />
                                     <span className="text-xs font-bold">Admin Dashboard</span>
                                 </div>
                                 <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">PIN</span>
@@ -379,7 +382,7 @@ export default function HomePage() {
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="mobile-nav-item text-slate-200 hover:bg-slate-900">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-lg">👥</span>
+                                    <AnimatedIcon type="users" size={20} className="text-purple-400" />
                                     <span className="text-xs font-bold">Student Directory</span>
                                 </div>
                                 <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">PIN</span>
@@ -392,7 +395,7 @@ export default function HomePage() {
                                 <div className="space-y-2">
                                     <button onClick={() => { setMobileMenuOpen(false); router.push('/lecturer'); }}
                                         className="w-full mobile-button text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md flex items-center justify-center gap-2">
-                                        <span>👨🏾‍🏫</span>
+                                        <AnimatedIcon type="faculty" size={20} className="text-white" />
                                         <span>Resume Portal ({activeLecturer.full_name})</span>
                                     </button>
                                     <button onClick={() => { setMobileMenuOpen(false); handleFacultySignOut(); }}
@@ -403,7 +406,7 @@ export default function HomePage() {
                             ) : (
                                 <button onClick={() => { setMobileMenuOpen(false); handleFacultyAction(); }}
                                     className="w-full mobile-button text-white bg-gradient-to-r from-blue-600 via-blue-700 to-emerald-600 shadow-md shadow-blue-600/30 flex items-center justify-center gap-2">
-                                    <span>👨🏾‍🏫</span>
+                                    <AnimatedIcon type="faculty" size={20} className="text-white" />
                                     <span>Faculty / Lecturer Login</span>
                                 </button>
                             )}
@@ -447,7 +450,7 @@ export default function HomePage() {
                             {/* Faculty Portal Callout Box on Hero */}
                             <div className="mb-4 sm:mb-6 p-3 sm:p-3.5 md:p-4 rounded-xl sm:rounded-2xl bg-slate-950/70 border border-blue-400/30 backdrop-blur-md flex flex-col gap-3 shadow-xl">
                                 <div className="flex items-start sm:items-center gap-2 sm:gap-3">
-                                    <span className="text-xl sm:text-2xl flex-shrink-0">👨🏾‍🏫</span>
+                                    <AnimatedIcon type="faculty" size={24} className="text-blue-400 flex-shrink-0" />
                                     <div className="min-w-0 flex-1">
                                         {activeLecturer ? (
                                             <>
@@ -490,21 +493,21 @@ export default function HomePage() {
                             {/* School Stats Row */}
                             <div className="mobile-stats-grid xs-stats-grid sm:flex sm:flex-wrap sm:gap-3">
                                 <div className="mobile-stats-item sm:flex sm:items-center sm:gap-3 sm:rounded-2xl sm:px-4 sm:py-3 bg-slate-950/60 border border-emerald-500/30 backdrop-blur-md">
-                                    <span className="text-xl sm:text-2xl">✅</span>
+                                    <AnimatedIcon type="check" size={24} className="text-emerald-400" />
                                     <div>
                                         <p className="text-white font-black text-lg sm:text-xl leading-none">{todayCount}</p>
                                         <p className="text-emerald-300 text-[10px] sm:text-xs font-medium mt-0.5">Present Today</p>
                                     </div>
                                 </div>
                                 <div className="mobile-stats-item sm:flex sm:items-center sm:gap-3 sm:rounded-2xl sm:px-4 sm:py-3 bg-slate-950/60 border border-blue-500/30 backdrop-blur-md">
-                                    <span className="text-xl sm:text-2xl">📊</span>
+                                    <AnimatedIcon type="dashboard" size={24} className="text-blue-400" />
                                     <div>
                                         <p className="text-white font-black text-lg sm:text-xl leading-none">{percentage}%</p>
                                         <p className="text-blue-300 text-[10px] sm:text-xs font-medium mt-0.5">Attendance Rate</p>
                                     </div>
                                 </div>
                                 <div className="mobile-stats-item sm:flex sm:items-center sm:gap-3 sm:rounded-2xl sm:px-4 sm:py-3 bg-slate-950/60 border border-white/15 backdrop-blur-md">
-                                    <span className="text-xl sm:text-2xl">🎓</span>
+                                    <AnimatedIcon type="users" size={24} className="text-slate-300" />
                                     <div>
                                         <p className="text-white font-black text-lg sm:text-xl leading-none">{totalStudents}</p>
                                         <p className="text-slate-300 text-[10px] sm:text-xs font-medium mt-0.5">Enrolled</p>
@@ -552,8 +555,9 @@ export default function HomePage() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[9px] sm:text-[10px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                                        Active
+                                    <span className="text-[9px] sm:text-[10px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                                        <AnimatedIcon type="live" size={12} className="text-emerald-400" />
+                                        <span>Active</span>
                                     </span>
                                 </div>
                             </div>
@@ -674,7 +678,7 @@ export default function HomePage() {
                         <div className="px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-blue-900 via-slate-900 to-emerald-950 border-b border-white/10 flex items-center justify-between">
                             <div className="flex items-center gap-2 sm:gap-3">
                                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-blue-600 to-emerald-500 flex items-center justify-center text-white text-base sm:text-lg font-black shadow-md shadow-blue-600/30">
-                                    👨🏾‍🏫
+                                    <AnimatedIcon type="faculty" size={24} className="text-white" />
                                 </div>
                                 <div>
                                     <h2 className="text-sm sm:text-base md:text-lg font-black text-white">Faculty Portal Login</h2>

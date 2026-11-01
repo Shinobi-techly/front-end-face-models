@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import AOSInit from '../../components/AOSInit';
+import AnimatedIcon from '../../components/AnimatedIcon';
 import toast, { Toaster } from 'react-hot-toast';
 import { startSession, stopSession, getSessionStatus, getLecturerHistory, loginLecturer, NIGERIAN_FACULTY } from '../../lib/api';
 
@@ -97,7 +98,7 @@ function StudentModal({ student, onClose }) {
             <div className="bg-slate-900 border border-blue-500/40 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                 <div className="px-6 py-4 bg-gradient-to-r from-blue-900 to-emerald-900 border-b border-white/10 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <span className="text-xl">🎓</span>
+                        <AnimatedIcon type="user" size={20} className="text-white" />
                         <h3 className="font-bold text-white text-sm">Student Attendance Profile</h3>
                     </div>
                     <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center text-sm">✕</button>
@@ -186,7 +187,7 @@ function LoginScreen({ onLogin }) {
             {/* Top School Banner */}
             <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-emerald-950 text-white text-[11px] py-1.5 px-3 sm:px-4 font-semibold tracking-wide border-b border-white/10 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5 min-w-0">
-                    <span className="flex-shrink-0">🏛️</span>
+                    <AnimatedIcon type="school" size={14} className="text-emerald-300 flex-shrink-0" />
                     <span className="truncate">Salvation Heritage Schools • Faculty Portal</span>
                 </div>
                 <div className="text-slate-400 text-[10px] flex-shrink-0 hidden sm:block">
@@ -222,7 +223,7 @@ function LoginScreen({ onLogin }) {
                 <div className="w-full max-w-md bg-slate-900 border border-blue-500/30 rounded-3xl shadow-2xl p-6 sm:p-8 relative overflow-hidden" data-aos="zoom-in">
                     <div className="text-center mb-6">
                         <div className="w-16 h-16 mx-auto mb-3 rounded-2xl flex items-center justify-center text-2xl bg-gradient-to-tr from-blue-600 to-emerald-500 shadow-lg shadow-blue-600/30">
-                            👨🏾‍🏫
+                            <AnimatedIcon type="faculty" size={32} className="text-white" />
                         </div>
                         <h2 className="text-2xl font-black text-white">Faculty Sign In</h2>
                         <p className="text-xs text-slate-400 mt-1">Salvation Heritage Instructor Portal</p>
@@ -230,7 +231,7 @@ function LoginScreen({ onLogin }) {
 
                     {error && (
                         <div className="mb-5 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-2">
-                            <span>⚠️</span>
+                            <AnimatedIcon type="alert" size={16} className="text-rose-400 flex-shrink-0" />
                             <span>{error}</span>
                         </div>
                     )}
@@ -268,7 +269,7 @@ function LoginScreen({ onLogin }) {
                     <div className="mt-6 pt-5 border-t border-slate-800">
                         <button onClick={() => setShowPicker(!showPicker)}
                             className="w-full py-2.5 rounded-xl text-xs font-bold text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 transition-all flex items-center justify-center gap-1.5">
-                            <span>📋</span>
+                            <AnimatedIcon type="users" size={16} className="text-blue-300" />
                             <span>{showPicker ? 'Hide Faculty List' : 'Select From 13 Nigerian Faculty Members'}</span>
                         </button>
 
@@ -565,7 +566,7 @@ function SessionPanel({ lecturer, onLogout }) {
                                     ? 'text-white bg-gradient-to-r from-blue-600 to-emerald-600 shadow-md shadow-blue-600/30'
                                     : 'text-slate-400 hover:text-white hover:bg-slate-800'
                             }`}>
-                            <span>🎯</span>
+                            <AnimatedIcon type="scan" size={16} className={activeTab === 'live' ? 'text-white' : 'text-slate-400'} />
                             <span>{activeSession ? 'Live Session' : 'Session Portal'}</span>
                         </button>
                         <button onClick={() => { setActiveTab('history'); loadHistory(); }}
@@ -574,7 +575,7 @@ function SessionPanel({ lecturer, onLogout }) {
                                     ? 'text-white bg-gradient-to-r from-blue-600 to-emerald-600 shadow-md shadow-blue-600/30'
                                     : 'text-slate-400 hover:text-white hover:bg-slate-800'
                             }`}>
-                            <span>🕒</span>
+                            <AnimatedIcon type="clock" size={16} className={activeTab === 'history' ? 'text-white' : 'text-slate-400'} />
                             <span>24h &amp; Past Classes ({historySessions.length})</span>
                         </button>
                     </div>
@@ -586,8 +587,9 @@ function SessionPanel({ lecturer, onLogout }) {
                 <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
                         <div className="flex items-center gap-2 mb-3">
-                            <span className="text-xs font-bold px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md">
-                                Instructor Terminal
+                            <span className="text-xs font-bold px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md flex items-center gap-1.5">
+                                <AnimatedIcon type="faculty" size={14} className="text-white" />
+                                <span>Instructor Terminal</span>
                             </span>
                             <span className="text-xs font-mono text-emerald-300 font-bold">{lecturer.lecturer_id}</span>
                         </div>
@@ -598,7 +600,16 @@ function SessionPanel({ lecturer, onLogout }) {
                     <div className="flex items-center gap-3 flex-wrap">
                         <div className="bg-slate-950/70 border border-white/10 rounded-2xl px-4 py-3 text-center">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Status</p>
-                            <p className="text-sm font-black text-emerald-400 mt-0.5">{activeSession ? '🟢 Class Open' : '⚪ Idle'}</p>
+                            <p className="text-sm font-black text-emerald-400 mt-0.5 flex items-center justify-center gap-1.5">
+                                {activeSession ? (
+                                    <>
+                                        <AnimatedIcon type="live" size={16} className="text-emerald-400" />
+                                        <span>Class Open</span>
+                                    </>
+                                ) : (
+                                    <span>⚪ Idle</span>
+                                )}
+                            </p>
                         </div>
                         <div className="bg-slate-950/70 border border-white/10 rounded-2xl px-4 py-3 text-center">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Past Sessions</p>
@@ -606,7 +617,7 @@ function SessionPanel({ lecturer, onLogout }) {
                         </div>
                         <Link href="/"
                             className="px-4 py-3 rounded-2xl text-xs font-bold text-white bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/40 transition-all flex items-center gap-1.5 no-underline">
-                            <span>📸</span>
+                            <AnimatedIcon type="scan" size={16} className="text-white" />
                             <span>Open Kiosk Scanner</span>
                         </Link>
                     </div>
@@ -666,7 +677,7 @@ function SessionPanel({ lecturer, onLogout }) {
                                         <>
                                             <div className="px-6 py-5 flex items-center gap-3 border-b border-slate-800 bg-slate-950/40">
                                                 <div className="w-9 h-9 rounded-2xl flex items-center justify-center text-white font-bold text-sm bg-gradient-to-r from-blue-600 to-emerald-600">
-                                                    🎓
+                                                    <AnimatedIcon type="scan" size={20} className="text-white" />
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-white">Start Attendance Session</p>
@@ -770,8 +781,18 @@ function SessionPanel({ lecturer, onLogout }) {
                                                 </div>
 
                                                 <button onClick={handleStart} disabled={loading}
-                                                    className="w-full py-4 rounded-2xl text-white font-black text-sm bg-gradient-to-r from-blue-600 via-blue-700 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-xl shadow-blue-600/30 active:scale-95 transition-all disabled:opacity-50">
-                                                    {loading ? '⏳ Starting...' : '🎯 Open Attendance Session'}
+                                                    className="w-full py-4 rounded-2xl text-white font-black text-sm bg-gradient-to-r from-blue-600 via-blue-700 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-xl shadow-blue-600/30 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                                                    {loading ? (
+                                                        <>
+                                                            <AnimatedIcon type="clock" size={20} className="text-white animate-spin" />
+                                                            <span>Starting...</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <AnimatedIcon type="scan" size={20} className="text-white" />
+                                                            <span>Open Attendance Session</span>
+                                                        </>
+                                                    )}
                                                 </button>
                                             </div>
                                         </>
@@ -814,8 +835,18 @@ function SessionPanel({ lecturer, onLogout }) {
                                                 </div>
 
                                                 <button onClick={handleStop} disabled={loading}
-                                                    className="w-full py-4 rounded-2xl text-white font-black text-sm bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 shadow-xl shadow-rose-600/30 active:scale-95 transition-all disabled:opacity-50">
-                                                    {loading ? '⏳ Stopping...' : '🛑 Stop Session'}
+                                                    className="w-full py-4 rounded-2xl text-white font-black text-sm bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 shadow-xl shadow-rose-600/30 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                                                    {loading ? (
+                                                        <>
+                                                            <AnimatedIcon type="clock" size={20} className="text-white animate-spin" />
+                                                            <span>Stopping...</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <AnimatedIcon type="alert" size={20} className="text-white" />
+                                                            <span>Stop Session</span>
+                                                        </>
+                                                    )}
                                                 </button>
                                             </div>
                                         </>
@@ -830,7 +861,7 @@ function SessionPanel({ lecturer, onLogout }) {
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-lg">
-                                            👥
+                                            <AnimatedIcon type="users" size={24} className="text-emerald-400" />
                                         </div>
                                         <div>
                                             <h3 className="text-lg font-black text-white">Live Class Attendance Roster</h3>
@@ -848,7 +879,9 @@ function SessionPanel({ lecturer, onLogout }) {
 
                                 {filteredAttendees.length === 0 ? (
                                     <div className="text-center py-12 text-slate-400 text-sm">
-                                        <span className="text-4xl block mb-2">📸</span>
+                                        <div className="mb-3">
+                                            <AnimatedIcon type="camera" size={48} className="text-slate-600 mx-auto" />
+                                        </div>
                                         <p className="font-bold text-white">No students scanned yet</p>
                                         <p className="text-xs mt-1">Students can scan their faces at the kiosk. Their photo and details will appear here instantly.</p>
                                     </div>
@@ -889,7 +922,7 @@ function SessionPanel({ lecturer, onLogout }) {
                             </div>
                             <button onClick={loadHistory}
                                 className="px-4 py-2 rounded-xl text-xs font-bold text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 transition-all flex items-center gap-1.5 self-start sm:self-auto">
-                                <span>🔄</span>
+                                <AnimatedIcon type="settings" size={16} className="text-blue-300" />
                                 <span>Refresh History</span>
                             </button>
                         </div>
@@ -901,7 +934,9 @@ function SessionPanel({ lecturer, onLogout }) {
                             </div>
                         ) : historySessions.length === 0 ? (
                             <div className="text-center py-16 rounded-3xl bg-slate-900 border border-slate-800 text-slate-400">
-                                <span className="text-4xl block mb-2">📚</span>
+                                <div className="mb-3">
+                                    <AnimatedIcon type="clock" size={48} className="text-slate-600 mx-auto" />
+                                </div>
                                 <p className="font-bold text-white text-base">No previous classes found</p>
                                 <p className="text-xs mt-1">Once you open and conclude a class session, the attendance records and student photos will be archived here.</p>
                             </div>
@@ -940,7 +975,7 @@ function SessionPanel({ lecturer, onLogout }) {
 
                                                 <button onClick={() => setExpandedSessionId(isExpanded ? null : session.id)}
                                                     className="px-5 py-2.5 rounded-2xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-md transition-all flex items-center gap-2 self-start md:self-auto">
-                                                    <span>👥</span>
+                                                    <AnimatedIcon type="users" size={16} className="text-white" />
                                                     <span>{isExpanded ? 'Hide Attendees' : `View Attended Students (${session.marked_count})`}</span>
                                                     <span>{isExpanded ? '▲' : '▼'}</span>
                                                 </button>
