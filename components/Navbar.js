@@ -21,19 +21,19 @@ export default function Navbar() {
     return (
         <>
             <nav className="sticky top-0 z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 shadow-sm" style={{ fontFamily: "'Inter','Segoe UI',sans-serif" }}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
+                <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
 
                     {/* School Logo & Name */}
-                    <Link href="/" className="flex items-center gap-3 no-underline group flex-shrink-0">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-emerald-500 flex items-center justify-center text-white font-black text-sm sm:text-base shadow-lg shadow-blue-600/30 group-hover:scale-105 transition-all">
+                    <Link href="/" className="flex items-center gap-2 sm:gap-3 no-underline group flex-shrink-0 min-w-0">
+                        <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-emerald-500 flex items-center justify-center text-white font-black text-xs sm:text-base shadow-lg shadow-blue-600/30 group-hover:scale-105 transition-all flex-shrink-0">
                             <span className="tracking-tighter">SH</span>
                         </div>
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <span className="font-black text-base sm:text-xl tracking-tight text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                                <span className="font-black text-sm xs:text-base sm:text-xl tracking-tight text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors truncate">
                                     Salvation Heritage
                                 </span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300/50">
+                                <span className="hidden xs:inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300/50 flex-shrink-0">
                                     Official
                                 </span>
                             </div>

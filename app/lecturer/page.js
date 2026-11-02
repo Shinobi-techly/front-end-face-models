@@ -220,8 +220,8 @@ function LoginScreen({ onLogin }) {
             </nav>
 
             {/* Login Card */}
-            <div className="flex-1 flex items-center justify-center px-4 py-12">
-                <div className="w-full max-w-md bg-slate-900 border border-blue-500/30 rounded-3xl shadow-2xl p-6 sm:p-8 relative overflow-hidden" data-aos="zoom-in">
+            <div className="flex-1 flex items-center justify-center px-3 sm:px-4 py-8 sm:py-12">
+                <div className="w-full max-w-md bg-slate-900 border border-blue-500/30 rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-8 relative overflow-hidden" data-aos="zoom-in">
                     <div className="text-center mb-6">
                         <LecturerSessionIllustration className="mb-4" />
                         <h2 className="text-2xl font-black text-white" style={{ fontFamily: 'var(--font-outfit)' }}>Faculty Sign In</h2>

@@ -32,12 +32,12 @@ function LiveClock() {
     if (!time) return null;
     return (
         <div className="text-center">
-            <p className="tabular-nums text-4xl sm:text-5xl font-black text-white tracking-tight"
-               style={{ fontFamily: 'var(--font-mono)', letterSpacing: '-2px' }}>
+            <p className="tabular-nums text-3xl xs:text-4xl sm:text-5xl font-black text-white tracking-tight"
+               style={{ fontFamily: 'var(--font-mono)', letterSpacing: '-1px' }}>
                 {time.toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </p>
-            <p className="text-emerald-400 text-xs mt-1 font-semibold tracking-widest uppercase">
-                {time.toLocaleDateString('en-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            <p className="text-emerald-400 text-[10px] sm:text-xs mt-1 font-semibold tracking-wider sm:tracking-widest uppercase">
+                {time.toLocaleDateString('en-MY', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
             </p>
         </div>
     );
@@ -72,27 +72,19 @@ function StatCard({ icon, value, label, color, delay = 0 }) {
             style={{
                 background: `linear-gradient(145deg, rgba(10,18,35,0.95), rgba(8,15,28,0.9))`,
                 border: `1px solid ${c.border}`,
-                borderRadius: '1.25rem',
-                padding: '1rem 1.25rem',
                 boxShadow: `0 8px 32px ${c.glow}, inset 0 1px 0 rgba(255,255,255,0.04)`,
-                transition: 'all 0.3s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.875rem',
             }}
-            className="hover:scale-[1.03] hover:-translate-y-1">
+            className="rounded-2xl p-3 sm:p-4 flex items-center gap-2.5 sm:gap-3.5 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1">
             <div style={{
-                width: 44, height: 44, borderRadius: '0.875rem', flexShrink: 0,
                 background: c.bg, border: `1px solid ${c.border}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-                <AnimatedIcon type={icon} size={22} style={{ color: c.icon }} />
+            }} className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0">
+                <AnimatedIcon type={icon} size={18} style={{ color: c.icon }} />
             </div>
-            <div>
-                <p className="text-white font-black text-2xl leading-none" style={{ fontFamily: 'var(--font-outfit)' }}>
+            <div className="min-w-0">
+                <p className="text-white font-black text-lg sm:text-2xl leading-none" style={{ fontFamily: 'var(--font-outfit)' }}>
                     <AnimatedCounter value={value} />
                 </p>
-                <p className="text-xs font-semibold mt-0.5" style={{ color: c.text }}>{label}</p>
+                <p className="text-[11px] sm:text-xs font-semibold mt-0.5 truncate" style={{ color: c.text }}>{label}</p>
             </div>
         </div>
     );
@@ -488,8 +480,8 @@ export default function HomePage() {
 
                             {/* Headline */}
                             <h1 className="font-black leading-none mb-5" style={{ fontFamily: 'var(--font-outfit)' }}>
-                                <span className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-white">Smart Face</span>
-                                <span className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl" style={{
+                                <span className="block text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-white">Smart Face</span>
+                                <span className="block text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl" style={{
                                     background: 'linear-gradient(135deg, #60a5fa 0%, #34d399 60%, #a78bfa 100%)',
                                     WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
                                 }}>Attendance</span>
@@ -555,7 +547,7 @@ export default function HomePage() {
                             </div>
 
                             {/* Stats row */}
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <div className="grid grid-cols-1 xs:grid-cols-3 gap-2.5 sm:gap-3">
                                 <StatCard icon="check" value={todayCount}    label="Present Today"   color="emerald" delay={0}   />
                                 <StatCard icon="chart" value={percentage}    label="% Attendance"    color="blue"    delay={80}  />
                                 <StatCard icon="users" value={totalStudents} label="Total Enrolled"  color="violet"  delay={160} />
@@ -794,7 +786,7 @@ export default function HomePage() {
             )}
 
             {/* ── Footer ── */}
-            <footer style={{ borderTop: '1px solid rgba(59,116,247,0.1)', background: 'rgba(2,6,23,0.95)', padding: '1.25rem 0' }}>
+            <footer style={{ borderTop: '1px solid rgba(59,116,247,0.1)', background: 'rgba(2,6,23,0.95)' }} className="py-5 pb-24 md:pb-5">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                         <div style={{

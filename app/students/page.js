@@ -104,7 +104,7 @@ function StudentCard({ student, onDelete }) {
                     </div>
                     <button
                         onClick={(e) => { e.stopPropagation(); onDelete(student); }}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                        className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30"
                         title="Delete Student Record">
                         🗑️
                     </button>
@@ -180,7 +180,7 @@ export default function StudentsPage() {
 
     return (
         <AdminGuard title="Salvation Heritage Student Directory">
-            <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col pb-20 md:pb-0" style={{ fontFamily: "'Inter','Segoe UI',sans-serif" }}>
+            <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col pb-24 md:pb-0" style={{ fontFamily: "'Inter','Segoe UI',sans-serif" }}>
                 <AOSInit />
                 <style>{`
                     @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
@@ -302,17 +302,17 @@ export default function StudentsPage() {
                                     Browse, search, and manage enrolled students with biometric credentials across Salvation Heritage schools.
                                 </p>
 
-                                <div className="flex flex-wrap gap-3">
+                                <div className="flex flex-wrap gap-2.5 sm:gap-3">
                                     {[
                                         { icon: '👥', val: students.length, label: 'Enrolled Students' },
                                         { icon: '🏫', val: Math.max(0, departments.length - 1), label: 'Active Classes' },
                                         { icon: '📚', val: Math.max(0, semesters.length - 1), label: 'Academic Terms' },
                                     ].map((s, i) => (
-                                        <div key={i} className="flex items-center gap-3 rounded-2xl px-4 py-3 bg-slate-950/60 border border-white/15 backdrop-blur-md transition-all duration-300 hover:scale-105 cursor-default">
-                                            <span className="text-2xl">{s.icon}</span>
+                                        <div key={i} className="flex-1 min-w-[120px] xs:min-w-[130px] flex items-center gap-2.5 sm:gap-3 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 bg-slate-950/60 border border-white/15 backdrop-blur-md transition-all duration-300 hover:scale-105 cursor-default">
+                                            <span className="text-xl sm:text-2xl">{s.icon}</span>
                                             <div>
-                                                <p className="text-white font-black text-xl leading-none">{s.val}</p>
-                                                <p className="text-emerald-300 text-xs mt-0.5">{s.label}</p>
+                                                <p className="text-white font-black text-lg sm:text-xl leading-none">{s.val}</p>
+                                                <p className="text-emerald-300 text-[11px] sm:text-xs mt-0.5 whitespace-nowrap">{s.label}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -327,9 +327,9 @@ export default function StudentsPage() {
                 </div>
 
                 {/* ── Filter & Search Bar ── */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-                    <div className="rounded-3xl p-5 mb-8 bg-slate-900/90 border border-blue-500/25 shadow-xl">
-                        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+                    <div className="rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-8 bg-slate-900/90 border border-blue-500/25 shadow-xl">
+                        <div className="flex flex-col md:flex-row gap-3 sm:gap-4 items-stretch md:items-center justify-between">
                             {/* Search */}
                             <div className="relative w-full md:w-96">
                                 <input
@@ -337,17 +337,17 @@ export default function StudentsPage() {
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
                                     placeholder="Search by name, student ID, or class..."
-                                    className="w-full pl-10 pr-4 py-3 rounded-2xl text-xs bg-slate-950 text-white placeholder-slate-500 border border-slate-700 focus:outline-none focus:border-emerald-500 transition-colors"
+                                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-2xl text-xs bg-slate-950 text-white placeholder-slate-500 border border-slate-700 focus:outline-none focus:border-emerald-500 transition-colors"
                                 />
                                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">🔍</span>
                             </div>
 
                             {/* Filters */}
-                            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
                                 <select
                                     value={filterDept}
                                     onChange={e => setFilterDept(e.target.value)}
-                                    className="px-4 py-3 rounded-2xl text-xs bg-slate-950 text-white border border-slate-700 focus:outline-none focus:border-emerald-500">
+                                    className="flex-1 sm:flex-initial px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl text-xs bg-slate-950 text-white border border-slate-700 focus:outline-none focus:border-emerald-500">
                                     <option value="all">All Classes</option>
                                     {departments.filter(d => d !== 'all').map(d => (
                                         <option key={d} value={d}>{d}</option>
@@ -357,7 +357,7 @@ export default function StudentsPage() {
                                 <select
                                     value={filterSem}
                                     onChange={e => setFilterSem(e.target.value)}
-                                    className="px-4 py-3 rounded-2xl text-xs bg-slate-950 text-white border border-slate-700 focus:outline-none focus:border-emerald-500">
+                                    className="flex-1 sm:flex-initial px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl text-xs bg-slate-950 text-white border border-slate-700 focus:outline-none focus:border-emerald-500">
                                     <option value="all">All Terms</option>
                                     {semesters.filter(s => s !== 'all').map(s => (
                                         <option key={s} value={s}>{s === 1 ? '1st Term' : s === 2 ? '2nd Term' : s === 3 ? '3rd Term' : `Term ${s}`}</option>

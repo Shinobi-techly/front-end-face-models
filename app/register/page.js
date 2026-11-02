@@ -265,7 +265,7 @@ export default function RegisterPage() {
     const inputBg = { background: 'rgba(2, 6, 23, 0.8)', border: '1px solid rgba(59, 130, 246, 0.3)' };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100" style={{ fontFamily: "'Inter','Segoe UI',sans-serif" }}>
+        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col pb-24 md:pb-0" style={{ fontFamily: "'Inter','Segoe UI',sans-serif" }}>
             <AOSInit />
             <style>{`
                 @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
@@ -350,19 +350,19 @@ export default function RegisterPage() {
                                 </span>
                             </div>
                             <h1 className="font-black tracking-tight leading-none mb-4" data-aos="fade-up" data-aos-delay="200">
-                                <span className="block text-4xl sm:text-6xl lg:text-7xl text-white font-serif">Student</span>
-                                <span className="block text-4xl sm:text-6xl lg:text-7xl bg-gradient-to-r from-blue-300 via-emerald-200 to-white bg-clip-text text-transparent">Enrollment</span>
+                                <span className="block text-3xl xs:text-4xl sm:text-6xl lg:text-7xl text-white font-serif">Student</span>
+                                <span className="block text-3xl xs:text-4xl sm:text-6xl lg:text-7xl bg-gradient-to-r from-blue-300 via-emerald-200 to-white bg-clip-text text-transparent">Enrollment</span>
                             </h1>
-                            <p className="text-slate-200 text-base sm:text-lg max-w-xl leading-relaxed mb-6 font-medium" data-aos="fade-up" data-aos-delay="300">
+                            <p className="text-slate-200 text-sm sm:text-lg max-w-xl leading-relaxed mb-6 font-medium" data-aos="fade-up" data-aos-delay="300">
                                 Register your profile and biometric face token with Salvation Heritage security. Fast, contactless, and verified.
                             </p>
-                            <div className="flex flex-wrap gap-3" data-aos="fade-up" data-aos-delay="400">
+                            <div className="flex flex-wrap gap-2.5 sm:gap-3" data-aos="fade-up" data-aos-delay="400">
                                 {[{ icon: '🔐', t: 'Bank-Grade', d: 'Biometric AI' }, { icon: '⚡', t: 'Instant', d: '3 Simple Steps' }, { icon: '🛡️', t: 'Verified', d: 'Duplicate Guard' }].map((item, i) => (
-                                    <div key={i} className="flex items-center gap-3 rounded-2xl px-4 py-3 bg-slate-950/60 border border-white/15 backdrop-blur-md transition-all duration-300 hover:scale-105 cursor-default">
-                                        <span className="text-xl">{item.icon}</span>
+                                    <div key={i} className="flex-1 min-w-[120px] xs:min-w-[130px] flex items-center gap-2.5 sm:gap-3 rounded-2xl px-3 sm:px-4 py-2 sm:py-3 bg-slate-950/60 border border-white/15 backdrop-blur-md transition-all duration-300 hover:scale-105 cursor-default">
+                                        <span className="text-lg sm:text-xl">{item.icon}</span>
                                         <div>
-                                            <p className="text-white font-bold text-sm leading-none">{item.t}</p>
-                                            <p className="text-emerald-300 text-xs font-medium mt-0.5">{item.d}</p>
+                                            <p className="text-white font-bold text-xs sm:text-sm leading-none">{item.t}</p>
+                                            <p className="text-emerald-300 text-[10px] sm:text-xs font-medium mt-0.5 whitespace-nowrap">{item.d}</p>
                                         </div>
                                     </div>
                                 ))}
