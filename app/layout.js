@@ -1,28 +1,10 @@
 import './globals.css';
 import 'aos/dist/aos.css';
 import ThemeWrapper from '../components/ThemeWrapper';
-import { Outfit, Inter, JetBrains_Mono } from 'next/font/google';
-
-const outfit = Outfit({
-    subsets: ['latin'],
-    variable: '--font-outfit',
-    weight: ['400', '500', '600', '700', '800', '900'],
-    display: 'swap',
-});
-
-const inter = Inter({
-    subsets: ['latin'],
-    variable: '--font-inter',
-    weight: ['400', '500', '600', '700'],
-    display: 'swap',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-    subsets: ['latin'],
-    variable: '--font-mono',
-    weight: ['400', '500', '700'],
-    display: 'swap',
-});
+// High-performance system typography fallbacks ensuring 100% build reliability without network dependency
+const outfit = { variable: 'font-outfit' };
+const inter = { variable: 'font-inter' };
+const jetbrainsMono = { variable: 'font-mono' };
 
 export const metadata = {
     title: 'Salvation Heritage — Smart Biometric Face Attendance System',

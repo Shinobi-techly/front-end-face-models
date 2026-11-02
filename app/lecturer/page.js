@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import AOSInit from '../../components/AOSInit';
 import AnimatedIcon from '../../components/AnimatedIcon';
+import LecturerSessionIllustration from '../../components/LecturerSessionIllustration';
 import toast, { Toaster } from 'react-hot-toast';
 import { startSession, stopSession, getSessionStatus, getLecturerHistory, loginLecturer, NIGERIAN_FACULTY } from '../../lib/api';
 
@@ -222,10 +223,8 @@ function LoginScreen({ onLogin }) {
             <div className="flex-1 flex items-center justify-center px-4 py-12">
                 <div className="w-full max-w-md bg-slate-900 border border-blue-500/30 rounded-3xl shadow-2xl p-6 sm:p-8 relative overflow-hidden" data-aos="zoom-in">
                     <div className="text-center mb-6">
-                        <div className="w-16 h-16 mx-auto mb-3 rounded-2xl flex items-center justify-center text-2xl bg-gradient-to-tr from-blue-600 to-emerald-500 shadow-lg shadow-blue-600/30">
-                            <AnimatedIcon type="faculty" size={32} className="text-white" />
-                        </div>
-                        <h2 className="text-2xl font-black text-white">Faculty Sign In</h2>
+                        <LecturerSessionIllustration className="mb-4" />
+                        <h2 className="text-2xl font-black text-white" style={{ fontFamily: 'var(--font-outfit)' }}>Faculty Sign In</h2>
                         <p className="text-xs text-slate-400 mt-1">Salvation Heritage Instructor Portal</p>
                     </div>
 
@@ -633,6 +632,7 @@ function SessionPanel({ lecturer, onLogout }) {
                         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                             {/* Left: Instructor Credentials & Instructions */}
                             <div className="lg:col-span-2 space-y-5" data-aos="fade-right">
+                                <LecturerSessionIllustration />
                                 <div className="rounded-3xl p-6 bg-slate-900 border border-blue-500/25 shadow-xl">
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Instructor Credentials</p>
                                     <div className="flex items-center gap-3 mb-3">

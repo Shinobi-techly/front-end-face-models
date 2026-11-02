@@ -9,6 +9,9 @@ import AOSInit from '../components/AOSInit';
 import AnimatedIcon from '../components/AnimatedIcon';
 import LottieAnimation from '../components/LottieAnimation';
 import FaceScanIllustration from '../components/FaceScanIllustration';
+import BiometricHeroIllustration from '../components/BiometricHeroIllustration';
+import KioskGuideIllustration from '../components/KioskGuideIllustration';
+import AttendanceSuccessIllustration from '../components/AttendanceSuccessIllustration';
 import ParticleField from '../components/ParticleField';
 import { recognizeFace, getStats, loginLecturer, NIGERIAN_FACULTY } from '../lib/api';
 import toast, { Toaster } from 'react-hot-toast';
@@ -559,75 +562,9 @@ export default function HomePage() {
                             </div>
                         </div>
 
-                        {/* RIGHT — Face scan illustration */}
+                        {/* RIGHT — Biometric AI Hero Illustration */}
                         <div className="flex-shrink-0 flex items-center justify-center lg:justify-end" data-aos="fade-left" data-aos-delay="150">
-                            <div className="relative" style={{ width: 'min(340px, 90vw)' }}>
-                                {/* Outer glow ring */}
-                                <div style={{
-                                    position: 'absolute', inset: -32, borderRadius: '50%',
-                                    background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)',
-                                    animation: 'glow-pulse 3s ease-in-out infinite',
-                                }} />
-                                {/* Decorative orbit */}
-                                <div style={{
-                                    position: 'absolute', inset: -16, borderRadius: '50%',
-                                    border: '1px solid rgba(59,116,247,0.15)',
-                                    animation: 'spin-slow 25s linear infinite',
-                                }}>
-                                    <div style={{
-                                        position: 'absolute', top: -4, left: '50%',
-                                        width: 8, height: 8, borderRadius: '50%',
-                                        background: '#3b74f7', boxShadow: '0 0 12px #3b74f7',
-                                    }} />
-                                </div>
-                                <div style={{
-                                    position: 'absolute', inset: -32, borderRadius: '50%',
-                                    border: '1px dashed rgba(16,185,129,0.1)',
-                                    animation: 'spin-reverse 35s linear infinite',
-                                }}>
-                                    <div style={{
-                                        position: 'absolute', bottom: -4, right: '20%',
-                                        width: 6, height: 6, borderRadius: '50%',
-                                        background: '#10b981', boxShadow: '0 0 10px #10b981',
-                                    }} />
-                                </div>
-
-                                {/* Main illustration container */}
-                                <div style={{
-                                    borderRadius: '2rem', overflow: 'hidden',
-                                    background: 'linear-gradient(160deg, rgba(10,22,45,0.98), rgba(5,10,20,0.95))',
-                                    border: '1px solid rgba(16,185,129,0.2)',
-                                    boxShadow: '0 40px 80px -20px rgba(0,0,0,0.8), 0 0 60px rgba(16,185,129,0.08)',
-                                    padding: '2rem',
-                                }} className="animate-float-subtle">
-                                    <FaceScanIllustration size={280} color="#10b981" />
-                                </div>
-
-                                {/* Floating badge — KIOSK LIVE */}
-                                <div style={{
-                                    position: 'absolute', top: 12, left: -8,
-                                    display: 'flex', alignItems: 'center', gap: 6,
-                                    padding: '6px 12px', borderRadius: 999,
-                                    background: 'rgba(2,6,23,0.95)',
-                                    border: '1px solid rgba(16,185,129,0.4)',
-                                    boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-                                }}>
-                                    <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} className="animate-pulse" />
-                                    <span style={{ fontSize: 10, fontWeight: 800, color: '#34d399', letterSpacing: '0.08em', fontFamily: 'var(--font-outfit)' }}>KIOSK LIVE</span>
-                                </div>
-                                {/* AWS badge */}
-                                <div style={{
-                                    position: 'absolute', bottom: 12, right: -8,
-                                    padding: '6px 12px', borderRadius: 999,
-                                    background: 'rgba(2,6,23,0.95)',
-                                    border: '1px solid rgba(59,116,247,0.35)',
-                                    boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-                                    fontSize: 10, fontWeight: 800, color: '#93c5fd',
-                                    letterSpacing: '0.06em', fontFamily: 'var(--font-outfit)',
-                                }}>
-                                    AWS Rekognition
-                                </div>
-                            </div>
+                            <BiometricHeroIllustration />
                         </div>
                     </div>
                 </div>
@@ -678,67 +615,20 @@ export default function HomePage() {
                     <div className="lg:col-span-2 flex flex-col gap-5" data-aos="fade-up" data-aos-delay="100">
 
                         {lastAttendance && !lastAttendance.error ? (
-                            /* ── SUCCESS CARD ── */
-                            <div className="flex-1 rounded-3xl overflow-hidden animate-scale-in" style={{
-                                background: 'linear-gradient(145deg, rgba(5,150,105,0.08), rgba(10,22,45,0.95))',
-                                border: '1px solid rgba(16,185,129,0.35)',
-                                boxShadow: '0 30px 80px -12px rgba(0,0,0,0.7), 0 0 40px rgba(16,185,129,0.08)',
-                            }}>
-                                <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(16,185,129,0.15)', background: 'rgba(2,6,23,0.6)' }}>
-                                    <div className="flex items-center gap-2">
-                                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} className="animate-pulse" />
-                                        <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">
-                                            {lastAttendance.alreadyMarked ? 'Already Present' : 'Attendance Verified'}
-                                        </span>
-                                    </div>
-                                    <span className="text-[10px] text-slate-500" style={{ fontFamily: 'var(--font-mono)' }}>{lastAttendance.timestamp}</span>
-                                </div>
-
-                                <div className="p-5 space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div style={{ width: 64, height: 64, borderRadius: '1rem', overflow: 'hidden', flexShrink: 0, border: '2px solid rgba(16,185,129,0.4)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
-                                            <img src={PHOTO_URL(lastAttendance.student.student_id)} alt={lastAttendance.student.full_name}
-                                                className="w-full h-full object-cover" onError={e => { e.target.src = FALLBACK_SVG; }} />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <h3 className="font-black text-lg text-white truncate" style={{ fontFamily: 'var(--font-outfit)' }}>{lastAttendance.student.full_name}</h3>
-                                            <p className="text-xs text-emerald-400 font-bold tracking-wider" style={{ fontFamily: 'var(--font-mono)' }}>{lastAttendance.student.student_id}</p>
-                                            <p className="text-[11px] text-slate-400 mt-0.5">{lastAttendance.student.department}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-2 text-xs">
-                                        {[
-                                            { label: 'Student ID',  val: lastAttendance.student.student_id,   mono: true },
-                                            { label: 'Class',       val: lastAttendance.student.department || '—' },
-                                            { label: 'Term',        val: ['', '1st', '2nd', '3rd'][lastAttendance.student.semester] ? `${['', '1st', '2nd', '3rd'][lastAttendance.student.semester]} Term` : '—' },
-                                            { label: 'Year Intake', val: lastAttendance.student.year_intake || '—' },
-                                        ].map(d => (
-                                            <div key={d.label} className="rounded-xl p-3" style={{ background: 'rgba(2,6,23,0.7)', border: '1px solid rgba(59,130,246,0.1)' }}>
-                                                <p className="text-[9px] uppercase font-bold tracking-wider text-slate-500">{d.label}</p>
-                                                <p className={`font-bold mt-0.5 text-xs ${d.mono ? 'text-emerald-400' : 'text-white'}`} style={d.mono ? { fontFamily: 'var(--font-mono)' } : {}}>{d.val}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="rounded-xl py-3 px-4 text-center text-[11px] font-semibold"
-                                        style={lastAttendance.alreadyMarked
-                                            ? { background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', color: '#fde68a' }
-                                            : { background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', color: '#6ee7b7' }}>
-                                        {lastAttendance.alreadyMarked
-                                            ? 'Welcome back! Your attendance was already recorded today.'
-                                            : `Attendance successfully marked for ${lastAttendance.student.full_name}`}
-                                    </div>
-                                </div>
-                            </div>
+                            /* ── SUCCESS CARD WITH CELEBRATORY ILLUSTRATION ── */
+                            <AttendanceSuccessIllustration
+                                attendance={lastAttendance}
+                                photoUrl={PHOTO_URL}
+                                fallbackSvg={FALLBACK_SVG}
+                            />
                         ) : (
-                            /* ── INFO CARD ── */
+                            /* ── INFO CARD WITH KIOSK GUIDE ILLUSTRATION ── */
                             <div className="flex-1 rounded-3xl overflow-hidden" style={{
                                 background: 'linear-gradient(145deg, rgba(10,22,45,0.95), rgba(8,15,28,0.9))',
                                 border: '1px solid rgba(59,116,247,0.15)',
                                 boxShadow: '0 30px 80px -12px rgba(0,0,0,0.7)',
                             }}>
-                                <div className="px-5 py-3.5" style={{ borderBottom: '1px solid rgba(59,116,247,0.1)', background: 'rgba(2,6,23,0.6)' }}>
+                                <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(59,116,247,0.1)', background: 'rgba(2,6,23,0.6)' }}>
                                     <div className="flex items-center gap-2.5">
                                         <div style={{
                                             width: 34, height: 34, borderRadius: '0.625rem',
@@ -752,30 +642,13 @@ export default function HomePage() {
                                             <p className="text-[10px] text-slate-500">Automatic Biometric Verification</p>
                                         </div>
                                     </div>
+                                    <span className="text-[10px] font-mono text-emerald-400 font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                                        READY
+                                    </span>
                                 </div>
 
-                                <div className="p-5 space-y-3">
-                                    {[
-                                        { n: '1', text: 'Look straight into the camera with good lighting.' },
-                                        { n: '2', text: 'Keep a neutral expression inside the scan frame.' },
-                                        { n: '3', text: <><b className="text-white">Capture &amp; Mark Attendance</b> — done in under 2s!</> },
-                                    ].map(s => (
-                                        <div key={s.n} className="flex items-start gap-3 rounded-xl p-3"
-                                            style={{ background: 'rgba(2,6,23,0.6)', border: '1px solid rgba(59,116,247,0.08)' }}>
-                                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0"
-                                                style={{ background: 'linear-gradient(135deg, #1e4bcc, #059669)', color: 'white', marginTop: 1 }}>{s.n}</span>
-                                            <span className="text-[11px] text-slate-300 leading-relaxed">{s.text}</span>
-                                        </div>
-                                    ))}
-
-                                    <Link href="/register"
-                                        className="mt-2 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold no-underline transition-all hover:-translate-y-0.5"
-                                        style={{ color: '#6ee7b7', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)' }}
-                                        onMouseOver={e => e.currentTarget.style.background = 'rgba(16,185,129,0.15)'}
-                                        onMouseOut={e => e.currentTarget.style.background = 'rgba(16,185,129,0.08)'}>
-                                        <AnimatedIcon type="register" size={16} />
-                                        Not enrolled yet? Register your face →
-                                    </Link>
+                                <div className="p-5">
+                                    <KioskGuideIllustration />
                                 </div>
                             </div>
                         )}

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import toast, { Toaster } from 'react-hot-toast';
 import { getDashboardData } from '../../lib/api';
 import AdminGuard from '../../components/AdminGuard';
+import AnimatedIcon from '../../components/AnimatedIcon';
+import DashboardAnalyticsIllustration from '../../components/DashboardAnalyticsIllustration';
 
 const PHOTO = (id) => `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost/face-attendance-api/api'}/get-student-photo.php?student_id=${id}`;
 const card = { background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(59, 130, 246, 0.25)', boxShadow: '0 10px 35px rgba(0,0,0,0.5)' };
@@ -191,19 +193,19 @@ export default function DashboardPage() {
                     {mobileOpen && (
                         <div className="md:hidden border-t border-slate-800 bg-slate-950 px-3 py-3 space-y-2">
                             <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2 px-3 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-900 no-underline">
-                                <span className="text-base">📸</span>
+                                <AnimatedIcon type="scan" size={16} />
                                 <span>Attendance Kiosk</span>
                             </Link>
                             <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2 px-3 rounded-xl text-xs font-bold text-white bg-blue-600 no-underline">
-                                <span className="text-base">📊</span>
+                                <AnimatedIcon type="dashboard" size={16} />
                                 <span>Admin Dashboard</span>
                             </Link>
                             <Link href="/students" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2 px-3 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-900 no-underline">
-                                <span className="text-base">👥</span>
+                                <AnimatedIcon type="users" size={16} />
                                 <span>Student Directory</span>
                             </Link>
                             <Link href="/register" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2 px-3 rounded-xl text-xs font-bold text-emerald-400 hover:bg-slate-900 no-underline">
-                                <span className="text-base">📝</span>
+                                <AnimatedIcon type="register" size={16} />
                                 <span>Register Student</span>
                             </Link>
                         </div>
@@ -212,6 +214,9 @@ export default function DashboardPage() {
 
                 {/* ── Main Content ── */}
                 <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8 flex-1 w-full pb-24 md:pb-8">
+                    {/* Animated Analytics Hero Illustration */}
+                    <DashboardAnalyticsIllustration className="mb-6 sm:mb-8" />
+
                     {/* ── Stats Grid: 2 columns on mobile, 4 on desktop ── */}
                     {stats && (
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-5 sm:mb-8">

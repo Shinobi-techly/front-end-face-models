@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import AOSInit from '../../components/AOSInit';
+import StudentDirectoryIllustration from '../../components/StudentDirectoryIllustration';
 import { getStudents, deleteStudent } from '../../lib/api';
 import toast, { Toaster } from 'react-hot-toast';
 import AdminGuard from '../../components/AdminGuard';
@@ -319,15 +320,7 @@ export default function StudentsPage() {
                             </div>
 
                             <div className="flex-shrink-0 flex items-center justify-center lg:justify-end" data-aos="fade-left" data-aos-delay="200">
-                                <div className="relative group w-80 sm:w-96 md:w-[26rem]">
-                                    <div className="absolute -inset-4 rounded-3xl opacity-50 blur-2xl bg-gradient-to-r from-blue-600 via-emerald-500 to-teal-400" />
-                                    <div className="relative rounded-3xl overflow-hidden border-2 border-white/30 shadow-2xl bg-slate-900">
-                                        <img src="/crowed.jpg" alt="Students in Classroom"
-                                            className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
-                                            style={{ filter: 'brightness(1.05) contrast(1.05)', minHeight: '320px' }} />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
-                                    </div>
-                                </div>
+                                <StudentDirectoryIllustration />
                             </div>
                         </div>
                     </div>

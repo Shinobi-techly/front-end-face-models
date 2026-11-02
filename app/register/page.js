@@ -6,6 +6,8 @@ import AOSInit from '../../components/AOSInit';
 import CameraCapture from '../../components/CameraCapture';
 import AnimatedIcon from '../../components/AnimatedIcon';
 import LottieAnimation from '../../components/LottieAnimation';
+import StudentRegisterIllustration from '../../components/StudentRegisterIllustration';
+import FaceReferenceGuideIllustration from '../../components/FaceReferenceGuideIllustration';
 import { registerStudent, checkStudentId, checkFace } from '../../lib/api';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -37,7 +39,7 @@ const RULES = {
     },
     department: { validate: v => v !== '', message: 'Please select a class.', hint: '' },
     year_intake: { validate: v => v !== '', message: 'Intake year is required.', hint: '' },
-    semester:    { validate: v => Number(v) >= 1 && Number(v) <= 3, message: 'Please select a valid term.', hint: '' },
+    semester: { validate: v => Number(v) >= 1 && Number(v) <= 3, message: 'Please select a valid term.', hint: '' },
 };
 
 // ── Duplicate Face Alert Modal ────────────────────────────────────────────
@@ -100,25 +102,22 @@ function StepIndicator({ current }) {
                 return (
                     <div key={s.n} className="flex items-center">
                         <div className="flex flex-col items-center gap-1">
-                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-black transition-all duration-300 ${
-                                done
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-black transition-all duration-300 ${done
                                     ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/30'
                                     : active
-                                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/40'
-                                    : 'bg-slate-800 text-slate-400 border border-slate-700'
-                            }`}>
+                                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/40'
+                                        : 'bg-slate-800 text-slate-400 border border-slate-700'
+                                }`}>
                                 {done ? '✓' : s.n}
                             </div>
-                            <span className={`text-[10px] font-bold whitespace-nowrap ${
-                                active ? 'text-blue-400' : done ? 'text-emerald-400' : 'text-slate-500'
-                            }`}>
+                            <span className={`text-[10px] font-bold whitespace-nowrap ${active ? 'text-blue-400' : done ? 'text-emerald-400' : 'text-slate-500'
+                                }`}>
                                 {s.label}
                             </span>
                         </div>
                         {i < steps.length - 1 && (
-                            <div className={`w-12 h-0.5 mx-2 mb-4 transition-all duration-500 ${
-                                done ? 'bg-emerald-500' : 'bg-slate-800'
-                            }`} />
+                            <div className={`w-12 h-0.5 mx-2 mb-4 transition-all duration-500 ${done ? 'bg-emerald-500' : 'bg-slate-800'
+                                }`} />
                         )}
                     </div>
                 );
@@ -370,41 +369,9 @@ export default function RegisterPage() {
                             </div>
                         </div>
 
-                        {/* Right Visual - Animated Illustration */}
+                        {/* Right Visual - Animated Student ID Illustration */}
                         <div className="flex-shrink-0 flex items-center justify-center lg:justify-end" data-aos="fade-left" data-aos-delay="200">
-                            <div className="relative group w-80 sm:w-96 md:w-[26rem]">
-                                <div className="absolute -inset-4 rounded-3xl opacity-50 blur-2xl bg-gradient-to-r from-blue-600 via-emerald-500 to-teal-400 animate-pulse" />
-                                <div className="relative rounded-3xl overflow-hidden border-2 border-white/30 shadow-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
-                                    {/* Beautiful Lottie Animation */}
-                                    <div className="w-full h-auto" style={{ minHeight: '340px' }}>
-                                        <LottieAnimation
-                                            animationPath="/animations/student-register.json"
-                                            loop={true}
-                                            autoplay={true}
-                                            style={{ width: '100%', height: '100%' }}
-                                        />
-                                    </div>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none" />
-                                    
-                                    {/* Corner Frames */}
-                                    {['top-3 left-3 border-t-2 border-l-2 rounded-tl-lg','top-3 right-3 border-t-2 border-r-2 rounded-tr-lg','bottom-3 left-3 border-b-2 border-l-2 rounded-bl-lg','bottom-3 right-3 border-b-2 border-r-2 rounded-br-lg'].map((cls, i) => (
-                                        <div key={i} className={`absolute w-8 h-8 border-emerald-400/90 ${cls}`} />
-                                    ))}
-                                    
-                                    {/* Success Badge */}
-                                    <div className="absolute bottom-4 right-4 w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-tr from-emerald-600 to-teal-500 border border-white/60 shadow-lg shadow-emerald-500/40 animate-bounce">
-                                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    
-                                    {/* Animated Badge */}
-                                    <div className="absolute top-4 left-4 flex items-center gap-2 rounded-full px-3 py-1.5 bg-slate-950/80 backdrop-blur border border-emerald-400/40">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                                        <span className="text-emerald-300 text-xs font-black tracking-wider">ENROLLMENT</span>
-                                    </div>
-                                </div>
-                            </div>
+                            <StudentRegisterIllustration />
                         </div>
                     </div>
                 </div>
@@ -454,7 +421,7 @@ export default function RegisterPage() {
                             <div className="rounded-3xl p-6 bg-emerald-950/30 border border-emerald-500/30">
                                 <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-3">📸 Biometric Tips</p>
                                 <div className="space-y-2">
-                                    {['Good lighting on face','Look directly at camera','Neutral expression','Remove heavy glasses or hat','Stay still during snapshot'].map(tip => (
+                                    {['Good lighting on face', 'Look directly at camera', 'Neutral expression', 'Remove heavy glasses or hat', 'Stay still during snapshot'].map(tip => (
                                         <div key={tip} className="flex gap-2">
                                             <span className="text-emerald-400 text-xs mt-0.5 flex-shrink-0">✓</span>
                                             <p className="text-xs text-emerald-200">{tip}</p>
@@ -492,7 +459,7 @@ export default function RegisterPage() {
                                                         className={`${inputCls('student_id')} pr-10 font-mono text-base tracking-widest cursor-default`}
                                                         style={{ ...inputBg, background: 'rgba(2, 6, 23, 0.5)' }} />
                                                     <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm">
-                                                        {idStatus === 'checking'  && <span className="text-slate-400 animate-spin inline-block">⟳</span>}
+                                                        {idStatus === 'checking' && <span className="text-slate-400 animate-spin inline-block">⟳</span>}
                                                         {idStatus === 'available' && <span className="text-emerald-400 font-bold">✓</span>}
                                                     </div>
                                                 </div>
@@ -545,11 +512,10 @@ export default function RegisterPage() {
                                                 ].map(t => (
                                                     <button key={t.value} type="button"
                                                         onClick={() => { setFormData(p => ({ ...p, semester: t.value })); setTouched(p => ({ ...p, semester: true })); setErrors(p => ({ ...p, semester: '' })); }}
-                                                        className={`py-3 rounded-2xl text-xs font-black transition-all duration-150 hover:scale-105 active:scale-95 ${
-                                                            Number(formData.semester) === t.value
+                                                        className={`py-3 rounded-2xl text-xs font-black transition-all duration-150 hover:scale-105 active:scale-95 ${Number(formData.semester) === t.value
                                                                 ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-lg shadow-blue-500/30'
                                                                 : 'bg-slate-950/80 text-slate-400 border border-slate-700 hover:bg-slate-800'
-                                                        }`}>
+                                                            }`}>
                                                         {t.label}
                                                     </button>
                                                 ))}
@@ -605,19 +571,8 @@ export default function RegisterPage() {
                                     </div>
 
                                     <div className="px-6 sm:px-8 mt-5 space-y-4">
-                                        {/* Face reference */}
-                                        <div className="rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center group bg-slate-950/80 border border-blue-500/20">
-                                            <div className="w-full sm:w-24 flex-shrink-0 rounded-xl overflow-hidden border border-white/20">
-                                                <img src="/face.jpg" alt="Reference Face"
-                                                    className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
-                                                    style={{ filter: 'brightness(1.05) contrast(1.05)' }} />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-bold uppercase tracking-widest mb-1 text-emerald-400">📸 Reference Standard</p>
-                                                <p className="text-sm text-white font-bold mb-1">Center your face in good light</p>
-                                                <p className="text-xs text-slate-400">Salvation Heritage AI scans facial landmarks for accurate attendance.</p>
-                                            </div>
-                                        </div>
+                                        {/* Face reference guide illustration */}
+                                        <FaceReferenceGuideIllustration studentName={formData.full_name || 'Student'} />
 
                                         {/* Student summary */}
                                         <div className="rounded-2xl p-4 grid grid-cols-3 gap-3 text-xs bg-slate-950/60 border border-slate-800">
@@ -643,10 +598,16 @@ export default function RegisterPage() {
                             {/* STEP 3 — Success */}
                             {step === 3 && registered && (
                                 <div className="p-8 sm:p-12 flex flex-col items-center text-center">
-                                    <div className="w-20 h-20 rounded-3xl flex items-center justify-center text-4xl mb-5 bg-gradient-to-tr from-emerald-600 to-teal-500 shadow-2xl shadow-emerald-500/40 text-white font-black">
-                                        ✓
+                                    <div className="w-24 h-24 mb-4 relative flex items-center justify-center">
+                                        <img
+                                            src="/illustrations/verified.svg"
+                                            alt="Registration Verified"
+                                            className="w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(16,185,129,0.4)] animate-bounceGentle"
+                                        />
                                     </div>
-                                    <h2 className="text-2xl font-black text-white mb-1">Registration Complete!</h2>
+                                    <h2 className="text-2xl font-black text-white mb-1" style={{ fontFamily: 'var(--font-outfit)' }}>
+                                        Registration Complete!
+                                    </h2>
                                     <p className="text-slate-400 text-sm mb-6">Student enrolled in Salvation Heritage attendance database.</p>
 
                                     <div className="w-full rounded-2xl p-5 mb-6 text-left bg-slate-950/80 border border-slate-800">
@@ -705,22 +666,23 @@ export default function RegisterPage() {
             {/* Mobile Bottom Bar */}
             <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 py-2 px-3 flex items-center justify-around shadow-2xl shadow-black">
                 <Link href="/" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
-                    <span className="text-xl">📸</span>
+                    <AnimatedIcon type="scan" size={20} />
                     <span className="text-[10px] font-bold">Kiosk</span>
                 </Link>
                 <Link href="/register" className="flex flex-col items-center gap-1 py-1 px-3 text-emerald-400 font-black no-underline">
-                    <span className="text-xl">📝</span>
+                    <AnimatedIcon type="register" size={20} />
                     <span className="text-[10px] font-bold">Register</span>
                 </Link>
                 <Link href="/dashboard" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
-                    <span className="text-xl">📊</span>
+                    <AnimatedIcon type="dashboard" size={20} />
                     <span className="text-[10px] font-bold">Admin</span>
                 </Link>
                 <Link href="/students" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
-                    <span className="text-xl">👥</span>
+                    <AnimatedIcon type="users" size={20} />
                     <span className="text-[10px] font-bold">Students</span>
                 </Link>
             </div>
         </div>
     );
 }
+
