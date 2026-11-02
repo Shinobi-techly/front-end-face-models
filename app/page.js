@@ -8,14 +8,17 @@ import DebugConsole from '../components/DebugConsole';
 import AOSInit from '../components/AOSInit';
 import AnimatedIcon from '../components/AnimatedIcon';
 import LottieAnimation from '../components/LottieAnimation';
+import FaceScanIllustration from '../components/FaceScanIllustration';
+import ParticleField from '../components/ParticleField';
 import { recognizeFace, getStats, loginLecturer, NIGERIAN_FACULTY } from '../lib/api';
 import toast, { Toaster } from 'react-hot-toast';
 
 const PHOTO_URL = (id) =>
     `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost/face-attendance-api/api'}/get-student-photo.php?student_id=${id}`;
 
-const FALLBACK_SVG = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f1f5f9"/><text x="50" y="58" text-anchor="middle" fill="%23cbd5e1" font-size="38" font-family="sans-serif">?</text></svg>`;
+const FALLBACK_SVG = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230f172a"/><text x="50" y="58" text-anchor="middle" fill="%2334d399" font-size="38" font-family="sans-serif">?</text></svg>`;
 
+/* ── Animated live clock ── */
 function LiveClock() {
     const [time, setTime] = useState(null);
     useEffect(() => {
@@ -26,16 +29,75 @@ function LiveClock() {
     if (!time) return null;
     return (
         <div className="text-center">
-            <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white tabular-nums" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-1px' }}>
+            <p className="tabular-nums text-4xl sm:text-5xl font-black text-white tracking-tight"
+               style={{ fontFamily: 'var(--font-mono)', letterSpacing: '-2px' }}>
                 {time.toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </p>
-            <p className="text-emerald-300 text-[10px] sm:text-xs mt-1 font-bold tracking-widest uppercase">
+            <p className="text-emerald-400 text-xs mt-1 font-semibold tracking-widest uppercase">
                 {time.toLocaleDateString('en-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
         </div>
     );
 }
 
+/* ── Animated counter ── */
+function AnimatedCounter({ value, duration = 1200 }) {
+    const [display, setDisplay] = useState(0);
+    useEffect(() => {
+        let start = 0;
+        const step = value / (duration / 16);
+        const timer = setInterval(() => {
+            start += step;
+            if (start >= value) { setDisplay(value); clearInterval(timer); }
+            else setDisplay(Math.floor(start));
+        }, 16);
+        return () => clearInterval(timer);
+    }, [value, duration]);
+    return <>{display}</>;
+}
+
+/* ── Stat card ── */
+function StatCard({ icon, value, label, color, delay = 0 }) {
+    const colors = {
+        emerald: { border: 'rgba(16,185,129,0.25)', glow: 'rgba(16,185,129,0.08)', icon: '#34d399', text: '#6ee7b7', bg: 'rgba(16,185,129,0.08)' },
+        blue:    { border: 'rgba(59,116,247,0.25)', glow: 'rgba(59,116,247,0.08)', icon: '#60a5fa', text: '#93c5fd', bg: 'rgba(59,116,247,0.08)' },
+        violet:  { border: 'rgba(139,92,246,0.25)', glow: 'rgba(139,92,246,0.08)', icon: '#a78bfa', text: '#c4b5fd', bg: 'rgba(139,92,246,0.08)' },
+    };
+    const c = colors[color] || colors.blue;
+    return (
+        <div data-aos="fade-up" data-aos-delay={delay}
+            style={{
+                background: `linear-gradient(145deg, rgba(10,18,35,0.95), rgba(8,15,28,0.9))`,
+                border: `1px solid ${c.border}`,
+                borderRadius: '1.25rem',
+                padding: '1rem 1.25rem',
+                boxShadow: `0 8px 32px ${c.glow}, inset 0 1px 0 rgba(255,255,255,0.04)`,
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.875rem',
+            }}
+            className="hover:scale-[1.03] hover:-translate-y-1">
+            <div style={{
+                width: 44, height: 44, borderRadius: '0.875rem', flexShrink: 0,
+                background: c.bg, border: `1px solid ${c.border}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+                <AnimatedIcon type={icon} size={22} style={{ color: c.icon }} />
+            </div>
+            <div>
+                <p className="text-white font-black text-2xl leading-none" style={{ fontFamily: 'var(--font-outfit)' }}>
+                    <AnimatedCounter value={value} />
+                </p>
+                <p className="text-xs font-semibold mt-0.5" style={{ color: c.text }}>{label}</p>
+            </div>
+        </div>
+    );
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MAIN PAGE
+   ════════════════════════════════════════════════════════════════ */
 export default function HomePage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -44,33 +106,23 @@ export default function HomePage() {
     const [totalStudents, setTotalStudents] = useState(0);
     const [debugInfo, setDebugInfo] = useState(null);
     const [showDebugConsole, setShowDebugConsole] = useState(false);
-
-    // Active Logged-in Faculty state
     const [activeLecturer, setActiveLecturer] = useState(null);
-
-    // Faculty Modal State on Home Page (for when NOT logged in)
     const [showFacultyModal, setShowFacultyModal] = useState(false);
     const [facultyUser, setFacultyUser] = useState('');
     const [facultyPass, setFacultyPass] = useState('');
     const [facultyLoading, setFacultyLoading] = useState(false);
     const [facultyError, setFacultyError] = useState('');
     const [showFacultyPicker, setShowFacultyPicker] = useState(false);
-
-    // Mobile nav open state
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+    const [showPass, setShowPass] = useState(false);
     const isMounted = useRef(true);
 
     useEffect(() => {
         isMounted.current = true;
-        // Check if lecturer is already authenticated in localStorage
         try {
             const saved = localStorage.getItem('fa_lecturer');
-            if (saved) {
-                setActiveLecturer(JSON.parse(saved));
-            }
+            if (saved) setActiveLecturer(JSON.parse(saved));
         } catch { /* ignore */ }
-
         return () => { isMounted.current = false; };
     }, []);
 
@@ -78,10 +130,8 @@ export default function HomePage() {
         try {
             const stats = await getStats();
             if (stats && isMounted.current) {
-                const present = stats.today?.present ?? stats.present ?? 0;
-                const total = stats.today?.total_students ?? stats.total_students ?? 0;
-                setTodayCount(present);
-                setTotalStudents(total);
+                setTodayCount(stats.today?.present ?? stats.present ?? 0);
+                setTotalStudents(stats.today?.total_students ?? stats.total_students ?? 0);
             }
         } catch (e) { console.error(e); }
     }, []);
@@ -106,16 +156,12 @@ export default function HomePage() {
                 const isAlreadyMarked = result.already_marked === true || result.attendance_marked === false;
 
                 if (isAlreadyMarked) {
-                    toast(`👋 Welcome back, ${studentName}! Attendance already recorded.`, {
+                    toast(`Welcome back, ${studentName}! Attendance already recorded.`, {
                         duration: 5000,
-                        icon: '👋',
-                        style: { border: '2px solid #f59e0b', background: '#0f172a', color: '#fef3c7', fontWeight: 600 },
+                        style: { border: '1px solid rgba(245,158,11,0.4)', background: '#0f172a', color: '#fef3c7', fontWeight: 600 },
                     });
                 } else {
-                    toast.success(result.message || `✅ Attendance marked for ${studentName}!`, {
-                        duration: 4000,
-                        icon: '🎉'
-                    });
+                    toast.success(result.message || `Attendance marked for ${studentName}!`, { duration: 4000 });
                 }
 
                 setLastAttendance({
@@ -126,68 +172,49 @@ export default function HomePage() {
                     recognitionQuality: result.recognition_quality
                 });
                 fetchStats();
-                setTimeout(() => {
-                    if (isMounted.current) { setLastAttendance(null); }
-                }, 5000);
+                setTimeout(() => { if (isMounted.current) setLastAttendance(null); }, 6000);
             } else {
                 const msg = result.message || 'Face not recognized. Please try again.';
                 toast.error(msg, { duration: 4000 });
-                setLastAttendance({
-                    error: true,
-                    message: msg,
-                    timestamp: new Date().toLocaleTimeString()
-                });
+                setLastAttendance({ error: true, message: msg, timestamp: new Date().toLocaleTimeString() });
             }
         } catch (error) {
             if (!isMounted.current) return;
             toast.error(error.message || 'Network error. Check backend connection.', { duration: 5000 });
-            setLastAttendance({
-                error: true,
-                message: error.message || 'Network error.',
-                timestamp: new Date().toLocaleTimeString()
-            });
+            setLastAttendance({ error: true, message: error.message || 'Network error.', timestamp: new Date().toLocaleTimeString() });
         } finally {
             if (isMounted.current) setIsLoading(false);
         }
     }, [fetchStats]);
 
-    // Smart Faculty Portal Action:
-    // If ALREADY logged in -> directly navigates to /lecturer without asking for credentials
-    // If NOT logged in -> opens the login modal
     const handleFacultyAction = () => {
         try {
             const saved = localStorage.getItem('fa_lecturer');
-            if (saved) {
-                router.push('/lecturer');
-                return;
-            }
+            if (saved) { router.push('/lecturer'); return; }
         } catch { /* ignore */ }
         setShowFacultyModal(true);
     };
 
-    // Logout from Home Page
     const handleFacultySignOut = (e) => {
         if (e) e.stopPropagation();
         localStorage.removeItem('fa_lecturer');
         sessionStorage.removeItem('fa_session');
         setActiveLecturer(null);
-        toast.success('Signed out from Faculty Terminal.', { icon: '👋', duration: 3000 });
+        toast.success('Signed out from Faculty Terminal.', { duration: 3000 });
     };
 
-    // Handle Faculty Login submission
     const handleFacultyLogin = async (e) => {
         if (e) e.preventDefault();
         setFacultyError('');
         if (!facultyUser.trim()) { setFacultyError('Please enter your Username or Lecturer ID'); return; }
         if (!facultyPass.trim()) { setFacultyError('Please enter your password'); return; }
-
         setFacultyLoading(true);
         try {
             const res = await loginLecturer(facultyUser.trim(), facultyPass.trim());
             if (res.success && res.lecturer) {
                 localStorage.setItem('fa_lecturer', JSON.stringify(res.lecturer));
                 setActiveLecturer(res.lecturer);
-                toast.success(res.message || `Welcome, ${res.lecturer.full_name}!`, { icon: '👨🏾‍🏫', duration: 3000 });
+                toast.success(res.message || `Welcome, ${res.lecturer.full_name}!`, { duration: 3000 });
                 setShowFacultyModal(false);
                 router.push('/lecturer');
             } else {
@@ -200,7 +227,6 @@ export default function HomePage() {
         }
     };
 
-    // Quick Select Faculty Profile
     const selectFacultyProfile = (lec) => {
         setFacultyUser(lec.username);
         setFacultyPass(lec.password);
@@ -211,204 +237,204 @@ export default function HomePage() {
     const percentage = totalStudents > 0 ? Math.round((todayCount / totalStudents) * 100) : 0;
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col mobile-pb-safe md:pb-0" style={{ fontFamily: "'Inter','Segoe UI',sans-serif" }}>
+        <div className="min-h-screen text-slate-100 flex flex-col" style={{
+            background: 'radial-gradient(ellipse 100% 60% at 50% 0%, #0a1628 0%, #020617 60%)',
+            fontFamily: 'var(--font-inter)',
+        }}>
             <AOSInit />
-            <style>{`
-                @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
-                @keyframes pulse-ring { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 0.4; } 100% { transform: scale(0.95); opacity: 0.8; } }
-                .animate-float { animation: float 8s ease-in-out infinite; }
-                
-                /* Mobile-specific optimizations */
-                @media (max-width: 640px) {
-                    .mobile-hero-title { font-size: 2.5rem; line-height: 1.1; }
-                    .mobile-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-                    .mobile-stats-item { padding: 0.75rem; border-radius: 1rem; }
-                    .mobile-kiosk-section { padding: 1rem; }
-                    .mobile-camera-container { border-radius: 1.5rem; overflow: hidden; }
-                }
-                
-                @media (max-width: 480px) {
-                    .xs-hero-title { font-size: 2rem; line-height: 1.1; }
-                    .xs-stats-grid { grid-template-columns: 1fr; gap: 0.5rem; }
-                    .xs-mobile-padding { padding: 0.75rem; }
-                }
-            `}</style>
-
             <Toaster position="top-center" toastOptions={{
-                style: { borderRadius: 14, fontSize: 13, fontWeight: 600, background: '#0f172a', color: '#fff', border: '1px solid rgba(59,130,246,0.3)' },
+                style: {
+                    borderRadius: 14, fontSize: 13, fontWeight: 600,
+                    background: '#0f172a', color: '#fff', border: '1px solid rgba(59,130,246,0.25)',
+                    boxShadow: '0 20px 60px -12px rgba(0,0,0,0.8)',
+                    fontFamily: 'var(--font-inter)',
+                },
                 success: { iconTheme: { primary: '#10b981', secondary: '#fff' } },
             }} />
 
-            {/* ── Top Announcement Banner with Faculty Access ── */}
-            <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-emerald-950 text-white text-[10px] sm:text-[11px] py-2 mobile-px-safe sm:px-4 border-b border-white/10">
-                <div className="flex items-center justify-between gap-2 max-w-7xl mx-auto">
-                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                        <AnimatedIcon type="school" size={16} className="text-emerald-300 flex-shrink-0" />
-                        <span className="font-bold text-[10px] sm:text-[11px] truncate">Salvation Heritage High School</span>
-                        <span className="text-slate-400 hidden sm:inline">•</span>
-                        <span className="text-emerald-300 font-semibold text-[9px] sm:text-[11px] truncate">Contactless Face Attendance Active</span>
+            {/* ── Announcement Banner ── */}
+            <div style={{ background: 'linear-gradient(90deg, #030d1f, #0a1a38, #030d1f)', borderBottom: '1px solid rgba(59,130,246,0.12)' }}
+                className="py-2 px-4">
+                <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+                        <span className="text-[10px] sm:text-[11px] font-semibold text-slate-300 truncate">
+                            Salvation Heritage High School &nbsp;<span className="text-emerald-400">·</span>&nbsp; Contactless Biometric Attendance Live
+                        </span>
                     </div>
-
                     {activeLecturer ? (
-                        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
                             <button onClick={handleFacultyAction}
-                                className="flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold text-emerald-300 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 transition-all">
-                                <AnimatedIcon type="faculty" size={14} className="text-emerald-300" />
-                                <span className="hidden xs:inline">{activeLecturer.full_name}</span>
-                                <span className="xs:hidden">Portal</span>
-                                <span className="hidden sm:inline">(Portal Active)</span>
-                                <span>→</span>
+                                className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold text-emerald-300 hover:text-white transition-colors"
+                                style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)' }}>
+                                <AnimatedIcon type="faculty" size={12} />
+                                <span className="hidden xs:inline">{activeLecturer.full_name.split(' ')[0]}'s Portal</span>
+                                <span className="xs:hidden">Portal</span> →
                             </button>
-                            <button onClick={handleFacultySignOut}
-                                title="Sign Out of Faculty Portal"
-                                className="text-[9px] sm:text-[10px] text-rose-300 hover:text-rose-200 px-1.5 sm:px-2 py-0.5 rounded bg-rose-500/15 border border-rose-500/30">
+                            <button onClick={handleFacultySignOut} className="text-[10px] text-rose-400 hover:text-rose-300 px-2 py-1 rounded-full transition-colors"
+                                style={{ background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.2)' }}>
                                 Sign Out
                             </button>
                         </div>
                     ) : (
                         <button onClick={handleFacultyAction}
-                            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-black text-white bg-blue-600/60 hover:bg-blue-600 border border-blue-400/40 shadow-sm transition-all flex-shrink-0">
-                            <AnimatedIcon type="faculty" size={14} className="text-white" />
-                            <span className="hidden xs:inline">Faculty Portal</span>
-                            <span className="xs:hidden">Faculty</span>
+                            className="flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold text-white flex-shrink-0 transition-all hover:opacity-90"
+                            style={{ background: 'linear-gradient(135deg, #1e4bcc, #059669)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                            <AnimatedIcon type="faculty" size={12} />
+                            Faculty Portal
                         </button>
                     )}
                 </div>
             </div>
 
             {/* ── Main Navbar ── */}
-            <nav className="sticky top-0 z-40 w-full bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/40">
-                <div className="max-w-7xl mx-auto mobile-px-safe sm:px-6 h-14 sm:h-16 md:h-20 flex items-center justify-between gap-2 sm:gap-3">
-
+            <nav style={{
+                position: 'sticky', top: 0, zIndex: 40,
+                background: 'rgba(2,6,23,0.92)',
+                backdropFilter: 'blur(20px)',
+                borderBottom: '1px solid rgba(59,130,246,0.1)',
+                boxShadow: '0 4px 24px -4px rgba(0,0,0,0.6)',
+            }}>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 md:h-18 flex items-center justify-between gap-3">
                     {/* Brand */}
-                    <Link href="/" className="flex items-center gap-2 sm:gap-3 no-underline group flex-shrink-0 min-w-0">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-emerald-500 flex items-center justify-center text-white font-black text-xs sm:text-sm md:text-base shadow-lg shadow-blue-600/30 group-hover:scale-105 transition-all">
-                            SH
-                        </div>
-                        <div className="min-w-0">
-                            <div className="flex items-center gap-1 sm:gap-2">
-                                <span className="font-black text-sm sm:text-base md:text-xl tracking-tight text-white group-hover:text-blue-400 transition-colors truncate">
+                    <Link href="/" className="flex items-center gap-2.5 no-underline group flex-shrink-0">
+                        <div style={{
+                            width: 40, height: 40, borderRadius: '0.875rem',
+                            background: 'linear-gradient(135deg, #1e4bcc, #059669)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            boxShadow: '0 8px 24px rgba(30,75,204,0.4)',
+                            fontFamily: 'var(--font-outfit)', fontWeight: 900,
+                            fontSize: 14, color: 'white',
+                            transition: 'transform 0.3s ease',
+                        }} className="group-hover:scale-110">SH</div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <span className="font-black text-base md:text-lg text-white tracking-tight" style={{ fontFamily: 'var(--font-outfit)' }}>
                                     Salvation Heritage
                                 </span>
-                                <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex-shrink-0">
-                                    Kiosk
+                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full hidden sm:inline"
+                                    style={{ background: 'rgba(16,185,129,0.15)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.3)' }}>
+                                    LIVE
                                 </span>
                             </div>
-                            <p className="text-[9px] sm:text-[11px] font-medium text-slate-400 tracking-wide hidden sm:block">
+                            <p className="text-[10px] text-slate-500 hidden sm:block" style={{ fontFamily: 'var(--font-inter)' }}>
                                 Smart Biometric Attendance System
                             </p>
                         </div>
                     </Link>
 
-                    {/* Desktop Navigation Links */}
-                    <div className="hidden md:flex items-center gap-1 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800">
-                        <Link href="/" className="px-3 md:px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 shadow-md shadow-blue-600/30 no-underline flex items-center gap-1.5">
-                            <AnimatedIcon type="scan" size={16} className="text-white" />
-                            <span>Attendance Kiosk</span>
-                        </Link>
-                        <Link href="/register" className="px-3 md:px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all no-underline flex items-center gap-1.5">
-                            <AnimatedIcon type="register" size={16} className="text-slate-400" />
-                            <span>Register Student</span>
-                        </Link>
-                        <Link href="/dashboard" className="px-3 md:px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all no-underline flex items-center gap-1.5">
-                            <AnimatedIcon type="dashboard" size={16} className="text-slate-400" />
-                            <span>Admin Portal</span>
-                            <span className="text-[9px] px-1 py-0.2 rounded bg-slate-800 text-slate-400 font-mono">PIN</span>
-                        </Link>
+                    {/* Desktop Nav */}
+                    <div className="hidden md:flex items-center gap-1 p-1.5 rounded-2xl"
+                        style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(71,85,105,0.2)' }}>
+                        {[
+                            { href: '/',          label: 'Attendance Kiosk', icon: 'scan',      active: true },
+                            { href: '/register',  label: 'Register Student', icon: 'register',  active: false },
+                            { href: '/dashboard', label: 'Admin Portal',     icon: 'dashboard', active: false, badge: 'PIN' },
+                        ].map(item => (
+                            <Link key={item.href} href={item.href}
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold no-underline transition-all"
+                                style={item.active ? {
+                                    background: 'linear-gradient(135deg, #1e4bcc, #0e7a5a)',
+                                    color: 'white',
+                                    boxShadow: '0 4px 16px rgba(30,75,204,0.3)',
+                                } : { color: '#94a3b8' }}
+                                onMouseOver={e => { if (!item.active) { e.currentTarget.style.background = 'rgba(30,41,59,0.8)'; e.currentTarget.style.color = 'white'; }}}
+                                onMouseOut={e => { if (!item.active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8'; }}}>
+                                <AnimatedIcon type={item.icon} size={15} />
+                                {item.label}
+                                {item.badge && <span className="text-[9px] px-1.5 py-0.5 rounded-md font-mono"
+                                    style={{ background: 'rgba(51,65,85,0.8)', color: '#94a3b8' }}>{item.badge}</span>}
+                            </Link>
+                        ))}
                     </div>
 
-                    {/* Right: Faculty Button + Mobile Menu Toggle */}
-                    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                    {/* Right actions */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
                         {activeLecturer ? (
                             <button onClick={handleFacultyAction}
-                                className="hidden sm:inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-md shadow-emerald-600/30 active:scale-95 transition-all">
-                                <AnimatedIcon type="faculty" size={16} className="text-white" />
-                                <span className="hidden md:inline">My Terminal ({activeLecturer.full_name.split(' ')[0]})</span>
+                                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90"
+                                style={{ background: 'linear-gradient(135deg, #059669, #0d9488)', boxShadow: '0 4px 16px rgba(5,150,105,0.35)' }}>
+                                <AnimatedIcon type="faculty" size={15} />
+                                <span className="hidden md:inline">{activeLecturer.full_name.split(' ')[0]}'s Terminal</span>
                                 <span className="md:hidden">Terminal</span>
                             </button>
                         ) : (
                             <button onClick={handleFacultyAction}
-                                className="hidden sm:inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black text-white bg-gradient-to-r from-blue-600 via-blue-700 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-md shadow-blue-600/30 active:scale-95 transition-all">
-                                <AnimatedIcon type="faculty" size={16} className="text-white" />
+                                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
+                                style={{ background: 'linear-gradient(135deg, #1e4bcc, #059669)', boxShadow: '0 4px 16px rgba(30,75,204,0.35)' }}>
+                                <AnimatedIcon type="faculty" size={15} />
                                 <span className="hidden md:inline">Faculty Sign In</span>
                                 <span className="md:hidden">Faculty</span>
                             </button>
                         )}
 
-                        <button onClick={() => setShowDebugConsole(true)}
-                            title="Open Diagnostic Console"
-                            className="text-xs text-slate-400 hover:text-white transition-colors p-2 sm:p-2.5 rounded-lg sm:rounded-xl hover:bg-slate-900 border border-slate-800">
-                            <AnimatedIcon type="settings" size={18} className="text-slate-400" />
+                        <button onClick={() => setShowDebugConsole(true)} title="Diagnostics"
+                            className="w-9 h-9 flex items-center justify-center rounded-xl transition-all hover:bg-slate-800 hover:text-white text-slate-400"
+                            style={{ border: '1px solid rgba(71,85,105,0.3)' }}>
+                            <AnimatedIcon type="settings" size={17} />
                         </button>
 
-                        {/* Hamburger Button for Mobile */}
-                        <button onClick={() => setMobileMenuOpen(v => !v)}
-                            aria-label="Toggle navigation menu"
-                            className="md:hidden w-8 h-8 sm:w-10 sm:h-10 touch-target flex items-center justify-center rounded-lg sm:rounded-xl bg-slate-900 text-slate-200 border border-slate-800 hover:bg-slate-800 transition-colors">
-                            {mobileMenuOpen ? (
-                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
-                            ) : (
-                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
-                            )}
+                        {/* Mobile hamburger */}
+                        <button onClick={() => setMobileMenuOpen(v => !v)} aria-label="Menu"
+                            className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl transition-all text-slate-300"
+                            style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(71,85,105,0.3)' }}>
+                            {mobileMenuOpen
+                                ? <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+                                : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
+                            }
                         </button>
                     </div>
                 </div>
 
-                {/* Mobile Dropdown Menu */}
+                {/* Mobile menu drawer */}
                 {mobileMenuOpen && (
-                    <div className="md:hidden border-t border-slate-800 bg-slate-950 mobile-px-safe py-4 space-y-3 shadow-2xl animate-in slide-in-from-top-2 duration-200">
-                        <div className="space-y-1">
-                            <Link href="/"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="mobile-nav-item bg-blue-600 text-white shadow-md shadow-blue-600/30">
-                                <AnimatedIcon type="scan" size={20} className="text-white" />
-                                <span className="text-xs font-bold">Attendance Kiosk</span>
-                            </Link>
-                            <Link href="/register"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="mobile-nav-item text-slate-200 hover:bg-slate-900">
-                                <AnimatedIcon type="register" size={20} className="text-blue-400" />
-                                <span className="text-xs font-bold">Register New Student</span>
-                            </Link>
-                            <Link href="/dashboard"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="mobile-nav-item text-slate-200 hover:bg-slate-900">
-                                <div className="flex items-center gap-2">
-                                    <AnimatedIcon type="dashboard" size={20} className="text-emerald-400" />
-                                    <span className="text-xs font-bold">Admin Dashboard</span>
-                                </div>
-                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">PIN</span>
-                            </Link>
-                            <Link href="/students"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="mobile-nav-item text-slate-200 hover:bg-slate-900">
-                                <div className="flex items-center gap-2">
-                                    <AnimatedIcon type="users" size={20} className="text-purple-400" />
-                                    <span className="text-xs font-bold">Student Directory</span>
-                                </div>
-                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">PIN</span>
-                            </Link>
+                    <div className="md:hidden animate-fade-in-down" style={{ borderTop: '1px solid rgba(59,130,246,0.1)', background: 'rgba(2,6,23,0.98)', padding: '1rem 1rem 1.5rem' }}>
+                        <div className="space-y-1 mb-4">
+                            {[
+                                { href: '/',          label: 'Attendance Kiosk',  icon: 'scan',      active: true },
+                                { href: '/register',  label: 'Register New Student', icon: 'register', color: '#60a5fa' },
+                                { href: '/dashboard', label: 'Admin Dashboard',   icon: 'dashboard', color: '#34d399', badge: 'PIN' },
+                                { href: '/students',  label: 'Student Directory', icon: 'users',     color: '#a78bfa', badge: 'PIN' },
+                            ].map(item => (
+                                <Link key={item.href} href={item.href}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="flex items-center justify-between px-4 py-3 rounded-xl no-underline transition-all"
+                                    style={item.active ? {
+                                        background: 'linear-gradient(135deg, rgba(30,75,204,0.2), rgba(5,150,105,0.15))',
+                                        border: '1px solid rgba(59,116,247,0.25)', color: 'white',
+                                    } : { color: '#cbd5e1', border: '1px solid transparent' }}
+                                    onMouseOver={e => { if (!item.active) e.currentTarget.style.background = 'rgba(30,41,59,0.6)'; }}
+                                    onMouseOut={e => { if (!item.active) e.currentTarget.style.background = 'transparent'; }}>
+                                    <div className="flex items-center gap-3">
+                                        <AnimatedIcon type={item.icon} size={18} style={{ color: item.active ? '#60a5fa' : (item.color || '#94a3b8') }} />
+                                        <span className="text-sm font-semibold">{item.label}</span>
+                                    </div>
+                                    {item.badge && <span className="text-[9px] font-mono px-2 py-0.5 rounded-md"
+                                        style={{ background: 'rgba(51,65,85,0.8)', color: '#64748b' }}>{item.badge}</span>}
+                                </Link>
+                            ))}
                         </div>
-
-                        {/* Mobile Faculty Section */}
-                        <div className="pt-2 border-t border-slate-800">
+                        <div style={{ borderTop: '1px solid rgba(59,130,246,0.1)', paddingTop: '1rem' }}>
                             {activeLecturer ? (
                                 <div className="space-y-2">
                                     <button onClick={() => { setMobileMenuOpen(false); router.push('/lecturer'); }}
-                                        className="w-full mobile-button text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md flex items-center justify-center gap-2">
-                                        <AnimatedIcon type="faculty" size={20} className="text-white" />
-                                        <span>Resume Portal ({activeLecturer.full_name})</span>
+                                        className="w-full py-3 px-4 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all"
+                                        style={{ background: 'linear-gradient(135deg, #059669, #0d9488)', boxShadow: '0 8px 24px rgba(5,150,105,0.3)' }}>
+                                        <AnimatedIcon type="faculty" size={18} />
+                                        Resume Portal ({activeLecturer.full_name})
                                     </button>
                                     <button onClick={() => { setMobileMenuOpen(false); handleFacultySignOut(); }}
-                                        className="w-full py-2.5 rounded-xl text-xs font-bold text-rose-300 bg-rose-500/10 border border-rose-500/30">
+                                        className="w-full py-2.5 rounded-xl text-xs font-bold transition-all"
+                                        style={{ color: '#fda4af', background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.2)' }}>
                                         Sign Out of Faculty Portal
                                     </button>
                                 </div>
                             ) : (
                                 <button onClick={() => { setMobileMenuOpen(false); handleFacultyAction(); }}
-                                    className="w-full mobile-button text-white bg-gradient-to-r from-blue-600 via-blue-700 to-emerald-600 shadow-md shadow-blue-600/30 flex items-center justify-center gap-2">
-                                    <AnimatedIcon type="faculty" size={20} className="text-white" />
-                                    <span>Faculty / Lecturer Login</span>
+                                    className="w-full py-3 px-4 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all hover:opacity-90"
+                                    style={{ background: 'linear-gradient(135deg, #1e4bcc, #059669)', boxShadow: '0 8px 24px rgba(30,75,204,0.3)' }}>
+                                    <AnimatedIcon type="faculty" size={18} />
+                                    Faculty / Lecturer Login
                                 </button>
                             )}
                         </div>
@@ -416,137 +442,190 @@ export default function HomePage() {
                 )}
             </nav>
 
-            {/* ── Blue-Emerald School Hero Section ── */}
-            <div className="relative text-white overflow-hidden py-6 sm:py-10 md:py-16 mobile-px-safe sm:px-6 bg-gradient-to-br from-[#0B192C] via-[#1E3E62] to-[#042f2e] border-b border-blue-500/20">
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full opacity-25 bg-blue-500 blur-3xl animate-float" />
-                    <div className="absolute top-10 right-1/3 w-80 h-80 rounded-full opacity-20 bg-emerald-400 blur-3xl" style={{ animation: 'float 10s ease-in-out infinite 2s' }} />
-                    <div className="absolute -bottom-16 right-10 w-96 h-96 rounded-full opacity-25 bg-teal-500 blur-3xl" style={{ animation: 'float 12s ease-in-out infinite 1s' }} />
+            {/* ════════════════════════════════════════
+                HERO SECTION  
+                ════════════════════════════════════════ */}
+            <div className="relative overflow-hidden" style={{
+                background: 'linear-gradient(160deg, #03070f 0%, #0a1628 35%, #041a2e 65%, #020d18 100%)',
+                borderBottom: '1px solid rgba(59,130,246,0.1)',
+                paddingTop: '3rem',
+                paddingBottom: '3rem',
+            }}>
+                {/* Particle field */}
+                <ParticleField particleCount={45} color="#3b74f7" connectorColor="#10b981" />
+
+                {/* Blurred blobs */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    <div style={{ position: 'absolute', top: '-80px', left: '-80px', width: 400, height: 400, borderRadius: '50%', background: '#1e4bcc', opacity: 0.08, filter: 'blur(80px)' }} className="animate-float-slow" />
+                    <div style={{ position: 'absolute', top: 60, right: '20%', width: 350, height: 350, borderRadius: '50%', background: '#10b981', opacity: 0.06, filter: 'blur(80px)', animationDelay: '2s' }} className="animate-float-slow" />
+                    <div style={{ position: 'absolute', bottom: -60, right: -60, width: 400, height: 400, borderRadius: '50%', background: '#8b5cf6', opacity: 0.06, filter: 'blur(80px)', animationDelay: '4s' }} className="animate-float-slow" />
                 </div>
 
-                <div className="max-w-7xl mx-auto relative z-10">
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 sm:gap-8 md:gap-10">
+                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+                    <div className="flex flex-col lg:flex-row lg:items-center gap-10 lg:gap-16">
 
-                        {/* Left — Headline + Live Clock + Stats */}
+                        {/* LEFT — Text content */}
                         <div className="flex-1 min-w-0" data-aos="fade-right">
-                            <div className="flex items-center gap-2 sm:gap-2.5 mb-3 sm:mb-4 flex-wrap">
-                                <div className="flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1 sm:py-1.5 bg-slate-950/60 border border-emerald-400/30 backdrop-blur-md">
-                                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 animate-pulse shadow-md shadow-emerald-400/80"></div>
-                                    <span className="text-emerald-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Attendance Kiosk</span>
-                                </div>
-                                <span className="text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md shadow-blue-500/20">
+                            {/* Badges */}
+                            <div className="flex items-center gap-2.5 flex-wrap mb-5">
+                                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest"
+                                    style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', color: '#6ee7b7' }}>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                    Kiosk Active
+                                </span>
+                                <span className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest"
+                                    style={{ background: 'linear-gradient(135deg, rgba(30,75,204,0.25), rgba(5,150,105,0.2))', border: '1px solid rgba(59,116,247,0.3)', color: '#93c5fd' }}>
                                     Salvation Heritage
+                                </span>
+                                <span className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest"
+                                    style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)', color: '#c4b5fd' }}>
+                                    AWS Rekognition AI
                                 </span>
                             </div>
 
-                            <h1 className="font-black tracking-tight leading-none mb-3 sm:mb-4">
-                                <span className="block xs-hero-title sm:mobile-hero-title md:text-6xl lg:text-7xl text-white font-serif">Salvation</span>
-                                <span className="block xs-hero-title sm:mobile-hero-title md:text-6xl lg:text-7xl bg-gradient-to-r from-blue-300 via-emerald-200 to-white bg-clip-text text-transparent">Heritage</span>
+                            {/* Headline */}
+                            <h1 className="font-black leading-none mb-5" style={{ fontFamily: 'var(--font-outfit)' }}>
+                                <span className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-white">Smart Face</span>
+                                <span className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl" style={{
+                                    background: 'linear-gradient(135deg, #60a5fa 0%, #34d399 60%, #a78bfa 100%)',
+                                    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+                                }}>Attendance</span>
                             </h1>
 
-                            <p className="text-slate-200 text-xs sm:text-sm md:text-base max-w-xl leading-relaxed mb-4 sm:mb-6 font-medium">
-                                Welcome, students and teachers! Position your face in front of the camera kiosk to log your presence in seconds.
+                            <p className="text-sm sm:text-base text-slate-400 max-w-lg leading-relaxed mb-6" style={{ fontFamily: 'var(--font-inter)' }}>
+                                Step in front of the camera — our AWS-powered AI instantly identifies you and logs your attendance in under 2 seconds.
+                                No cards, no PINs, just your face.
                             </p>
 
-                            {/* Faculty Portal Callout Box on Hero */}
-                            <div className="mb-4 sm:mb-6 p-3 sm:p-3.5 md:p-4 rounded-xl sm:rounded-2xl bg-slate-950/70 border border-blue-400/30 backdrop-blur-md flex flex-col gap-3 shadow-xl">
-                                <div className="flex items-start sm:items-center gap-2 sm:gap-3">
-                                    <AnimatedIcon type="faculty" size={24} className="text-blue-400 flex-shrink-0" />
-                                    <div className="min-w-0 flex-1">
+                            {/* Faculty callout */}
+                            <div className="mb-6 rounded-2xl overflow-hidden" style={{
+                                background: 'linear-gradient(145deg, rgba(10,22,45,0.95), rgba(8,15,28,0.9))',
+                                border: '1px solid rgba(59,116,247,0.2)',
+                                boxShadow: '0 20px 60px -12px rgba(0,0,0,0.5)',
+                            }}>
+                                <div className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: '1px solid rgba(59,116,247,0.1)' }}>
+                                    <div style={{
+                                        width: 36, height: 36, borderRadius: '0.75rem', flexShrink: 0,
+                                        background: 'linear-gradient(135deg, rgba(30,75,204,0.3), rgba(5,150,105,0.2))',
+                                        border: '1px solid rgba(59,116,247,0.3)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    }}>
+                                        <AnimatedIcon type="faculty" size={20} style={{ color: '#60a5fa' }} />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
                                         {activeLecturer ? (
                                             <>
-                                                <p className="text-xs sm:text-sm font-bold text-emerald-400">
-                                                    Welcome back, {activeLecturer.full_name}
-                                                </p>
-                                                <p className="text-[10px] sm:text-[11px] text-slate-300">
-                                                    {activeLecturer.department} • Active Faculty Session
-                                                </p>
+                                                <p className="text-sm font-bold text-emerald-400">Welcome back, {activeLecturer.full_name}</p>
+                                                <p className="text-[11px] text-slate-400">{activeLecturer.department} · Active Faculty Session</p>
                                             </>
                                         ) : (
                                             <>
-                                                <p className="text-xs sm:text-sm font-bold text-white">Faculty & Lecturer Portal</p>
-                                                <p className="text-[10px] sm:text-[11px] text-emerald-300">Open active class session & start roll call</p>
+                                                <p className="text-sm font-bold text-white">Faculty &amp; Lecturer Portal</p>
+                                                <p className="text-[11px] text-slate-400">Open class session &amp; start roll call</p>
                                             </>
                                         )}
                                     </div>
                                 </div>
-
-                                <div className="flex items-center gap-2">
+                                <div className="px-4 py-3 flex items-center gap-2">
                                     <button onClick={handleFacultyAction}
-                                        className="flex-1 mobile-button text-xs font-black text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-md shadow-blue-600/30 active:scale-95 transition-all">
+                                        className="flex-1 py-2.5 px-4 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 hover:-translate-y-0.5"
+                                        style={{ background: 'linear-gradient(135deg, #1e4bcc, #059669)', boxShadow: '0 8px 24px rgba(30,75,204,0.3)' }}>
                                         {activeLecturer ? 'Enter Faculty Terminal →' : 'Open Faculty Terminal →'}
                                     </button>
                                     {activeLecturer && (
                                         <button onClick={handleFacultySignOut}
-                                            title="Sign Out"
-                                            className="px-3 py-2 rounded-xl text-xs font-bold text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-all flex-shrink-0">
+                                            className="py-2.5 px-3 rounded-xl text-xs font-bold transition-all"
+                                            style={{ color: '#fda4af', background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.25)' }}>
                                             Sign Out
                                         </button>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Live Clock Card */}
-                            <div className="mb-4 sm:mb-6 rounded-xl sm:rounded-2xl px-4 sm:px-5 md:px-6 py-3 sm:py-3.5 md:py-4 inline-block bg-slate-950/60 border border-white/15 backdrop-blur-md shadow-xl">
+                            {/* Live clock */}
+                            <div className="inline-block rounded-2xl px-5 py-3.5 mb-6" style={{
+                                background: 'rgba(2,6,23,0.8)',
+                                border: '1px solid rgba(59,116,247,0.15)',
+                                boxShadow: '0 0 40px rgba(59,116,247,0.05)',
+                            }}>
                                 <LiveClock />
                             </div>
 
-                            {/* School Stats Row */}
-                            <div className="mobile-stats-grid xs-stats-grid sm:flex sm:flex-wrap sm:gap-3">
-                                <div className="mobile-stats-item sm:flex sm:items-center sm:gap-3 sm:rounded-2xl sm:px-4 sm:py-3 bg-slate-950/60 border border-emerald-500/30 backdrop-blur-md">
-                                    <AnimatedIcon type="check" size={24} className="text-emerald-400" />
-                                    <div>
-                                        <p className="text-white font-black text-lg sm:text-xl leading-none">{todayCount}</p>
-                                        <p className="text-emerald-300 text-[10px] sm:text-xs font-medium mt-0.5">Present Today</p>
-                                    </div>
-                                </div>
-                                <div className="mobile-stats-item sm:flex sm:items-center sm:gap-3 sm:rounded-2xl sm:px-4 sm:py-3 bg-slate-950/60 border border-blue-500/30 backdrop-blur-md">
-                                    <AnimatedIcon type="dashboard" size={24} className="text-blue-400" />
-                                    <div>
-                                        <p className="text-white font-black text-lg sm:text-xl leading-none">{percentage}%</p>
-                                        <p className="text-blue-300 text-[10px] sm:text-xs font-medium mt-0.5">Attendance Rate</p>
-                                    </div>
-                                </div>
-                                <div className="mobile-stats-item sm:flex sm:items-center sm:gap-3 sm:rounded-2xl sm:px-4 sm:py-3 bg-slate-950/60 border border-white/15 backdrop-blur-md">
-                                    <AnimatedIcon type="users" size={24} className="text-slate-300" />
-                                    <div>
-                                        <p className="text-white font-black text-lg sm:text-xl leading-none">{totalStudents}</p>
-                                        <p className="text-slate-300 text-[10px] sm:text-xs font-medium mt-0.5">Enrolled</p>
-                                    </div>
-                                </div>
+                            {/* Stats row */}
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <StatCard icon="check" value={todayCount}    label="Present Today"   color="emerald" delay={0}   />
+                                <StatCard icon="chart" value={percentage}    label="% Attendance"    color="blue"    delay={80}  />
+                                <StatCard icon="users" value={totalStudents} label="Total Enrolled"  color="violet"  delay={160} />
                             </div>
                         </div>
 
-                        {/* Right — Scanner Visual with Animated Illustration */}
-                        <div className="flex-shrink-0 flex items-center justify-center lg:justify-end mt-4 lg:mt-0" data-aos="fade-left" data-aos-delay="200">
-                            <div className="relative group w-64 sm:w-72 md:w-96 lg:w-[26rem] xl:w-[28rem]">
-                                <div className="absolute -inset-2 sm:-inset-4 rounded-2xl sm:rounded-3xl opacity-50 blur-2xl bg-gradient-to-r from-blue-600 via-emerald-500 to-teal-400 animate-pulse" />
-                                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/30 sm:border-2 shadow-2xl bg-slate-900">
-                                    {/* Background Image */}
-                                    <img src="/scanner.jpg" alt="Salvation Heritage Face Recognition"
-                                        className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
-                                        style={{ filter: 'brightness(0.85) contrast(1.05)', minHeight: '200px' }} />
-                                    
-                                    {/* Animated Face Scan Overlay */}
-                                    <div className="absolute inset-0 flex items-center justify-center p-8">
-                                        <div className="w-48 h-48 sm:w-64 sm:h-64">
-                                            <LottieAnimation
-                                                animationPath="/animations/face-scan.json"
-                                                loop={true}
-                                                autoplay={true}
-                                                style={{ width: '100%', height: '100%', filter: 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.6))' }}
-                                            />
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
-                                    <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center bg-gradient-to-tr from-emerald-600 to-teal-500 border border-white/60 shadow-lg shadow-emerald-500/40 animate-pulse">
-                                        <span className="text-white text-sm sm:text-lg">✓</span>
-                                    </div>
-                                    <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 py-0.5 sm:py-1 bg-slate-950/80 backdrop-blur border border-emerald-400/40">
-                                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 animate-pulse" />
-                                        <span className="text-emerald-300 text-[9px] sm:text-[10px] font-black tracking-wider">KIOSK LIVE</span>
-                                    </div>
+                        {/* RIGHT — Face scan illustration */}
+                        <div className="flex-shrink-0 flex items-center justify-center lg:justify-end" data-aos="fade-left" data-aos-delay="150">
+                            <div className="relative" style={{ width: 'min(340px, 90vw)' }}>
+                                {/* Outer glow ring */}
+                                <div style={{
+                                    position: 'absolute', inset: -32, borderRadius: '50%',
+                                    background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)',
+                                    animation: 'glow-pulse 3s ease-in-out infinite',
+                                }} />
+                                {/* Decorative orbit */}
+                                <div style={{
+                                    position: 'absolute', inset: -16, borderRadius: '50%',
+                                    border: '1px solid rgba(59,116,247,0.15)',
+                                    animation: 'spin-slow 25s linear infinite',
+                                }}>
+                                    <div style={{
+                                        position: 'absolute', top: -4, left: '50%',
+                                        width: 8, height: 8, borderRadius: '50%',
+                                        background: '#3b74f7', boxShadow: '0 0 12px #3b74f7',
+                                    }} />
+                                </div>
+                                <div style={{
+                                    position: 'absolute', inset: -32, borderRadius: '50%',
+                                    border: '1px dashed rgba(16,185,129,0.1)',
+                                    animation: 'spin-reverse 35s linear infinite',
+                                }}>
+                                    <div style={{
+                                        position: 'absolute', bottom: -4, right: '20%',
+                                        width: 6, height: 6, borderRadius: '50%',
+                                        background: '#10b981', boxShadow: '0 0 10px #10b981',
+                                    }} />
+                                </div>
+
+                                {/* Main illustration container */}
+                                <div style={{
+                                    borderRadius: '2rem', overflow: 'hidden',
+                                    background: 'linear-gradient(160deg, rgba(10,22,45,0.98), rgba(5,10,20,0.95))',
+                                    border: '1px solid rgba(16,185,129,0.2)',
+                                    boxShadow: '0 40px 80px -20px rgba(0,0,0,0.8), 0 0 60px rgba(16,185,129,0.08)',
+                                    padding: '2rem',
+                                }} className="animate-float-subtle">
+                                    <FaceScanIllustration size={280} color="#10b981" />
+                                </div>
+
+                                {/* Floating badge — KIOSK LIVE */}
+                                <div style={{
+                                    position: 'absolute', top: 12, left: -8,
+                                    display: 'flex', alignItems: 'center', gap: 6,
+                                    padding: '6px 12px', borderRadius: 999,
+                                    background: 'rgba(2,6,23,0.95)',
+                                    border: '1px solid rgba(16,185,129,0.4)',
+                                    boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                                }}>
+                                    <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} className="animate-pulse" />
+                                    <span style={{ fontSize: 10, fontWeight: 800, color: '#34d399', letterSpacing: '0.08em', fontFamily: 'var(--font-outfit)' }}>KIOSK LIVE</span>
+                                </div>
+                                {/* AWS badge */}
+                                <div style={{
+                                    position: 'absolute', bottom: 12, right: -8,
+                                    padding: '6px 12px', borderRadius: 999,
+                                    background: 'rgba(2,6,23,0.95)',
+                                    border: '1px solid rgba(59,116,247,0.35)',
+                                    boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                                    fontSize: 10, fontWeight: 800, color: '#93c5fd',
+                                    letterSpacing: '0.06em', fontFamily: 'var(--font-outfit)',
+                                }}>
+                                    AWS Rekognition
                                 </div>
                             </div>
                         </div>
@@ -554,228 +633,276 @@ export default function HomePage() {
                 </div>
             </div>
 
-            {/* ── Main Kiosk Section ── */}
-            <div className="max-w-7xl mx-auto mobile-px-safe sm:px-6 py-6 sm:py-8 md:py-12 flex-1">
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8">
+            {/* ════════════════════════════════════════
+                KIOSK SECTION  
+                ════════════════════════════════════════ */}
+            <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12">
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 lg:gap-8">
 
-                    {/* Camera Scanner (3/5) */}
+                    {/* Camera panel (3/5) */}
                     <div className="lg:col-span-3" data-aos="fade-up">
-                        <div className="mobile-camera-container sm:rounded-3xl overflow-hidden bg-slate-900/90 border border-blue-500/20 shadow-2xl backdrop-blur-xl">
-                            <div className="px-4 sm:px-5 md:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-slate-800 bg-slate-950/40">
-                                <div className="flex items-center gap-2 sm:gap-3">
-                                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400 animate-pulse shadow-md shadow-emerald-400/80" />
+                        <div style={{
+                            borderRadius: '1.75rem', overflow: 'hidden',
+                            background: 'linear-gradient(145deg, rgba(10,22,45,0.95), rgba(8,15,28,0.9))',
+                            border: '1px solid rgba(59,116,247,0.15)',
+                            boxShadow: '0 30px 80px -12px rgba(0,0,0,0.7)',
+                        }}>
+                            {/* Panel header */}
+                            <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: '1px solid rgba(59,116,247,0.1)', background: 'rgba(2,6,23,0.6)' }}>
+                                <div className="flex items-center gap-2.5">
+                                    <div style={{
+                                        width: 34, height: 34, borderRadius: '0.625rem',
+                                        background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    }}>
+                                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} className="animate-pulse" />
+                                    </div>
                                     <div>
-                                        <span className="font-bold text-white text-xs sm:text-sm">Biometric Face Scanner</span>
-                                        <p className="text-[9px] sm:text-[10px] text-slate-400">Salvation Heritage High-Precision AI</p>
+                                        <p className="text-sm font-bold text-white" style={{ fontFamily: 'var(--font-outfit)' }}>Biometric Face Scanner</p>
+                                        <p className="text-[10px] text-slate-500">Salvation Heritage High-Precision AI Engine</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[9px] sm:text-[10px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                                        <AnimatedIcon type="live" size={12} className="text-emerald-400" />
-                                        <span>Active</span>
-                                    </span>
-                                </div>
+                                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold"
+                                    style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', color: '#6ee7b7' }}>
+                                    <AnimatedIcon type="live" size={11} />
+                                    Active
+                                </span>
                             </div>
-
-                            <div className="mobile-kiosk-section sm:p-6">
+                            <div className="p-4 sm:p-6">
                                 <CameraCapture onCapture={handleCapture} isLoading={isLoading} />
                             </div>
                         </div>
                     </div>
 
-                    {/* Result Verification Card (2/5) */}
-                    <div className="lg:col-span-2 space-y-4 sm:space-y-5" data-aos="fade-up" data-aos-delay="100">
+                    {/* Info / Result panel (2/5) */}
+                    <div className="lg:col-span-2 flex flex-col gap-5" data-aos="fade-up" data-aos-delay="100">
+
                         {lastAttendance && !lastAttendance.error ? (
-                            <div className="responsive-card space-y-4 sm:space-y-5 animate-in zoom-in-95 duration-300 border-emerald-500/40">
-                                <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-800">
-                                    <div className="flex items-center gap-1.5 sm:gap-2">
-                                        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400 animate-pulse" />
-                                        <span className="text-[10px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                            /* ── SUCCESS CARD ── */
+                            <div className="flex-1 rounded-3xl overflow-hidden animate-scale-in" style={{
+                                background: 'linear-gradient(145deg, rgba(5,150,105,0.08), rgba(10,22,45,0.95))',
+                                border: '1px solid rgba(16,185,129,0.35)',
+                                boxShadow: '0 30px 80px -12px rgba(0,0,0,0.7), 0 0 40px rgba(16,185,129,0.08)',
+                            }}>
+                                <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(16,185,129,0.15)', background: 'rgba(2,6,23,0.6)' }}>
+                                    <div className="flex items-center gap-2">
+                                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} className="animate-pulse" />
+                                        <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">
                                             {lastAttendance.alreadyMarked ? 'Already Present' : 'Attendance Verified'}
                                         </span>
                                     </div>
-                                    <span className="text-[9px] sm:text-xs font-mono text-slate-400">{lastAttendance.timestamp}</span>
+                                    <span className="text-[10px] text-slate-500" style={{ fontFamily: 'var(--font-mono)' }}>{lastAttendance.timestamp}</span>
                                 </div>
 
-                                {/* Student Identity */}
-                                <div className="flex items-center gap-3 sm:gap-4">
-                                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden bg-slate-950 border-2 border-emerald-500/50 flex-shrink-0 shadow-lg">
-                                        <img src={PHOTO_URL(lastAttendance.student.student_id)}
-                                            alt={lastAttendance.student.full_name}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => { e.target.src = FALLBACK_SVG; }} />
+                                <div className="p-5 space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <div style={{ width: 64, height: 64, borderRadius: '1rem', overflow: 'hidden', flexShrink: 0, border: '2px solid rgba(16,185,129,0.4)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                                            <img src={PHOTO_URL(lastAttendance.student.student_id)} alt={lastAttendance.student.full_name}
+                                                className="w-full h-full object-cover" onError={e => { e.target.src = FALLBACK_SVG; }} />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <h3 className="font-black text-lg text-white truncate" style={{ fontFamily: 'var(--font-outfit)' }}>{lastAttendance.student.full_name}</h3>
+                                            <p className="text-xs text-emerald-400 font-bold tracking-wider" style={{ fontFamily: 'var(--font-mono)' }}>{lastAttendance.student.student_id}</p>
+                                            <p className="text-[11px] text-slate-400 mt-0.5">{lastAttendance.student.department}</p>
+                                        </div>
                                     </div>
-                                    <div className="min-w-0">
-                                        <h3 className="font-black text-lg sm:text-xl text-white truncate">{lastAttendance.student.full_name}</h3>
-                                        <p className="text-xs sm:text-sm text-emerald-400 font-mono font-black tracking-wider">{lastAttendance.student.student_id}</p>
-                                        <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5">{lastAttendance.student.department || 'Salvation Heritage'}</p>
-                                    </div>
-                                </div>
 
-                                {/* Student Details Grid */}
-                                <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-xs">
-                                    <div className="bg-slate-950/70 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-800">
-                                        <p className="text-slate-400 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider">Student ID</p>
-                                        <p className="font-black text-emerald-400 font-mono text-xs sm:text-sm mt-0.5">{lastAttendance.student.student_id}</p>
+                                    <div className="grid grid-cols-2 gap-2 text-xs">
+                                        {[
+                                            { label: 'Student ID',  val: lastAttendance.student.student_id,   mono: true },
+                                            { label: 'Class',       val: lastAttendance.student.department || '—' },
+                                            { label: 'Term',        val: ['', '1st', '2nd', '3rd'][lastAttendance.student.semester] ? `${['', '1st', '2nd', '3rd'][lastAttendance.student.semester]} Term` : '—' },
+                                            { label: 'Year Intake', val: lastAttendance.student.year_intake || '—' },
+                                        ].map(d => (
+                                            <div key={d.label} className="rounded-xl p-3" style={{ background: 'rgba(2,6,23,0.7)', border: '1px solid rgba(59,130,246,0.1)' }}>
+                                                <p className="text-[9px] uppercase font-bold tracking-wider text-slate-500">{d.label}</p>
+                                                <p className={`font-bold mt-0.5 text-xs ${d.mono ? 'text-emerald-400' : 'text-white'}`} style={d.mono ? { fontFamily: 'var(--font-mono)' } : {}}>{d.val}</p>
+                                            </div>
+                                        ))}
                                     </div>
-                                    <div className="bg-slate-950/70 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-800">
-                                        <p className="text-slate-400 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider">Class</p>
-                                        <p className="font-bold text-white text-xs sm:text-sm mt-0.5">{lastAttendance.student.department || '—'}</p>
-                                    </div>
-                                    <div className="bg-slate-950/70 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-800">
-                                        <p className="text-slate-400 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider">Term</p>
-                                        <p className="font-bold text-white text-xs sm:text-sm mt-0.5">
-                                            {lastAttendance.student.semester === 1 ? '1st Term' : lastAttendance.student.semester === 2 ? '2nd Term' : lastAttendance.student.semester === 3 ? '3rd Term' : '—'}
-                                        </p>
-                                    </div>
-                                    <div className="bg-slate-950/70 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-800">
-                                        <p className="text-slate-400 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider">Year Intake</p>
-                                        <p className="font-bold text-white text-xs sm:text-sm mt-0.5">{lastAttendance.student.year_intake || '—'}</p>
-                                    </div>
-                                </div>
 
-                                {/* Status Banner */}
-                                <div className={`rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold ${lastAttendance.alreadyMarked
-                                    ? 'bg-amber-500/10 border border-amber-500/30 text-amber-300'
-                                    : 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
-                                    }`}>
-                                    {lastAttendance.alreadyMarked
-                                        ? '👋 Welcome back! Your attendance was already recorded today.'
-                                        : `✅ Attendance successfully marked for ${lastAttendance.student.full_name}`
-                                    }
+                                    <div className="rounded-xl py-3 px-4 text-center text-[11px] font-semibold"
+                                        style={lastAttendance.alreadyMarked
+                                            ? { background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', color: '#fde68a' }
+                                            : { background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', color: '#6ee7b7' }}>
+                                        {lastAttendance.alreadyMarked
+                                            ? 'Welcome back! Your attendance was already recorded today.'
+                                            : `Attendance successfully marked for ${lastAttendance.student.full_name}`}
+                                    </div>
                                 </div>
                             </div>
                         ) : (
-                            <div className="responsive-card space-y-3 sm:space-y-4 border-blue-500/20">
-                                <div className="flex items-center gap-2 sm:gap-3">
-                                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center text-white bg-blue-600/30 border border-blue-500/40 font-black text-xs sm:text-sm">
-                                        SH
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xs sm:text-sm font-bold text-white">Salvation Heritage Kiosk</h3>
-                                        <p className="text-[10px] sm:text-xs text-slate-400">Automatic Biometric Verification</p>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2 sm:space-y-3 pt-2 text-[10px] sm:text-xs text-slate-300">
-                                    <div className="flex items-start gap-2 sm:gap-2.5 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-950/60 border border-slate-800">
-                                        <span className="text-emerald-400 font-bold flex-shrink-0">1.</span>
-                                        <span>Look straight into the camera lens with good lighting.</span>
-                                    </div>
-                                    <div className="flex items-start gap-2 sm:gap-2.5 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-950/60 border border-slate-800">
-                                        <span className="text-emerald-400 font-bold flex-shrink-0">2.</span>
-                                        <span>Keep a neutral facial expression inside the emerald frame.</span>
-                                    </div>
-                                    <div className="flex items-start gap-2 sm:gap-2.5 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-950/60 border border-slate-800">
-                                        <span className="text-emerald-400 font-bold flex-shrink-0">3.</span>
-                                        <span>Click <b>Capture & Mark Attendance</b> to register your record.</span>
+                            /* ── INFO CARD ── */
+                            <div className="flex-1 rounded-3xl overflow-hidden" style={{
+                                background: 'linear-gradient(145deg, rgba(10,22,45,0.95), rgba(8,15,28,0.9))',
+                                border: '1px solid rgba(59,116,247,0.15)',
+                                boxShadow: '0 30px 80px -12px rgba(0,0,0,0.7)',
+                            }}>
+                                <div className="px-5 py-3.5" style={{ borderBottom: '1px solid rgba(59,116,247,0.1)', background: 'rgba(2,6,23,0.6)' }}>
+                                    <div className="flex items-center gap-2.5">
+                                        <div style={{
+                                            width: 34, height: 34, borderRadius: '0.625rem',
+                                            background: 'linear-gradient(135deg, rgba(30,75,204,0.25), rgba(5,150,105,0.2))',
+                                            border: '1px solid rgba(59,116,247,0.3)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            fontFamily: 'var(--font-outfit)', fontWeight: 900, fontSize: 12, color: 'white',
+                                        }}>SH</div>
+                                        <div>
+                                            <p className="text-sm font-bold text-white" style={{ fontFamily: 'var(--font-outfit)' }}>Salvation Heritage Kiosk</p>
+                                            <p className="text-[10px] text-slate-500">Automatic Biometric Verification</p>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="pt-2">
+                                <div className="p-5 space-y-3">
+                                    {[
+                                        { n: '1', text: 'Look straight into the camera with good lighting.' },
+                                        { n: '2', text: 'Keep a neutral expression inside the scan frame.' },
+                                        { n: '3', text: <><b className="text-white">Capture &amp; Mark Attendance</b> — done in under 2s!</> },
+                                    ].map(s => (
+                                        <div key={s.n} className="flex items-start gap-3 rounded-xl p-3"
+                                            style={{ background: 'rgba(2,6,23,0.6)', border: '1px solid rgba(59,116,247,0.08)' }}>
+                                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0"
+                                                style={{ background: 'linear-gradient(135deg, #1e4bcc, #059669)', color: 'white', marginTop: 1 }}>{s.n}</span>
+                                            <span className="text-[11px] text-slate-300 leading-relaxed">{s.text}</span>
+                                        </div>
+                                    ))}
+
                                     <Link href="/register"
-                                        className="mobile-button text-center text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center gap-2 transition-all no-underline">
-                                        <span>Not yet enrolled? Register your face →</span>
+                                        className="mt-2 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold no-underline transition-all hover:-translate-y-0.5"
+                                        style={{ color: '#6ee7b7', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)' }}
+                                        onMouseOver={e => e.currentTarget.style.background = 'rgba(16,185,129,0.15)'}
+                                        onMouseOut={e => e.currentTarget.style.background = 'rgba(16,185,129,0.08)'}>
+                                        <AnimatedIcon type="register" size={16} />
+                                        Not enrolled yet? Register your face →
                                     </Link>
                                 </div>
+                            </div>
+                        )}
+
+                        {/* Error state mini card */}
+                        {lastAttendance?.error && (
+                            <div className="rounded-2xl p-4 animate-scale-in" style={{
+                                background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.25)',
+                            }}>
+                                <p className="text-xs font-bold text-rose-400 mb-1">Recognition Failed</p>
+                                <p className="text-[11px] text-slate-400">{lastAttendance.message}</p>
+                                <p className="text-[10px] text-slate-500 mt-1">Make sure you are registered and facing the camera clearly.</p>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
 
-            {/* Faculty / Lecturer Login Modal on Home Page (Only when signed out) */}
+            {/* ════════════════════════════════════════
+                FACULTY LOGIN MODAL  
+                ════════════════════════════════════════ */}
             {showFacultyModal && !activeLecturer && (
-                <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center mobile-px-safe">
-                    <div className="bg-slate-900 border border-blue-500/30 rounded-2xl sm:rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                        {/* Header */}
-                        <div className="px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-blue-900 via-slate-900 to-emerald-950 border-b border-white/10 flex items-center justify-between">
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-blue-600 to-emerald-500 flex items-center justify-center text-white text-base sm:text-lg font-black shadow-md shadow-blue-600/30">
-                                    <AnimatedIcon type="faculty" size={24} className="text-white" />
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(2,6,23,0.88)', backdropFilter: 'blur(16px)' }}>
+                    <div className="w-full max-w-md rounded-3xl overflow-hidden animate-scale-in" style={{
+                        background: 'linear-gradient(145deg, rgba(10,22,45,0.99), rgba(5,10,20,0.98))',
+                        border: '1px solid rgba(59,116,247,0.25)',
+                        boxShadow: '0 50px 100px -20px rgba(0,0,0,0.9), 0 0 60px rgba(59,116,247,0.08)',
+                    }}>
+                        {/* Modal header */}
+                        <div className="px-6 py-5 flex items-center justify-between" style={{
+                            borderBottom: '1px solid rgba(59,116,247,0.1)',
+                            background: 'linear-gradient(135deg, rgba(30,75,204,0.1), rgba(5,150,105,0.07))',
+                        }}>
+                            <div className="flex items-center gap-3">
+                                <div style={{
+                                    width: 44, height: 44, borderRadius: '0.875rem',
+                                    background: 'linear-gradient(135deg, #1e4bcc, #059669)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    boxShadow: '0 8px 24px rgba(30,75,204,0.4)',
+                                }}>
+                                    <AnimatedIcon type="faculty" size={24} style={{ color: 'white' }} />
                                 </div>
                                 <div>
-                                    <h2 className="text-sm sm:text-base md:text-lg font-black text-white">Faculty Portal Login</h2>
-                                    <p className="text-[10px] sm:text-xs text-emerald-300">Salvation Heritage Instructors & Staff</p>
+                                    <h2 className="text-base font-black text-white" style={{ fontFamily: 'var(--font-outfit)' }}>Faculty Portal Login</h2>
+                                    <p className="text-[11px] text-emerald-400">Salvation Heritage Instructors &amp; Staff</p>
                                 </div>
                             </div>
                             <button onClick={() => setShowFacultyModal(false)}
-                                className="w-6 h-6 sm:w-8 sm:h-8 touch-target rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs sm:text-sm">
-                                ✕
+                                className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-white transition-colors"
+                                style={{ background: 'rgba(30,41,59,0.6)', border: '1px solid rgba(71,85,105,0.3)' }}>
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
 
-                        {/* Body */}
-                        <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+                        {/* Modal body */}
+                        <div className="p-6 space-y-4">
                             {facultyError && (
-                                <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[10px] sm:text-xs flex items-center gap-2">
-                                    <span>⚠</span>
-                                    <span>{facultyError}</span>
+                                <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-semibold animate-fade-in"
+                                    style={{ background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.25)', color: '#fda4af' }}>
+                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                                    {facultyError}
                                 </div>
                             )}
 
-                            <form onSubmit={handleFacultyLogin} className="space-y-3 sm:space-y-4">
+                            <form onSubmit={handleFacultyLogin} className="space-y-4">
                                 <div>
-                                    <label className="block text-[10px] sm:text-xs font-bold text-slate-300 mb-1 sm:mb-1.5 uppercase tracking-wider">
-                                        Username or Lecturer ID
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={facultyUser}
-                                        onChange={e => { setFacultyUser(e.target.value); setFacultyError(''); }}
+                                    <label className="label-premium">Username or Lecturer ID</label>
+                                    <input type="text" value={facultyUser} onChange={e => { setFacultyUser(e.target.value); setFacultyError(''); }}
                                         placeholder="e.g. babatunde.adeyemi or LEC001"
-                                        className="mobile-input font-mono focus:border-emerald-500 bg-slate-950 border-slate-700 text-white"
-                                    />
+                                        className="input-premium" style={{ fontFamily: 'var(--font-mono)' }} />
                                 </div>
-
                                 <div>
-                                    <label className="block text-[10px] sm:text-xs font-bold text-slate-300 mb-1 sm:mb-1.5 uppercase tracking-wider">
-                                        Password
-                                    </label>
-                                    <input
-                                        type="password"
-                                        value={facultyPass}
-                                        onChange={e => { setFacultyPass(e.target.value); setFacultyError(''); }}
-                                        placeholder="Enter your password"
-                                        className="mobile-input focus:border-emerald-500 bg-slate-950 border-slate-700 text-white"
-                                    />
+                                    <label className="label-premium">Password</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <input type={showPass ? 'text' : 'password'} value={facultyPass}
+                                            onChange={e => { setFacultyPass(e.target.value); setFacultyError(''); }}
+                                            placeholder="Enter your password" className="input-premium" style={{ paddingRight: '2.75rem' }} />
+                                        <button type="button" onClick={() => setShowPass(v => !v)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors">
+                                            {showPass
+                                                ? <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                                                : <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                            }
+                                        </button>
+                                    </div>
                                 </div>
-
                                 <button type="submit" disabled={facultyLoading}
-                                    className="mobile-button w-full text-white font-black bg-gradient-to-r from-blue-600 via-blue-700 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-xl shadow-blue-600/30 active:scale-95 transition-all disabled:opacity-50">
-                                    {facultyLoading ? '⏳ Authenticating...' : '🔐 Sign In to Session Control'}
+                                    className="w-full py-3.5 rounded-xl text-sm font-black text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
+                                    style={{ background: 'linear-gradient(135deg, #1e4bcc, #059669)', boxShadow: '0 12px 32px rgba(30,75,204,0.4)', fontFamily: 'var(--font-outfit)' }}>
+                                    {facultyLoading
+                                        ? <><svg className="animate-spin" width="16" height="16" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg> Authenticating…</>
+                                        : <>Sign In to Session Control →</>
+                                    }
                                 </button>
                             </form>
 
-                            {/* 13 Nigerian Faculty Members Quick Profile Selector */}
-                            <div className="pt-2 sm:pt-3 border-t border-slate-800">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowFacultyPicker(v => !v)}
-                                    className="w-full py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-bold text-slate-300 bg-slate-950 border border-slate-800 hover:border-emerald-500/50 flex items-center justify-between transition-all">
-                                    <span className="flex items-center gap-1.5 sm:gap-2">
-                                        <span>⚡</span>
-                                        <span>Select from 13 Nigerian Faculty Profiles (1-Click)</span>
+                            {/* Quick profile picker */}
+                            <div style={{ borderTop: '1px solid rgba(59,116,247,0.1)', paddingTop: '1rem' }}>
+                                <button type="button" onClick={() => setShowFacultyPicker(v => !v)}
+                                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold transition-all"
+                                    style={{ color: '#94a3b8', background: 'rgba(2,6,23,0.6)', border: '1px solid rgba(71,85,105,0.2)' }}
+                                    onMouseOver={e => e.currentTarget.style.borderColor = 'rgba(59,116,247,0.35)'}
+                                    onMouseOut={e => e.currentTarget.style.borderColor = 'rgba(71,85,105,0.2)'}>
+                                    <span className="flex items-center gap-2">
+                                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" /></svg>
+                                        Quick-select from 13 Nigerian Faculty Profiles
                                     </span>
-                                    <span>{showFacultyPicker ? '▲' : '▼'}</span>
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ transform: showFacultyPicker ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
                                 </button>
 
                                 {showFacultyPicker && (
-                                    <div className="mt-2 sm:mt-3 max-h-48 sm:max-h-56 overflow-y-auto space-y-1 sm:space-y-1.5 pr-1 custom-scrollbar">
+                                    <div className="mt-2 max-h-52 overflow-y-auto space-y-1 pr-0.5 animate-fade-in">
                                         {NIGERIAN_FACULTY.map(lec => (
-                                            <button
-                                                key={lec.lecturer_id}
-                                                type="button"
-                                                onClick={() => selectFacultyProfile(lec)}
-                                                className="w-full p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-slate-950/80 hover:bg-blue-600/20 border border-slate-800 hover:border-blue-500/40 text-left transition-all flex items-center justify-between gap-2">
-                                                <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-                                                    <span className="text-lg sm:text-xl">{lec.avatar}</span>
+                                            <button key={lec.lecturer_id} type="button" onClick={() => selectFacultyProfile(lec)}
+                                                className="w-full px-3 py-2.5 rounded-xl text-left transition-all flex items-center justify-between gap-2"
+                                                style={{ border: '1px solid transparent', color: '#cbd5e1' }}
+                                                onMouseOver={e => { e.currentTarget.style.background = 'rgba(30,75,204,0.12)'; e.currentTarget.style.borderColor = 'rgba(59,116,247,0.3)'; }}
+                                                onMouseOut={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}>
+                                                <div className="flex items-center gap-2.5 min-w-0">
+                                                    <span className="text-xl flex-shrink-0">{lec.avatar}</span>
                                                     <div className="min-w-0">
-                                                        <p className="text-[10px] sm:text-xs font-bold text-white truncate">{lec.full_name}</p>
-                                                        <p className="text-[9px] sm:text-[10px] text-emerald-400 truncate">{lec.department} • <span className="font-mono text-slate-400">{lec.username}</span></p>
+                                                        <p className="text-xs font-bold text-white truncate">{lec.full_name}</p>
+                                                        <p className="text-[10px] text-slate-500 truncate">{lec.department} · <span style={{ fontFamily: 'var(--font-mono)' }}>{lec.username}</span></p>
                                                     </div>
                                                 </div>
-                                                <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg bg-blue-500/15 text-blue-300 border border-blue-500/30 flex-shrink-0">
+                                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-lg flex-shrink-0"
+                                                    style={{ background: 'rgba(59,116,247,0.12)', color: '#93c5fd', border: '1px solid rgba(59,116,247,0.25)' }}>
                                                     Select
                                                 </span>
                                             </button>
@@ -793,26 +920,27 @@ export default function HomePage() {
                 <DebugConsole onClose={() => setShowDebugConsole(false)} lastAttendance={lastAttendance} debugInfo={debugInfo} />
             )}
 
-            {/* Footer */}
-            <footer className="border-t border-slate-800 bg-slate-950 py-4 sm:py-6 text-xs text-slate-500">
-                <div className="max-w-7xl mx-auto mobile-px-safe sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
+            {/* ── Footer ── */}
+            <footer style={{ borderTop: '1px solid rgba(59,116,247,0.1)', background: 'rgba(2,6,23,0.95)', padding: '1.25rem 0' }}>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg flex items-center justify-center text-white text-[9px] sm:text-[10px] font-black bg-gradient-to-tr from-blue-700 to-emerald-500">
-                            SH
-                        </div>
-                        <span className="font-semibold text-slate-300 text-[10px] sm:text-xs">Salvation Heritage Biometric Attendance</span>
+                        <div style={{
+                            width: 24, height: 24, borderRadius: '0.5rem',
+                            background: 'linear-gradient(135deg, #1e4bcc, #059669)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: 9, fontWeight: 900, color: 'white', fontFamily: 'var(--font-outfit)',
+                        }}>SH</div>
+                        <span className="text-[11px] font-semibold text-slate-400" style={{ fontFamily: 'var(--font-inter)' }}>
+                            Salvation Heritage Biometric Attendance · Powered by AWS Rekognition
+                        </span>
                     </div>
                     {activeLecturer ? (
-                        <div className="flex items-center gap-2 sm:gap-3 text-center sm:text-left">
-                            <span className="text-emerald-400 font-medium text-[10px] sm:text-xs">Logged in: {activeLecturer.full_name}</span>
-                            <button onClick={handleFacultySignOut} className="text-rose-400 hover:underline text-[10px] sm:text-xs">
-                                Sign Out
-                            </button>
+                        <div className="flex items-center gap-3 text-[11px]">
+                            <span className="text-emerald-400 font-medium">Signed in: {activeLecturer.full_name}</span>
+                            <button onClick={handleFacultySignOut} className="text-rose-400 hover:text-rose-300 transition-colors">Sign Out</button>
                         </div>
                     ) : (
-                        <button onClick={handleFacultyAction} className="text-blue-400 hover:underline text-[10px] sm:text-xs">
-                            Faculty Login
-                        </button>
+                        <button onClick={handleFacultyAction} className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors">Faculty Login</button>
                     )}
                 </div>
             </footer>

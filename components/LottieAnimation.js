@@ -1,7 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Lottie from 'lottie-react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import Lottie to avoid SSR issues
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
 
 /**
  * Professional Lottie Animation Component
@@ -20,10 +23,15 @@ export default function LottieAnimation({
 }) {
     const [animation, setAnimation] = useState(animationData || null);
     const [loading, setLoading] = useState(!animationData);
+    const [mounted, setMounted] = useState(false);
     const lottieRef = useRef(null);
 
     useEffect(() => {
-        if (animationPath && !animationData) {
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (animationPath && !animationData && mounted) {
             fetch(animationPath)
                 .then(res => res.json())
                 .then(data => {
@@ -35,7 +43,7 @@ export default function LottieAnimation({
                     setLoading(false);
                 });
         }
-    }, [animationPath, animationData]);
+    }, [animationPath, animationData, mounted]);
 
     const defaultStyle = {
         width: '100%',
@@ -43,7 +51,7 @@ export default function LottieAnimation({
         ...style,
     };
 
-    if (loading) {
+    if (!mounted || loading) {
         return (
             <div className={`flex items-center justify-center ${className}`} style={defaultStyle}>
                 <div className="w-8 h-8 border-3 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />

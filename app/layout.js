@@ -1,6 +1,28 @@
 import './globals.css';
 import 'aos/dist/aos.css';
 import ThemeWrapper from '../components/ThemeWrapper';
+import { Outfit, Inter, JetBrains_Mono } from 'next/font/google';
+
+const outfit = Outfit({
+    subsets: ['latin'],
+    variable: '--font-outfit',
+    weight: ['400', '500', '600', '700', '800', '900'],
+    display: 'swap',
+});
+
+const inter = Inter({
+    subsets: ['latin'],
+    variable: '--font-inter',
+    weight: ['400', '500', '600', '700'],
+    display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+    subsets: ['latin'],
+    variable: '--font-mono',
+    weight: ['400', '500', '700'],
+    display: 'swap',
+});
 
 export const metadata = {
     title: 'Salvation Heritage — Smart Biometric Face Attendance System',
@@ -19,8 +41,8 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
     return (
-        <html lang="en">
-            <body className="min-h-screen bg-slate-950 w-full overflow-x-hidden">
+        <html lang="en" className={`${outfit.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
+            <body className="min-h-screen bg-slate-950 w-full overflow-x-hidden" style={{ fontFamily: "var(--font-inter, 'Inter', sans-serif)" }}>
                 <ThemeWrapper>
                     <main className="min-h-screen">
                         {children}
