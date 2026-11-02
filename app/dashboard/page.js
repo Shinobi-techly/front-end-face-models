@@ -11,7 +11,7 @@ import DashboardAnalyticsIllustration from '../../components/DashboardAnalyticsI
 const PHOTO = (id) =>
     `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost/face-attendance-api/api'}/get-student-photo.php?student_id=${id}`;
 
-const FALLBACK_AVATAR = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230f172a"/><text x="50" y="58" text-anchor="middle" fill="%2334d399" font-size="36" font-family="sans-serif">🎓</text></svg>`;
+const FALLBACK_AVATAR = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230f172a"/><text x="50" y="58" text-anchor="middle" fill="%2334d399" font-size="36" font-family="sans-serif">SH</text></svg>`;
 
 /* ── Circular Progress Ring ── */
 function Ring({ value, max = 100, size = 44, stroke = 4, color = '#10b981' }) {
@@ -43,24 +43,24 @@ function Badge({ pct }) {
     if (pct >= 90)
         return (
             <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">
-                ⭐ Excellent
+                Excellent
             </span>
         );
     if (pct >= 75)
         return (
             <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 whitespace-nowrap">
-                ✓ On Track
+                On Track
             </span>
         );
     if (pct >= 60)
         return (
             <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 whitespace-nowrap">
-                ⚠ Fair
+                Fair
             </span>
         );
     return (
         <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 whitespace-nowrap">
-            ✕ At Risk
+            At Risk
         </span>
     );
 }
@@ -92,7 +92,7 @@ export default function DashboardPage() {
             }
         } catch (error) {
             console.error('Dashboard load error:', error);
-            toast.error('Failed to sync analytics.');
+            toast.error('Failed to sync attendance records.');
         } finally {
             setLoading(false);
         }
@@ -127,7 +127,7 @@ export default function DashboardPage() {
     const absentPct = totalCount > 0 ? Math.round((absentCount / totalCount) * 100) : 0;
 
     return (
-        <AdminGuard title="Salvation Heritage Analytics & Management Dashboard">
+        <AdminGuard title="Salvation Heritage Attendance Dashboard">
             <div
                 className="min-h-screen text-slate-100 flex flex-col pb-24 md:pb-0"
                 style={{
@@ -162,11 +162,11 @@ export default function DashboardPage() {
                                         Salvation Heritage
                                     </span>
                                     <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">
-                                        Analytics
+                                        Dashboard
                                     </span>
                                 </div>
                                 <span className="hidden md:block text-slate-400 text-xs truncate">
-                                    Executive Biometric Intelligence &amp; Attendance Telemetry
+                                    School Attendance Records
                                 </span>
                             </div>
                         </Link>
@@ -185,7 +185,7 @@ export default function DashboardPage() {
                                 className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 shadow-md no-underline flex items-center gap-1.5 whitespace-nowrap"
                             >
                                 <AnimatedIcon type="dashboard" size={15} />
-                                <span>Analytics</span>
+                                <span>Dashboard</span>
                             </Link>
                             <Link
                                 href="/students"
@@ -199,7 +199,7 @@ export default function DashboardPage() {
                                 className="px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/40 transition-all no-underline flex items-center gap-1.5 whitespace-nowrap"
                             >
                                 <AnimatedIcon type="register" size={15} />
-                                <span>+ Enroll</span>
+                                <span>Register</span>
                             </Link>
                         </nav>
 
@@ -217,15 +217,23 @@ export default function DashboardPage() {
                                 onClick={fetchData}
                                 className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-md transition-all whitespace-nowrap cursor-pointer"
                             >
-                                <span className={loading ? 'inline-block animate-spin' : ''}>↻</span>
-                                <span className="hidden xs:inline">Sync Live</span>
+                                <AnimatedIcon type="refresh" size={14} className={loading ? 'animate-spin' : ''} />
+                                <span className="hidden xs:inline">Refresh</span>
                             </button>
                             <button
                                 onClick={() => setMobileOpen((v) => !v)}
                                 aria-label="Toggle Menu"
                                 className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 text-slate-200 border border-slate-800 cursor-pointer"
                             >
-                                {mobileOpen ? '✕' : '☰'}
+                                {mobileOpen ? (
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                ) : (
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -238,7 +246,7 @@ export default function DashboardPage() {
                             </Link>
                             <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2.5 px-3 rounded-xl text-xs font-bold text-white bg-blue-600 no-underline">
                                 <AnimatedIcon type="dashboard" size={16} />
-                                <span>Admin Analytics</span>
+                                <span>Admin Dashboard</span>
                             </Link>
                             <Link href="/students" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2.5 px-3 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-900 no-underline">
                                 <AnimatedIcon type="users" size={16} />
@@ -246,7 +254,7 @@ export default function DashboardPage() {
                             </Link>
                             <Link href="/register" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2.5 px-3 rounded-xl text-xs font-bold text-emerald-400 hover:bg-slate-900 no-underline">
                                 <AnimatedIcon type="register" size={16} />
-                                <span>Enroll Student</span>
+                                <span>Register Student</span>
                             </Link>
                         </div>
                     )}
@@ -254,10 +262,9 @@ export default function DashboardPage() {
 
                 {/* ── Main Content ── */}
                 <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-1 w-full space-y-6 sm:space-y-8">
-                    {/* Animated Analytics Hero Illustration */}
                     <DashboardAnalyticsIllustration />
 
-                    {/* ── 4 Bento Executive KPI Cards ── */}
+                    {/* ── 4 Bento KPI Cards ── */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
                         {/* Total Enrolled */}
                         <div className="bento-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 relative overflow-hidden">
@@ -353,8 +360,8 @@ export default function DashboardPage() {
                             <div>
                                 <div className="flex items-center gap-2">
                                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-emerald-400">
-                                        REAL-TIME BIOMETRIC LOGS
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+                                        ATTENDANCE RECORDS
                                     </span>
                                 </div>
                                 <h2 className="text-lg sm:text-2xl font-black text-white mt-0.5" style={{ fontFamily: 'var(--font-outfit)' }}>
@@ -372,7 +379,9 @@ export default function DashboardPage() {
                                         placeholder="Search student name, ID, or class..."
                                         className="input-premium pl-9 py-2.5 text-xs"
                                     />
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                        <AnimatedIcon type="search" size={14} />
+                                    </span>
                                 </div>
 
                                 {/* Term Filter */}
@@ -413,7 +422,7 @@ export default function DashboardPage() {
                         {loading ? (
                             <div className="py-16 text-center">
                                 <div className="w-10 h-10 border-3 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mx-auto mb-3" />
-                                <p className="text-slate-400 text-xs font-semibold">Synchronizing biometric attendance records...</p>
+                                <p className="text-slate-400 text-xs font-semibold">Loading attendance records...</p>
                             </div>
                         ) : filtered.length === 0 ? (
                             <div className="py-14 text-center">
@@ -476,7 +485,7 @@ export default function DashboardPage() {
                                     <table className="w-full text-sm">
                                         <thead>
                                             <tr className="border-b border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                                <th className="text-left py-3.5 px-4">Student Identity</th>
+                                                <th className="text-left py-3.5 px-4">Student</th>
                                                 <th className="text-left py-3.5 px-4">Class</th>
                                                 <th className="text-left py-3.5 px-4">Term</th>
                                                 <th className="text-left py-3.5 px-4">Attendance Progress</th>
@@ -548,10 +557,10 @@ export default function DashboardPage() {
                             <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-black bg-gradient-to-tr from-blue-600 to-emerald-500">
                                 SH
                             </div>
-                            <span className="font-semibold text-slate-300">Salvation Heritage Executive Analytics</span>
+                            <span className="font-semibold text-slate-300">Salvation Heritage High School</span>
                         </div>
                         <Link href="/students" className="text-emerald-400 hover:text-emerald-300 font-semibold no-underline">
-                            Manage Student Directory →
+                            Open Student Directory
                         </Link>
                     </div>
                 </footer>
@@ -564,7 +573,7 @@ export default function DashboardPage() {
                     </Link>
                     <Link href="/register" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
                         <AnimatedIcon type="register" size={20} />
-                        <span className="text-[10px] font-bold">Enroll</span>
+                        <span className="text-[10px] font-bold">Register</span>
                     </Link>
                     <Link href="/dashboard" className="flex flex-col items-center gap-1 py-1 px-3 text-emerald-400 font-black no-underline">
                         <AnimatedIcon type="dashboard" size={20} />

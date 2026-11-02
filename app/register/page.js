@@ -26,7 +26,7 @@ const RULES = {
     full_name: {
         validate: (v) => /^[a-zA-Z\s''-]{3,}$/.test(v.trim()),
         message: 'Full name must be at least 3 letters.',
-        hint: 'Enter your official legal full name.',
+        hint: 'Enter your official full name.',
     },
     department: { validate: (v) => v !== '', message: 'Please select a class.', hint: '' },
     year_intake: { validate: (v) => v !== '', message: 'Intake year is required.', hint: '' },
@@ -40,25 +40,24 @@ function DuplicateFaceAlert({ duplicateInfo, onClose }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
             <div className="w-full max-w-md bento-card rounded-3xl overflow-hidden animate-scale-in">
                 <div className="px-6 py-6 text-center bg-gradient-to-r from-blue-900/40 to-emerald-900/40 border-b border-blue-500/20">
-                    <div className="text-4xl mb-2">🛡️</div>
+                    <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                        <AnimatedIcon type="shield" size={28} />
+                    </div>
                     <h3 className="text-xl font-black text-white" style={{ fontFamily: 'var(--font-outfit)' }}>
-                        Duplicate Face Detected!
+                        Student Already Registered
                     </h3>
                     <p className="text-emerald-400 text-xs font-semibold mt-1">
-                        Salvation Heritage Anti-Spoofing &amp; Duplicate Guard
+                        Salvation Heritage Duplicate Check
                     </p>
                 </div>
                 <div className="p-6">
-                    <p className="text-slate-400 text-sm mb-4 text-center">This biometric face profile is already registered to:</p>
+                    <p className="text-slate-400 text-sm mb-4 text-center">This face is already registered to:</p>
                     <div className="rounded-2xl p-4 mb-4 text-center bg-slate-950/90 border border-blue-500/30">
                         <p className="font-black text-white text-lg">{duplicateInfo.existing_student}</p>
                         <p className="text-xs text-slate-400 font-mono mt-1">Student ID: {duplicateInfo.existing_id}</p>
-                        <p className="text-xs font-bold mt-2 text-emerald-400">
-                            Biometric Similarity: {duplicateInfo.similarity}%
-                        </p>
                     </div>
                     <p className="text-xs text-slate-400 text-center mb-5 leading-relaxed">
-                        Each student may only be enrolled once in the Salvation Heritage biometric database.
+                        Each student may only be registered once in the school attendance records.
                     </p>
                     <button
                         onClick={onClose}
@@ -76,7 +75,7 @@ function FieldError({ msg }) {
     if (!msg) return null;
     return (
         <div className="flex items-center gap-1.5 mt-1.5">
-            <span className="text-rose-400 text-xs">⚠</span>
+            <AnimatedIcon type="alert" size={13} className="text-rose-400 flex-shrink-0" />
             <p className="text-rose-400 text-xs font-semibold">{msg}</p>
         </div>
     );
@@ -90,9 +89,9 @@ function FieldHint({ text }) {
 /* ── Horizontal Step Wizard Indicator ── */
 function StepIndicator({ current }) {
     const steps = [
-        { n: 1, title: 'Academic Details', sub: 'Student ID & Class' },
-        { n: 2, title: 'Face Biometrics', sub: '106-Point AI Scan' },
-        { n: 3, title: 'Digital ID Ready', sub: 'Verified Profile' },
+        { n: 1, title: 'Student Info', sub: 'Name & Class' },
+        { n: 2, title: 'Face Capture', sub: 'Take Photo' },
+        { n: 3, title: 'Completed', sub: 'ID Ready' },
     ];
     return (
         <div className="bento-card rounded-2xl p-4 sm:p-5 mb-8">
@@ -120,7 +119,7 @@ function StepIndicator({ current }) {
                                         : 'bg-slate-800 text-slate-400'
                                 }`}
                             >
-                                {done ? '✓' : s.n}
+                                {done ? <AnimatedIcon type="check" size={15} /> : s.n}
                             </div>
                             <div className="min-w-0">
                                 <p className={`text-xs sm:text-sm font-bold truncate ${active || done ? 'text-white' : 'text-slate-400'}`}>
@@ -160,7 +159,7 @@ function LiveStudentIdPreview({ formData, step }) {
                             <p className="text-xs font-black text-white uppercase tracking-wider truncate">
                                 Salvation Heritage
                             </p>
-                            <p className="text-[10px] text-emerald-400 font-mono">DIGITAL BIOMETRIC ID</p>
+                            <p className="text-[10px] text-emerald-400 font-mono">STUDENT ID CARD</p>
                         </div>
                     </div>
                     <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">
@@ -169,8 +168,8 @@ function LiveStudentIdPreview({ formData, step }) {
                 </div>
 
                 <div className="py-4 flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-slate-950 border-2 border-blue-500/30 flex items-center justify-center text-2xl flex-shrink-0 shadow-inner">
-                        {step === 3 ? '✅' : '👤'}
+                    <div className="w-16 h-16 rounded-2xl bg-slate-950 border-2 border-blue-500/30 flex items-center justify-center text-emerald-400 flex-shrink-0 shadow-inner">
+                        <AnimatedIcon type={step === 3 ? 'check' : 'user'} size={26} />
                     </div>
                     <div className="min-w-0 flex-1">
                         <p className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Student Name</p>
@@ -287,15 +286,15 @@ export default function RegisterPage() {
 
     const handleNext = () => {
         if (idStatus === 'taken') {
-            toast.error(`ID already taken${idOwner?.full_name ? ` — ${idOwner.full_name}` : ''}.`, { icon: '🚫', duration: 6000 });
+            toast.error(`ID already taken${idOwner?.full_name ? ` — ${idOwner.full_name}` : ''}.`, { duration: 6000 });
             return;
         }
         if (idStatus === 'checking') {
-            toast.error('Verifying Student ID...', { icon: '⏳' });
+            toast.error('Verifying Student ID...');
             return;
         }
         if (!validateAll()) {
-            toast.error('Please complete all required fields before continuing.', { icon: '⚠️' });
+            toast.error('Please complete all required fields before continuing.');
             return;
         }
         setStep(2);
@@ -306,7 +305,7 @@ export default function RegisterPage() {
         async (imageDataUrl) => {
             setIsLoading(true);
             try {
-                toast.loading('Scanning face for duplicates...', { id: 'face-check' });
+                toast.loading('Checking student records...', { id: 'face-check' });
                 const faceCheck = await checkFace(imageDataUrl);
                 toast.dismiss('face-check');
 
@@ -317,9 +316,8 @@ export default function RegisterPage() {
                         similarity: faceCheck.similarity,
                     });
                     setShowDuplicateAlert(true);
-                    toast.error(`This face is already registered as ${faceCheck.student_name} (${faceCheck.student_id})!`, {
+                    toast.error(`This face is already registered as ${faceCheck.student_name} (${faceCheck.student_id}).`, {
                         duration: 6000,
-                        icon: '🚫',
                     });
                     setIsLoading(false);
                     return;
@@ -335,15 +333,15 @@ export default function RegisterPage() {
                 });
 
                 if (result.success) {
-                    toast.success('Registration successful!', { duration: 4000, icon: '🎉' });
+                    toast.success('Registration successful!', { duration: 4000 });
                     setRegistered({ ...formData, semester: parseInt(formData.semester) });
                     setStep(3);
                 } else if (result.error === 'DUPLICATE_FACE') {
                     setDuplicateInfo(result.duplicate_info);
                     setShowDuplicateAlert(true);
-                    toast.error(result.message, { duration: 6000, icon: '🚫' });
+                    toast.error(result.message, { duration: 6000 });
                 } else if (result.error === 'DUPLICATE_ID') {
-                    toast.error(result.message, { duration: 5000, icon: '⚠️' });
+                    toast.error(result.message, { duration: 5000 });
                     setStep(1);
                     setErrors((p) => ({ ...p, student_id: result.message }));
                 } else {
@@ -397,18 +395,15 @@ export default function RegisterPage() {
                 }}
             />
 
-            {/* ── Top School Telemetry Bar ── */}
+            {/* ── Top School Bar ── */}
             <div className="bg-slate-950/90 border-b border-blue-500/15 py-2 px-4">
                 <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 text-[11px]">
                     <div className="flex items-center gap-2 min-w-0">
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
                         <span className="font-bold text-slate-200 truncate">
-                            Salvation Heritage High School · Biometric Student Enrollment
+                            Salvation Heritage High School · Student Registration
                         </span>
                     </div>
-                    <span className="hidden sm:inline font-mono text-emerald-400 text-[10px] whitespace-nowrap">
-                        106-POINT FACIAL MESH INDEXING
-                    </span>
                 </div>
             </div>
 
@@ -425,11 +420,11 @@ export default function RegisterPage() {
                                     Salvation Heritage
                                 </span>
                                 <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">
-                                    Enrollment
+                                    Registration
                                 </span>
                             </div>
                             <span className="hidden md:block text-slate-400 text-xs truncate">
-                                Digital Student ID &amp; Biometric Face Registration
+                                Student Registration Portal
                             </span>
                         </div>
                     </Link>
@@ -447,14 +442,14 @@ export default function RegisterPage() {
                             className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 shadow-md no-underline flex items-center gap-1.5 whitespace-nowrap"
                         >
                             <AnimatedIcon type="register" size={15} />
-                            <span>Enroll Student</span>
+                            <span>Register Student</span>
                         </Link>
                         <Link
                             href="/dashboard"
                             className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all no-underline flex items-center gap-1.5 whitespace-nowrap"
                         >
                             <AnimatedIcon type="dashboard" size={15} />
-                            <span>Analytics</span>
+                            <span>Dashboard</span>
                         </Link>
                         <Link
                             href="/students"
@@ -469,7 +464,7 @@ export default function RegisterPage() {
                         href="/"
                         className="flex items-center gap-1.5 text-xs font-bold text-slate-200 hover:text-white transition-all px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-blue-500/40 no-underline whitespace-nowrap flex-shrink-0"
                     >
-                        <span>← Kiosk</span>
+                        <span>Back to Kiosk</span>
                     </Link>
                 </div>
             </header>
@@ -482,7 +477,7 @@ export default function RegisterPage() {
                             <div className="flex items-center gap-2 flex-wrap">
                                 <span className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold uppercase tracking-wider whitespace-nowrap">
                                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                                    Biometric Student Onboarding
+                                    Student Registration
                                 </span>
                                 <span className="text-[11px] font-bold px-3.5 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 whitespace-nowrap">
                                     JSS1 – SS3 Classes
@@ -493,24 +488,26 @@ export default function RegisterPage() {
                                 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.08]"
                                 style={{ fontFamily: 'var(--font-outfit)' }}
                             >
-                                Digital Identity &amp;{' '}
+                                Student Identity &amp;{' '}
                                 <span className="block mt-1 bg-gradient-to-r from-blue-400 via-emerald-300 to-teal-200 bg-clip-text text-transparent">
-                                    Face Enrollment
+                                    Face Registration
                                 </span>
                             </h1>
 
                             <p className="text-slate-300 text-sm sm:text-base max-w-xl leading-relaxed">
-                                Generate your official Salvation Heritage student ID and register your facial biometric signature in 3 simple steps.
+                                Create your Salvation Heritage student ID and register your photo in 3 simple steps.
                             </p>
 
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                                 {[
-                                    { icon: '🔐', t: 'Bank-Grade AI', d: 'AWS Rekognition Mesh' },
-                                    { icon: '⚡', t: 'Instant Setup', d: 'Auto SAL-XXXX ID' },
-                                    { icon: '🛡️', t: 'Duplicate Guard', d: '1 Face Per Student' },
+                                    { icon: 'user', t: 'Student ID', d: 'Auto SAL-XXXX ID' },
+                                    { icon: 'camera', t: 'Quick Photo', d: 'Camera or Upload' },
+                                    { icon: 'shield', t: 'Verified Profile', d: 'One ID Per Student' },
                                 ].map((item, i) => (
                                     <div key={i} className="bento-card rounded-2xl p-3.5 flex items-center gap-3">
-                                        <span className="text-2xl flex-shrink-0">{item.icon}</span>
+                                        <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0">
+                                            <AnimatedIcon type={item.icon} size={18} />
+                                        </div>
                                         <div className="min-w-0">
                                             <p className="text-white font-bold text-xs sm:text-sm truncate">{item.t}</p>
                                             <p className="text-emerald-400 text-[11px] font-medium truncate">{item.d}</p>
@@ -520,6 +517,7 @@ export default function RegisterPage() {
                             </div>
                         </div>
 
+                        {/* RIGHT COLUMN — /facehero.webm Video Illustration */}
                         <div className="lg:col-span-5 flex items-center justify-center" data-aos="fade-left" data-aos-delay="150">
                             <StudentRegisterIllustration />
                         </div>
@@ -538,19 +536,19 @@ export default function RegisterPage() {
 
                         <div className="bento-card rounded-3xl p-5 sm:p-6">
                             <div className="flex items-center gap-2.5 mb-4">
-                                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black text-white bg-gradient-to-r from-blue-600 to-emerald-600">
-                                    ✓
+                                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white bg-gradient-to-r from-blue-600 to-emerald-600">
+                                    <AnimatedIcon type="check" size={14} />
                                 </div>
                                 <p className="text-sm font-black text-white" style={{ fontFamily: 'var(--font-outfit)' }}>
-                                    Enrollment Protocol
+                                    Registration Instructions
                                 </p>
                             </div>
                             <div className="space-y-3">
                                 {[
-                                    ['Unique Student ID', 'Auto-generated SAL-XXXX identifier verified in real-time.'],
-                                    ['Legal Full Name', 'Enter your surname and first name as on school records.'],
-                                    ['Class & Academic Term', 'Select your current class (JSS1–SS3) and active term.'],
-                                    ['Single Biometric Token', 'Duplicate face scans are automatically blocked.'],
+                                    ['Unique Student ID', 'Your SAL-XXXX student ID is generated automatically.'],
+                                    ['Full Name', 'Enter your surname and first name as on school records.'],
+                                    ['Class & Academic Term', 'Select your current class (JSS1–SS3) and term.'],
+                                    ['Clear Face Photo', 'Take a clear photo facing the camera directly.'],
                                 ].map(([t, d]) => (
                                     <div key={t} className="flex gap-3">
                                         <span className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5 bg-emerald-400" />
@@ -577,9 +575,9 @@ export default function RegisterPage() {
                                             </div>
                                             <div>
                                                 <h2 className="font-black text-white text-base" style={{ fontFamily: 'var(--font-outfit)' }}>
-                                                    Student Academic Profile
+                                                    Student Details
                                                 </h2>
-                                                <p className="text-xs text-slate-400">Complete your Salvation Heritage roster details</p>
+                                                <p className="text-xs text-slate-400">Fill in your class details below</p>
                                             </div>
                                         </div>
                                         <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 whitespace-nowrap">
@@ -603,15 +601,16 @@ export default function RegisterPage() {
                                                         className="input-premium font-mono text-base font-bold tracking-widest text-emerald-300 cursor-default pr-24"
                                                     />
                                                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                                                        {idStatus === 'checking' ? 'CHECKING...' : '✓ AVAILABLE'}
+                                                        {idStatus === 'checking' ? 'CHECKING...' : 'AVAILABLE'}
                                                     </span>
                                                 </div>
                                                 <button
                                                     type="button"
                                                     onClick={() => setFormData((p) => ({ ...p, student_id: generateStudentId() }))}
-                                                    className="px-4 py-3 rounded-xl text-xs font-bold text-blue-300 bg-blue-500/15 border border-blue-500/30 hover:bg-blue-500/25 transition-all whitespace-nowrap cursor-pointer"
+                                                    className="px-4 py-3 rounded-xl text-xs font-bold text-blue-300 bg-blue-500/15 border border-blue-500/30 hover:bg-blue-500/25 transition-all whitespace-nowrap flex items-center justify-center gap-1.5 cursor-pointer"
                                                 >
-                                                    🔄 Generate New ID
+                                                    <AnimatedIcon type="refresh" size={14} />
+                                                    <span>New ID</span>
                                                 </button>
                                             </div>
                                             <FieldHint text={RULES.student_id.hint} />
@@ -696,11 +695,11 @@ export default function RegisterPage() {
                                                                 <p className="text-[10px] text-slate-400">{t.sub}</p>
                                                             </div>
                                                             <span
-                                                                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                                                                className={`w-5 h-5 rounded-full flex items-center justify-center ${
                                                                     active ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-500'
                                                                 }`}
                                                             >
-                                                                ✓
+                                                                <AnimatedIcon type="check" size={12} />
                                                             </span>
                                                         </button>
                                                     );
@@ -712,7 +711,7 @@ export default function RegisterPage() {
                                         {/* Intake Year & Month */}
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
-                                                <label className="label-premium">Admission / Intake Year</label>
+                                                <label className="label-premium">Admission Year</label>
                                                 <select
                                                     name="intake_year"
                                                     value={formData.intake_year}
@@ -721,13 +720,13 @@ export default function RegisterPage() {
                                                 >
                                                     {Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i + 1).map((y) => (
                                                         <option key={y} value={y}>
-                                                            {y} Academic Session
+                                                            {y} Session
                                                         </option>
                                                     ))}
                                                 </select>
                                             </div>
                                             <div>
-                                                <label className="label-premium">Intake Month</label>
+                                                <label className="label-premium">Admission Month</label>
                                                 <select
                                                     name="intake_month"
                                                     value={formData.intake_month}
@@ -736,7 +735,7 @@ export default function RegisterPage() {
                                                 >
                                                     {['January', 'May', 'September'].map((m) => (
                                                         <option key={m} value={m}>
-                                                            {m} Intake
+                                                            {m}
                                                         </option>
                                                     ))}
                                                 </select>
@@ -748,13 +747,13 @@ export default function RegisterPage() {
                                             onClick={handleNext}
                                             className="w-full py-4 rounded-2xl font-black text-sm text-white bg-gradient-to-r from-blue-600 via-blue-500 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-xl shadow-blue-600/30 transition-all hover:-translate-y-0.5 cursor-pointer"
                                         >
-                                            Continue to Biometric Face Scan →
+                                            Continue to Face Capture
                                         </button>
                                     </div>
                                 </>
                             )}
 
-                            {/* STEP 2 — Biometric Camera Enrollment */}
+                            {/* STEP 2 — Camera Enrollment */}
                             {step === 2 && (
                                 <>
                                     <div className="px-6 sm:px-8 py-5 flex items-center justify-between border-b border-blue-500/15 bg-slate-950/60 gap-2">
@@ -764,10 +763,10 @@ export default function RegisterPage() {
                                             </div>
                                             <div className="min-w-0">
                                                 <h2 className="font-black text-white text-base truncate" style={{ fontFamily: 'var(--font-outfit)' }}>
-                                                    Biometric Face Capture
+                                                    Face Capture
                                                 </h2>
                                                 <p className="text-xs text-slate-400 truncate">
-                                                    Enrolling: <span className="text-emerald-400 font-bold">{formData.full_name}</span> ({formData.student_id})
+                                                    Student: <span className="text-emerald-400 font-bold">{formData.full_name}</span> ({formData.student_id})
                                                 </p>
                                             </div>
                                         </div>
@@ -775,7 +774,7 @@ export default function RegisterPage() {
                                             onClick={() => setStep(1)}
                                             className="text-xs font-bold text-slate-300 hover:text-white px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 whitespace-nowrap cursor-pointer"
                                         >
-                                            ← Edit Info
+                                            Back
                                         </button>
                                     </div>
 
@@ -786,7 +785,7 @@ export default function RegisterPage() {
                                             onCapture={handleCapture}
                                             isLoading={isLoading}
                                             onClose={() => setStep(1)}
-                                            buttonText="Enroll Student & Save Biometrics"
+                                            buttonText="Complete Registration"
                                         />
                                     </div>
                                 </>
@@ -799,22 +798,22 @@ export default function RegisterPage() {
                                         <img
                                             src="/illustrations/verified.svg"
                                             alt="Registration Verified"
-                                            className="w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(16,185,129,0.4)] animate-bounceGentle"
+                                            className="w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(16,185,129,0.4)]"
                                         />
                                     </div>
-                                    <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 mb-2">
-                                        BIOMETRIC TOKEN REGISTERED
+                                    <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 mb-2">
+                                        REGISTRATION COMPLETE
                                     </span>
                                     <h2 className="text-2xl sm:text-3xl font-black text-white" style={{ fontFamily: 'var(--font-outfit)' }}>
-                                        Student Successfully Enrolled!
+                                        Student Successfully Registered
                                     </h2>
                                     <p className="text-slate-400 text-sm mt-1 mb-6 max-w-md">
-                                        Your facial biometric profile is now active across all Salvation Heritage attendance terminals.
+                                        Your student profile is now active for daily attendance check-in.
                                     </p>
 
                                     <div className="w-full rounded-2xl p-5 mb-6 text-left bg-slate-950/80 border border-blue-500/20">
-                                        <p className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-widest mb-3">
-                                            OFFICIAL ENROLLMENT CREDENTIALS
+                                        <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-3">
+                                            STUDENT DETAILS
                                         </p>
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                             {[
@@ -836,13 +835,13 @@ export default function RegisterPage() {
                                             onClick={handleReset}
                                             className="flex-1 py-3.5 rounded-xl font-bold text-sm bg-slate-900 text-emerald-400 border border-emerald-500/30 hover:bg-slate-800 transition-all cursor-pointer"
                                         >
-                                            + Enroll Another Student
+                                            Register Another Student
                                         </button>
                                         <Link
                                             href="/"
                                             className="flex-1 py-3.5 rounded-xl font-black text-sm text-white text-center bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-lg shadow-blue-600/30 transition-all no-underline"
                                         >
-                                            Launch Attendance Kiosk →
+                                            Go to Attendance Kiosk
                                         </Link>
                                     </div>
                                 </div>
@@ -859,10 +858,10 @@ export default function RegisterPage() {
                         <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-black bg-gradient-to-tr from-blue-600 to-emerald-500">
                             SH
                         </div>
-                        <span className="font-semibold text-slate-300">Salvation Heritage Biometric Onboarding</span>
+                        <span className="font-semibold text-slate-300">Salvation Heritage High School</span>
                     </div>
                     <Link href="/" className="text-blue-400 hover:text-blue-300 font-semibold no-underline">
-                        ← Return to Attendance Kiosk
+                        Return to Attendance Kiosk
                     </Link>
                 </div>
             </footer>
@@ -885,7 +884,7 @@ export default function RegisterPage() {
                 </Link>
                 <Link href="/register" className="flex flex-col items-center gap-1 py-1 px-3 text-emerald-400 font-black no-underline">
                     <AnimatedIcon type="register" size={20} />
-                    <span className="text-[10px] font-bold">Enroll</span>
+                    <span className="text-[10px] font-bold">Register</span>
                 </Link>
                 <Link href="/dashboard" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
                     <AnimatedIcon type="dashboard" size={20} />

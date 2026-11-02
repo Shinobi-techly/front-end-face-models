@@ -3,15 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import AnimatedIcon from './AnimatedIcon';
 
 const STUDENT_NAV = [
-    { path: '/',         label: 'Attendance Kiosk', shortLabel: 'Kiosk', icon: '📸' },
-    { path: '/register', label: 'Student Registration', shortLabel: 'Register', icon: '📝' },
+    { path: '/',         label: 'Attendance Kiosk', shortLabel: 'Kiosk', icon: 'scan' },
+    { path: '/register', label: 'Student Registration', shortLabel: 'Register', icon: 'register' },
 ];
 
 const ADMIN_NAV = [
-    { path: '/dashboard', label: 'Admin Dashboard', shortLabel: 'Dashboard', icon: '📊', admin: true },
-    { path: '/students',  label: 'Student Directory', shortLabel: 'Students', icon: '👥', admin: true },
+    { path: '/dashboard', label: 'Admin Dashboard', shortLabel: 'Dashboard', icon: 'dashboard', admin: true },
+    { path: '/students',  label: 'Student Directory', shortLabel: 'Students', icon: 'users', admin: true },
 ];
 
 export default function Navbar() {
@@ -38,7 +39,7 @@ export default function Navbar() {
                                 </span>
                             </div>
                             <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 tracking-wide hidden sm:block">
-                                Smart Biometric Attendance System
+                                Attendance System
                             </p>
                         </div>
                     </Link>
@@ -55,7 +56,7 @@ export default function Navbar() {
                                                 ? 'text-white bg-gradient-to-r from-blue-700 to-blue-600 shadow-md shadow-blue-700/25'
                                                 : 'text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800'
                                         }`}>
-                                        <span>{icon}</span>
+                                        <AnimatedIcon type={icon} size={15} />
                                         <span>{label}</span>
                                     </Link>
                                 );
@@ -74,9 +75,8 @@ export default function Navbar() {
                                                 ? 'text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md shadow-emerald-600/25'
                                                 : 'text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800'
                                         }`}>
-                                        <span>{icon}</span>
+                                        <AnimatedIcon type={icon} size={15} />
                                         <span>{label}</span>
-                                        <span className="text-[9px] px-1 py-0.2 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold">PIN</span>
                                     </Link>
                                 );
                             })}
@@ -87,7 +87,7 @@ export default function Navbar() {
                     <div className="flex items-center gap-2">
                         <Link href="/register"
                             className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 shadow-md shadow-emerald-600/20 active:scale-95 transition-all no-underline">
-                            <span>+</span>
+                            <AnimatedIcon type="register" size={14} />
                             <span>Register Student</span>
                         </Link>
 
@@ -106,7 +106,7 @@ export default function Navbar() {
 
                 {/* Mobile Menu Dropdown */}
                 {open && (
-                    <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-4 space-y-3 shadow-2xl animate-in slide-in-from-top-2 duration-200">
+                    <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-4 space-y-3 shadow-2xl">
                         <div>
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 px-3">Student Portals</p>
                             <div className="space-y-1">
@@ -120,7 +120,7 @@ export default function Navbar() {
                                                     ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                                                     : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900'
                                             }`}>
-                                            <span className="text-lg">{icon}</span>
+                                            <AnimatedIcon type={icon} size={18} />
                                             <span>{label}</span>
                                         </Link>
                                     );
@@ -142,38 +142,25 @@ export default function Navbar() {
                                                     : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900'
                                             }`}>
                                             <div className="flex items-center gap-3">
-                                                <span className="text-lg">{icon}</span>
+                                                <AnimatedIcon type={icon} size={18} />
                                                 <span>{label}</span>
                                             </div>
-                                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono">
-                                                Protected
-                                            </span>
                                         </Link>
                                     );
                                 })}
                             </div>
                         </div>
-
-                        {/* Quick Register on Mobile */}
-                        <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                            <Link href="/register"
-                                onClick={() => setOpen(false)}
-                                className="w-full py-3 rounded-2xl font-black text-sm text-center text-white bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 shadow-md shadow-emerald-600/30 flex items-center justify-center gap-2 no-underline">
-                                <span>+</span>
-                                <span>Enroll New Student</span>
-                            </Link>
-                        </div>
                     </div>
                 )}
             </nav>
 
-            {/* Mobile Bottom Quick Switch Bar (Visible only on mobile screens) */}
+            {/* Mobile Bottom Quick Switch Bar */}
             <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 py-2 px-3 flex items-center justify-around shadow-2xl shadow-black">
                 <Link href="/"
                     className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all no-underline ${
                         pathname === '/' ? 'text-blue-400 font-black' : 'text-slate-400 hover:text-white'
                     }`}>
-                    <span className="text-xl">📸</span>
+                    <AnimatedIcon type="scan" size={20} />
                     <span className="text-[10px] font-bold">Kiosk</span>
                 </Link>
 
@@ -181,7 +168,7 @@ export default function Navbar() {
                     className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all no-underline ${
                         pathname === '/register' ? 'text-emerald-400 font-black' : 'text-slate-400 hover:text-white'
                     }`}>
-                    <span className="text-xl">📝</span>
+                    <AnimatedIcon type="register" size={20} />
                     <span className="text-[10px] font-bold">Register</span>
                 </Link>
 
@@ -189,7 +176,7 @@ export default function Navbar() {
                     className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all no-underline ${
                         pathname === '/dashboard' ? 'text-emerald-400 font-black' : 'text-slate-400 hover:text-white'
                     }`}>
-                    <span className="text-xl">📊</span>
+                    <AnimatedIcon type="dashboard" size={20} />
                     <span className="text-[10px] font-bold">Admin</span>
                 </Link>
 
@@ -197,7 +184,7 @@ export default function Navbar() {
                     className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all no-underline ${
                         pathname === '/students' ? 'text-cyan-400 font-black' : 'text-slate-400 hover:text-white'
                     }`}>
-                    <span className="text-xl">👥</span>
+                    <AnimatedIcon type="users" size={20} />
                     <span className="text-[10px] font-bold">Students</span>
                 </Link>
             </div>

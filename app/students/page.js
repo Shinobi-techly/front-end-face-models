@@ -78,8 +78,8 @@ function StudentCard({ student, onDelete }) {
                     <span className="px-2.5 py-1 rounded-lg bg-slate-950/90 border border-white/10 text-xs font-mono font-bold text-emerald-400">
                         {student.student_id}
                     </span>
-                    <span className="text-[10px] font-mono text-slate-300 bg-slate-950/80 px-2 py-0.5 rounded-md">
-                        ✓ Biometric ID
+                    <span className="text-[10px] font-semibold text-slate-300 bg-slate-950/80 px-2 py-0.5 rounded-md">
+                        Enrolled
                     </span>
                 </div>
             </div>
@@ -92,7 +92,7 @@ function StudentCard({ student, onDelete }) {
                             {student.full_name}
                         </h3>
                         <p className="text-xs text-slate-400 mt-0.5 truncate">
-                            Enrolled: {reg}
+                            Registered: {reg}
                         </p>
                     </div>
                     <button
@@ -103,7 +103,7 @@ function StudentCard({ student, onDelete }) {
                         className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 transition-all flex-shrink-0 cursor-pointer"
                         title="Delete Student Record"
                     >
-                        🗑️
+                        <AnimatedIcon type="trash" size={15} />
                     </button>
                 </div>
 
@@ -111,7 +111,7 @@ function StudentCard({ student, onDelete }) {
                     <span className="truncate">Salvation Heritage</span>
                     <span className="text-emerald-400 font-bold flex items-center gap-1 whitespace-nowrap">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                        Active Roster
+                        Active
                     </span>
                 </div>
             </div>
@@ -141,7 +141,7 @@ export default function StudentsPage() {
     }, [loadStudents]);
 
     const handleDelete = useCallback(async (student) => {
-        if (!confirm(`Delete ${student.full_name}? This will remove them from the database and biometric face collection.`)) return;
+        if (!confirm(`Delete ${student.full_name}? This will remove their record.`)) return;
         try {
             const data = await deleteStudent(student.student_id);
             if (data.success) {
@@ -215,7 +215,7 @@ export default function StudentsPage() {
                                     </span>
                                 </div>
                                 <span className="hidden md:block text-slate-400 text-xs truncate">
-                                    Official Biometric Student Roster &amp; Digital IDs
+                                    Student Roster &amp; Class Records
                                 </span>
                             </div>
                         </Link>
@@ -234,7 +234,7 @@ export default function StudentsPage() {
                                 className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all no-underline flex items-center gap-1.5 whitespace-nowrap"
                             >
                                 <AnimatedIcon type="dashboard" size={15} />
-                                <span>Analytics</span>
+                                <span>Dashboard</span>
                             </Link>
                             <Link
                                 href="/students"
@@ -248,7 +248,7 @@ export default function StudentsPage() {
                                 className="px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/40 transition-all no-underline flex items-center gap-1.5 whitespace-nowrap"
                             >
                                 <AnimatedIcon type="register" size={15} />
-                                <span>+ Enroll</span>
+                                <span>Register</span>
                             </Link>
                         </nav>
 
@@ -257,31 +257,44 @@ export default function StudentsPage() {
                                 href="/register"
                                 className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-lg shadow-blue-600/25 no-underline whitespace-nowrap"
                             >
-                                <span>+ Enroll Student</span>
+                                <AnimatedIcon type="register" size={14} />
+                                <span>Register Student</span>
                             </Link>
                             <button
                                 onClick={() => setMobileOpen((v) => !v)}
                                 aria-label="Toggle Menu"
                                 className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 text-slate-200 border border-slate-800 cursor-pointer"
                             >
-                                {mobileOpen ? '✕' : '☰'}
+                                {mobileOpen ? (
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                ) : (
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                )}
                             </button>
                         </div>
                     </div>
 
                     {mobileOpen && (
                         <div className="md:hidden border-t border-slate-800 bg-slate-950 px-4 py-3 space-y-1.5">
-                            <Link href="/" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-900 no-underline">
-                                📸 Attendance Kiosk
+                            <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2.5 px-3 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-900 no-underline">
+                                <AnimatedIcon type="scan" size={16} />
+                                <span>Attendance Kiosk</span>
                             </Link>
-                            <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-900 no-underline">
-                                📊 Admin Analytics
+                            <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2.5 px-3 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-900 no-underline">
+                                <AnimatedIcon type="dashboard" size={16} />
+                                <span>Admin Dashboard</span>
                             </Link>
-                            <Link href="/students" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-xs font-bold text-white bg-blue-600 no-underline">
-                                👥 Student Directory
+                            <Link href="/students" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2.5 px-3 rounded-xl text-xs font-bold text-white bg-blue-600 no-underline">
+                                <AnimatedIcon type="users" size={16} />
+                                <span>Student Directory</span>
                             </Link>
-                            <Link href="/register" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-xs font-bold text-emerald-400 hover:bg-slate-900 no-underline">
-                                📝 Enroll Student
+                            <Link href="/register" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 py-2.5 px-3 rounded-xl text-xs font-bold text-emerald-400 hover:bg-slate-900 no-underline">
+                                <AnimatedIcon type="register" size={16} />
+                                <span>Register Student</span>
                             </Link>
                         </div>
                     )}
@@ -295,7 +308,7 @@ export default function StudentsPage() {
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <span className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold uppercase tracking-wider whitespace-nowrap">
                                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                                        Biometric Student Registry
+                                        Student Registry
                                     </span>
                                     <span className="text-[11px] font-bold px-3.5 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 whitespace-nowrap">
                                         Salvation Heritage
@@ -308,22 +321,24 @@ export default function StudentsPage() {
                                 >
                                     Official Student{' '}
                                     <span className="block mt-1 bg-gradient-to-r from-blue-400 via-emerald-300 to-teal-200 bg-clip-text text-transparent">
-                                        Biometric Directory
+                                        Class Directory
                                     </span>
                                 </h1>
 
                                 <p className="text-slate-300 text-sm sm:text-base max-w-xl leading-relaxed">
-                                    Browse, search, and manage enrolled students and their facial biometric credentials across all Salvation Heritage classes.
+                                    Browse, search, and manage registered students across all Salvation Heritage classes.
                                 </p>
 
                                 <div className="grid grid-cols-3 gap-3 pt-1">
                                     {[
-                                        { icon: '👥', val: students.length, label: 'Enrolled IDs' },
-                                        { icon: '🏫', val: 6, label: 'Active Classes' },
-                                        { icon: '📚', val: 3, label: 'Academic Terms' },
+                                        { icon: 'users', val: students.length, label: 'Students' },
+                                        { icon: 'school', val: 6, label: 'Classes' },
+                                        { icon: 'clock', val: 3, label: 'Terms' },
                                     ].map((s, i) => (
                                         <div key={i} className="bento-card rounded-2xl p-3.5 sm:p-4 flex items-center gap-3">
-                                            <span className="text-xl sm:text-2xl flex-shrink-0">{s.icon}</span>
+                                            <div className="w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0">
+                                                <AnimatedIcon type={s.icon} size={18} />
+                                            </div>
                                             <div className="min-w-0">
                                                 <p className="text-white font-black text-lg sm:text-2xl leading-none" style={{ fontFamily: 'var(--font-outfit)' }}>
                                                     {s.val}
@@ -356,7 +371,9 @@ export default function StudentsPage() {
                                     placeholder="Search by student name, SAL-XXXX ID, or class..."
                                     className="input-premium pl-10 py-3 text-xs sm:text-sm"
                                 />
-                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <AnimatedIcon type="search" size={16} />
+                                </span>
                             </div>
 
                             {/* Term Filter & View Switcher */}
@@ -381,7 +398,7 @@ export default function StudentsPage() {
                                                 : 'text-slate-400 hover:text-white'
                                         }`}
                                     >
-                                        ⊞ Cards
+                                        Cards
                                     </button>
                                     <button
                                         onClick={() => setView('table')}
@@ -391,7 +408,7 @@ export default function StudentsPage() {
                                                 : 'text-slate-400 hover:text-white'
                                         }`}
                                     >
-                                        ☰ Table
+                                        Table
                                     </button>
                                 </div>
                             </div>
@@ -438,16 +455,18 @@ export default function StudentsPage() {
                         </div>
                     ) : filtered.length === 0 ? (
                         <div className="bento-card rounded-3xl p-12 text-center">
-                            <div className="text-4xl mb-3">🔍</div>
+                            <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400">
+                                <AnimatedIcon type="search" size={22} />
+                            </div>
                             <h3 className="text-lg font-black text-white">No Students Found</h3>
                             <p className="text-xs text-slate-400 mt-1 mb-5">
-                                No enrolled student matches your current search or class filter.
+                                No registered student matches your current search or class filter.
                             </p>
                             <Link
                                 href="/register"
                                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 no-underline shadow-lg"
                             >
-                                + Enroll New Student
+                                Register New Student
                             </Link>
                         </div>
                     ) : view === 'grid' ? (
@@ -513,10 +532,10 @@ export default function StudentsPage() {
                             <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-black bg-gradient-to-tr from-blue-600 to-emerald-500">
                                 SH
                             </div>
-                            <span className="font-semibold text-slate-300">Salvation Heritage Student Registry</span>
+                            <span className="font-semibold text-slate-300">Salvation Heritage Student Directory</span>
                         </div>
                         <Link href="/dashboard" className="text-blue-400 hover:text-blue-300 font-semibold no-underline">
-                            ← Return to Analytics Dashboard
+                            Return to Dashboard
                         </Link>
                     </div>
                 </footer>
@@ -529,7 +548,7 @@ export default function StudentsPage() {
                     </Link>
                     <Link href="/register" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
                         <AnimatedIcon type="register" size={20} />
-                        <span className="text-[10px] font-bold">Enroll</span>
+                        <span className="text-[10px] font-bold">Register</span>
                     </Link>
                     <Link href="/dashboard" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
                         <AnimatedIcon type="dashboard" size={20} />

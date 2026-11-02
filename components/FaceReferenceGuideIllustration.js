@@ -1,92 +1,58 @@
 'use client';
 
+import AnimatedIcon from './AnimatedIcon';
+
 /**
  * FaceReferenceGuideIllustration
- * Interactive biometric facial enrollment guideline illustration
- * showing students the proper lighting, pose, and frame positioning.
- * Fully responsive across all devices from 320px mobile to desktop.
+ * Shows students simple, clear instructions for capturing their photo.
  */
 export default function FaceReferenceGuideIllustration({ studentName = 'Student' }) {
     return (
-        <div className="rounded-2xl p-3.5 sm:p-5 bg-slate-950/90 border border-emerald-500/30 shadow-xl overflow-hidden relative">
-            {/* Ambient Background Radial Glow */}
-            <div
-                className="absolute top-0 right-0 w-28 h-28 rounded-full pointer-events-none"
-                style={{
-                    background: 'radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%)',
-                    filter: 'blur(20px)',
-                }}
-            />
-
+        <div className="rounded-2xl p-4 sm:p-5 bg-slate-950/90 border border-emerald-500/30 shadow-xl overflow-hidden relative">
             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5">
-                {/* Animated Viewfinder Target Box */}
-                <div className="relative w-24 h-24 xs:w-28 xs:h-28 sm:w-32 sm:h-32 flex-shrink-0 rounded-2xl overflow-hidden bg-slate-900 border-2 border-emerald-500/40 flex items-center justify-center shadow-lg group">
-                    {/* Reference Face Image / Silhouette */}
+                {/* Reference Portrait Frame */}
+                <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 rounded-2xl overflow-hidden bg-slate-900 border-2 border-emerald-500/40 flex items-center justify-center shadow-lg">
                     <img
                         src="/face.jpg"
-                        alt="Reference Face Positioning Standard"
-                        className="w-full h-full object-cover filter contrast-105 brightness-105"
+                        alt="Face Positioning Example"
+                        className="w-full h-full object-cover"
                         onError={(e) => {
                             e.target.style.display = 'none';
                         }}
                     />
-
-                    {/* Laser Scan Sweep Bar */}
-                    <div
-                        className="absolute left-0 right-0 h-1 pointer-events-none"
-                        style={{
-                            background: 'linear-gradient(90deg, transparent 0%, #10b981 50%, transparent 100%)',
-                            boxShadow: '0 0 12px #10b981',
-                            animation: 'scan-line 2.5s ease-in-out infinite',
-                        }}
-                    />
-
-                    {/* Viewfinder Corner Reticles */}
                     <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-emerald-400" />
                     <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-emerald-400" />
                     <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-emerald-400" />
                     <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-emerald-400" />
-
-                    {/* Center Crosshair */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
-                        <div className="w-5 h-0.5 bg-emerald-400" />
-                        <div className="absolute h-5 w-0.5 bg-emerald-400" />
-                    </div>
-
-                    {/* Live Match Badge */}
-                    <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-slate-950/85 border border-emerald-400/50 text-[8px] font-mono font-bold text-emerald-300 whitespace-nowrap">
-                        ALIGN FACE
-                    </div>
                 </div>
 
-                {/* Instruction Checklist */}
+                {/* Simple Checklist */}
                 <div className="flex-1 min-w-0 text-center sm:text-left">
-                    <div className="inline-flex sm:flex items-center gap-1.5 sm:gap-2 mb-1">
+                    <div className="inline-flex sm:flex items-center gap-2 mb-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        <p className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
-                            BIOMETRIC REFERENCE STANDARD
+                        <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400">
+                            Photo Guidelines
                         </p>
                     </div>
-                    <h4 className="text-xs sm:text-sm font-black text-white" style={{ fontFamily: 'var(--font-outfit)' }}>
+                    <h4 className="text-sm font-black text-white" style={{ fontFamily: 'var(--font-outfit)' }}>
                         Center your face for {studentName}
                     </h4>
-                    <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 leading-relaxed">
-                        Salvation Heritage AI scans 106 facial landmarks to ensure instant, accurate attendance recognition.
+                    <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                        Position your face clearly inside the camera frame with good lighting.
                     </p>
 
-                    {/* 3 Quick Tips */}
-                    <div className="grid grid-cols-1 xs:grid-cols-3 gap-1.5 sm:gap-2 mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 border-t border-white/10 text-left">
-                        <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-slate-300">
-                            <span className="text-emerald-400 font-bold">✓</span>
-                            <span>Direct eye contact</span>
+                    <div className="grid grid-cols-1 xs:grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10 text-left">
+                        <div className="flex items-center gap-1.5 text-xs text-slate-300">
+                            <AnimatedIcon type="check" size={14} className="text-emerald-400 flex-shrink-0" />
+                            <span>Look at camera</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-slate-300">
-                            <span className="text-emerald-400 font-bold">✓</span>
-                            <span>Good ambient light</span>
+                        <div className="flex items-center gap-1.5 text-xs text-slate-300">
+                            <AnimatedIcon type="check" size={14} className="text-emerald-400 flex-shrink-0" />
+                            <span>Clear lighting</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-slate-300">
-                            <span className="text-emerald-400 font-bold">✓</span>
-                            <span>Neutral expression</span>
+                        <div className="flex items-center gap-1.5 text-xs text-slate-300">
+                            <AnimatedIcon type="check" size={14} className="text-emerald-400 flex-shrink-0" />
+                            <span>Neutral pose</span>
                         </div>
                     </div>
                 </div>

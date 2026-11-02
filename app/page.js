@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import CameraCapture from '../components/CameraCapture';
-import DebugConsole from '../components/DebugConsole';
 import AOSInit from '../components/AOSInit';
 import AnimatedIcon from '../components/AnimatedIcon';
 import BiometricHeroIllustration from '../components/BiometricHeroIllustration';
@@ -17,9 +16,9 @@ import toast, { Toaster } from 'react-hot-toast';
 const PHOTO_URL = (id) =>
     `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost/face-attendance-api/api'}/get-student-photo.php?student_id=${id}`;
 
-const FALLBACK_SVG = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230f172a"/><text x="50" y="58" text-anchor="middle" fill="%2334d399" font-size="38" font-family="sans-serif">?</text></svg>`;
+const FALLBACK_SVG = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230f172a"/><text x="50" y="58" text-anchor="middle" fill="%2334d399" font-size="38" font-family="sans-serif">SH</text></svg>`;
 
-/* ── Animated Live Telemetry Clock ── */
+/* ── Live School Clock ── */
 function LiveClock() {
     const [time, setTime] = useState(null);
     useEffect(() => {
@@ -31,7 +30,7 @@ function LiveClock() {
     if (!time) {
         return (
             <div className="h-14 flex items-center justify-center">
-                <span className="text-xs font-mono text-slate-500 animate-pulse">SYNCING SYSTEM CLOCK...</span>
+                <span className="text-xs font-mono text-slate-500 animate-pulse">Loading clock...</span>
             </div>
         );
     }
@@ -39,12 +38,9 @@ function LiveClock() {
     return (
         <div>
             <div className="flex items-center justify-between gap-2 mb-1">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5 whitespace-nowrap">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5 whitespace-nowrap">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                    SYSTEM TELEMETRY TIME
-                </span>
-                <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30 whitespace-nowrap">
-                    WAT (UTC+1)
+                    Current Time
                 </span>
             </div>
             <p
@@ -85,7 +81,7 @@ function AnimatedCounter({ value, duration = 1000 }) {
     return <>{display}</>;
 }
 
-/* ── Advanced Bento KPI Card ── */
+/* ── Bento KPI Card ── */
 function StatCard({ icon, value, suffix = '', label, sublabel, color, delay = 0 }) {
     const themes = {
         emerald: {
@@ -156,7 +152,7 @@ function StatCard({ icon, value, suffix = '', label, sublabel, color, delay = 0 
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   MAIN BIOMETRIC ATTENDANCE KIOSK PAGE
+   MAIN ATTENDANCE KIOSK PAGE
    ════════════════════════════════════════════════════════════════════════════ */
 export default function HomePage() {
     const router = useRouter();
@@ -164,8 +160,6 @@ export default function HomePage() {
     const [lastAttendance, setLastAttendance] = useState(null);
     const [todayCount, setTodayCount] = useState(0);
     const [totalStudents, setTotalStudents] = useState(0);
-    const [debugInfo, setDebugInfo] = useState(null);
-    const [showDebugConsole, setShowDebugConsole] = useState(false);
     const [activeLecturer, setActiveLecturer] = useState(null);
     const [showFacultyModal, setShowFacultyModal] = useState(false);
     const [facultyUser, setFacultyUser] = useState('');
@@ -205,11 +199,9 @@ export default function HomePage() {
     const handleCapture = useCallback(async (imageDataUrl) => {
         if (!isMounted.current) return;
         setIsLoading(true);
-        setDebugInfo({ status: 'Sending image to biometric engine...', time: new Date().toLocaleTimeString() });
         try {
             const result = await recognizeFace(imageDataUrl);
             if (!isMounted.current) return;
-            setDebugInfo({ status: 'Response received', result, time: new Date().toLocaleTimeString() });
 
             if (result.success && result.student) {
                 const studentName = result.student.full_name || result.student.name || 'Student';
@@ -240,7 +232,7 @@ export default function HomePage() {
             }
         } catch (error) {
             if (!isMounted.current) return;
-            toast.error(error.message || 'Network error. Check backend connection.', { duration: 5000 });
+            toast.error(error.message || 'Network error. Check connection.', { duration: 5000 });
             setLastAttendance({ error: true, message: error.message || 'Network error.', timestamp: new Date().toLocaleTimeString() });
         } finally {
             if (isMounted.current) setIsLoading(false);
@@ -260,7 +252,7 @@ export default function HomePage() {
         localStorage.removeItem('fa_lecturer');
         sessionStorage.removeItem('fa_session');
         setActiveLecturer(null);
-        toast.success('Signed out from Faculty Terminal.', { duration: 3000 });
+        toast.success('Signed out from Faculty Portal.', { duration: 3000 });
     };
 
     const handleFacultyLogin = async (e) => {
@@ -321,7 +313,7 @@ export default function HomePage() {
                 }}
             />
 
-            {/* ── Top Telemetry Command Bar ── */}
+            {/* ── Top School Bar ── */}
             <div className="bg-slate-950/90 border-b border-blue-500/15 py-2 px-4">
                 <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -331,9 +323,6 @@ export default function HomePage() {
                         </span>
                         <span className="text-[11px] font-bold text-slate-200 truncate">
                             Salvation Heritage High School
-                        </span>
-                        <span className="hidden md:inline-flex items-center gap-1.5 text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 rounded-full whitespace-nowrap">
-                            AI ENGINE: ONLINE · 99.8% PRECISION
                         </span>
                     </div>
 
@@ -345,7 +334,7 @@ export default function HomePage() {
                             >
                                 <AnimatedIcon type="faculty" size={13} />
                                 <span className="hidden sm:inline">{activeLecturer.full_name.split(' ')[0]}&apos;s</span>
-                                <span>Portal →</span>
+                                <span>Portal</span>
                             </button>
                             <button
                                 onClick={handleFacultySignOut}
@@ -366,7 +355,7 @@ export default function HomePage() {
                 </div>
             </div>
 
-            {/* ── Main Glassmorphic Navigation Bar ── */}
+            {/* ── Main Navigation Bar ── */}
             <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-xl border-b border-blue-500/15 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-3">
                     {/* Brand Identity */}
@@ -381,11 +370,11 @@ export default function HomePage() {
                                 </span>
                                 <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                                    LIVE KIOSK
+                                    KIOSK
                                 </span>
                             </div>
                             <p className="text-[11px] text-slate-400 hidden sm:block truncate">
-                                Smart Biometric Attendance &amp; Identity Terminal
+                                Student Attendance System
                             </p>
                         </div>
                     </Link>
@@ -394,9 +383,9 @@ export default function HomePage() {
                     <nav className="hidden md:flex items-center gap-1 p-1.5 rounded-2xl bg-slate-900/90 border border-slate-800">
                         {[
                             { href: '/',          label: 'Attendance Kiosk', icon: 'scan',      active: true },
-                            { href: '/register',  label: 'Enroll Student',   icon: 'register',  active: false },
-                            { href: '/dashboard', label: 'Analytics',        icon: 'dashboard', active: false, badge: 'PIN' },
-                            { href: '/students',  label: 'Directory',        icon: 'users',     active: false, badge: 'PIN' },
+                            { href: '/register',  label: 'Register Student', icon: 'register',  active: false },
+                            { href: '/dashboard', label: 'Dashboard',        icon: 'dashboard', active: false },
+                            { href: '/students',  label: 'Directory',        icon: 'users',     active: false },
                         ].map((item) => (
                             <Link
                                 key={item.href}
@@ -409,11 +398,6 @@ export default function HomePage() {
                             >
                                 <AnimatedIcon type={item.icon} size={15} />
                                 <span>{item.label}</span>
-                                {item.badge && (
-                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
-                                        {item.badge}
-                                    </span>
-                                )}
                             </Link>
                         ))}
                     </nav>
@@ -426,14 +410,6 @@ export default function HomePage() {
                         >
                             <AnimatedIcon type="faculty" size={15} />
                             <span>{activeLecturer ? `${activeLecturer.full_name.split(' ')[0]}'s Session` : 'Faculty Sign In'}</span>
-                        </button>
-
-                        <button
-                            onClick={() => setShowDebugConsole(true)}
-                            title="System Diagnostics"
-                            className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 border border-slate-800 hover:border-blue-500/40 text-slate-400 hover:text-white transition-all cursor-pointer"
-                        >
-                            <AnimatedIcon type="settings" size={17} />
                         </button>
 
                         <button
@@ -458,10 +434,10 @@ export default function HomePage() {
                 {mobileMenuOpen && (
                     <div className="md:hidden border-t border-slate-800 bg-slate-950/98 px-4 py-4 space-y-2 animate-fade-in-down">
                         {[
-                            { href: '/',          label: 'Attendance Kiosk',      icon: 'scan',      active: true },
-                            { href: '/register',  label: 'Register New Student',  icon: 'register',  color: '#60a5fa' },
-                            { href: '/dashboard', label: 'Admin Analytics Portal', icon: 'dashboard', color: '#34d399', badge: 'PIN' },
-                            { href: '/students',  label: 'Student Directory',     icon: 'users',     color: '#a78bfa', badge: 'PIN' },
+                            { href: '/',          label: 'Attendance Kiosk',     icon: 'scan',      active: true },
+                            { href: '/register',  label: 'Register New Student', icon: 'register',  color: '#60a5fa' },
+                            { href: '/dashboard', label: 'Admin Dashboard',      icon: 'dashboard', color: '#34d399' },
+                            { href: '/students',  label: 'Student Directory',    icon: 'users',     color: '#a78bfa' },
                         ].map((item) => (
                             <Link
                                 key={item.href}
@@ -477,11 +453,6 @@ export default function HomePage() {
                                     <AnimatedIcon type={item.icon} size={18} style={{ color: item.active ? '#60a5fa' : item.color || '#94a3b8' }} />
                                     <span className="text-sm font-bold">{item.label}</span>
                                 </div>
-                                {item.badge && (
-                                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">
-                                        {item.badge}
-                                    </span>
-                                )}
                             </Link>
                         ))}
                         <div className="pt-2 border-t border-slate-800">
@@ -501,10 +472,10 @@ export default function HomePage() {
             </header>
 
             {/* ════════════════════════════════════════════════════════════════
-                HERO SECTION — FUTURISTIC BENTO ARCHITECTURE
+                HERO SECTION
                 ════════════════════════════════════════════════════════════════ */}
             <section className="relative overflow-hidden border-b border-blue-500/15 py-10 sm:py-14 lg:py-16 cyber-grid-bg">
-                <ParticleField particleCount={35} color="#3b82f6" connectorColor="#10b981" />
+                <ParticleField particleCount={30} color="#3b82f6" connectorColor="#10b981" />
 
                 {/* Ambient Radial Glow Cones */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -516,17 +487,15 @@ export default function HomePage() {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                         {/* LEFT COLUMN (7/12) */}
                         <div className="lg:col-span-7 space-y-6" data-aos="fade-right">
-                            {/* Telemetry Status Badges */}
+                            {/* Status Badges */}
                             <div className="flex flex-wrap items-center gap-2">
                                 <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">
                                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                                    Biometric Kiosk Active
+                                    Attendance Kiosk Active
                                 </span>
                                 <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-blue-500/15 text-blue-300 border border-blue-500/30 whitespace-nowrap">
-                                    🏛️ Salvation Heritage
-                                </span>
-                                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-violet-500/15 text-violet-300 border border-violet-500/30 whitespace-nowrap">
-                                    ⚡ AWS Rekognition AI
+                                    <AnimatedIcon type="school" size={13} />
+                                    <span>Salvation Heritage</span>
                                 </span>
                             </div>
 
@@ -536,19 +505,19 @@ export default function HomePage() {
                                     className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.08]"
                                     style={{ fontFamily: 'var(--font-outfit)' }}
                                 >
-                                    Next-Gen Biometric{' '}
+                                    Salvation Heritage{' '}
                                     <span className="block mt-1 bg-gradient-to-r from-blue-400 via-emerald-300 to-violet-400 bg-clip-text text-transparent">
                                         Face Attendance
                                     </span>
                                 </h1>
                                 <p className="mt-4 text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
-                                    Step in front of the optical scanner — our AWS Rekognition neural engine maps 106 facial landmarks and logs student attendance in under 2 seconds. Zero cards, zero queues.
+                                    Step in front of the camera to mark your daily school attendance quickly and easily.
                                 </p>
                             </div>
 
                             {/* Bento Command Row: Clock Widget + Faculty Terminal Widget */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {/* Live Telemetry Clock Bento */}
+                                {/* Live Clock Bento */}
                                 <div className="bento-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
                                     <LiveClock />
                                 </div>
@@ -562,8 +531,8 @@ export default function HomePage() {
                                         <div className="min-w-0 flex-1">
                                             {activeLecturer ? (
                                                 <>
-                                                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400 block">
-                                                        INSTRUCTOR AUTHENTICATED
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">
+                                                        INSTRUCTOR SIGNED IN
                                                     </span>
                                                     <p className="text-sm font-black text-white truncate mt-0.5">
                                                         {activeLecturer.full_name}
@@ -574,14 +543,14 @@ export default function HomePage() {
                                                 </>
                                             ) : (
                                                 <>
-                                                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-400 block">
-                                                        INSTRUCTOR COMMAND
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400 block">
+                                                        TEACHERS &amp; STAFF
                                                     </span>
                                                     <p className="text-sm font-black text-white mt-0.5">
-                                                        Faculty &amp; Lecturer Portal
+                                                        Faculty Portal
                                                     </p>
                                                     <p className="text-[11px] text-slate-400">
-                                                        Start class sessions &amp; live roll call
+                                                        Start class sessions &amp; roll call
                                                     </p>
                                                 </>
                                             )}
@@ -593,7 +562,7 @@ export default function HomePage() {
                                             onClick={handleFacultyAction}
                                             className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-md transition-all whitespace-nowrap cursor-pointer"
                                         >
-                                            {activeLecturer ? 'Enter Class Terminal →' : 'Open Faculty Portal →'}
+                                            {activeLecturer ? 'Enter Class Portal' : 'Open Faculty Portal'}
                                         </button>
                                         {activeLecturer && (
                                             <button
@@ -613,7 +582,7 @@ export default function HomePage() {
                                     icon="check"
                                     value={todayCount}
                                     label="Present Today"
-                                    sublabel="Verified check-ins"
+                                    sublabel="Checked in today"
                                     color="emerald"
                                     delay={0}
                                 />
@@ -622,7 +591,7 @@ export default function HomePage() {
                                     value={percentage}
                                     suffix="%"
                                     label="Attendance Rate"
-                                    sublabel="Daily school average"
+                                    sublabel="Daily school rate"
                                     color="blue"
                                     delay={80}
                                 />
@@ -630,14 +599,14 @@ export default function HomePage() {
                                     icon="users"
                                     value={totalStudents}
                                     label="Total Enrolled"
-                                    sublabel="Active biometric IDs"
+                                    sublabel="Registered students"
                                     color="violet"
                                     delay={160}
                                 />
                             </div>
                         </div>
 
-                        {/* RIGHT COLUMN (5/12) — Interactive 3D Biometric Hero Illustration */}
+                        {/* RIGHT COLUMN (5/12) — Hero Video Illustration (/camera.webm) */}
                         <div className="lg:col-span-5 flex items-center justify-center" data-aos="fade-left" data-aos-delay="150">
                             <BiometricHeroIllustration />
                         </div>
@@ -654,33 +623,28 @@ export default function HomePage() {
                     <div>
                         <div className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                            <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-400">
-                                LIVE OPTICAL VERIFICATION TERMINAL
+                            <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">
+                                STUDENT CHECK-IN
                             </span>
                         </div>
                         <h2 className="text-xl sm:text-2xl font-black text-white mt-1" style={{ fontFamily: 'var(--font-outfit)' }}>
-                            Biometric Attendance Kiosk
+                            Attendance Kiosk
                         </h2>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
-                        <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-900 border border-slate-800 text-slate-300 whitespace-nowrap">
-                            🎯 106 Facial Landmarks
-                        </span>
-                        <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-900 border border-slate-800 text-slate-300 whitespace-nowrap">
-                            🛡️ Liveness Anti-Spoof
-                        </span>
                         <Link
                             href="/register"
-                            className="px-3.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 no-underline transition-all whitespace-nowrap"
+                            className="px-4 py-2 rounded-full text-xs font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 no-underline transition-all whitespace-nowrap flex items-center gap-1.5"
                         >
-                            + Enroll New Face
+                            <AnimatedIcon type="register" size={14} />
+                            <span>Register New Student</span>
                         </Link>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
-                    {/* Left: Biometric Camera Terminal (3/5) */}
+                    {/* Left: Camera Terminal (3/5) */}
                     <div className="lg:col-span-3" data-aos="fade-up">
                         <div className="bento-card rounded-3xl overflow-hidden">
                             {/* Terminal Header Bar */}
@@ -691,29 +655,22 @@ export default function HomePage() {
                                     </div>
                                     <div className="min-w-0">
                                         <p className="text-sm font-black text-white truncate" style={{ fontFamily: 'var(--font-outfit)' }}>
-                                            Optical Face Scanner
+                                            Face Scanner
                                         </p>
                                         <p className="text-[11px] text-slate-400 truncate">
-                                            Align your face inside the target frame below
+                                            Align your face inside the frame below
                                         </p>
                                     </div>
                                 </div>
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 whitespace-nowrap flex-shrink-0">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 whitespace-nowrap flex-shrink-0">
                                     <AnimatedIcon type="live" size={11} />
-                                    READY TO SCAN
+                                    READY
                                 </span>
                             </div>
 
                             {/* Camera Viewport */}
                             <div className="p-4 sm:p-6">
                                 <CameraCapture onCapture={handleCapture} isLoading={isLoading} buttonText="Scan Face & Mark Attendance" />
-                            </div>
-
-                            {/* Terminal Telemetry Footer */}
-                            <div className="px-5 py-3 bg-slate-950/80 border-t border-white/5 flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono text-slate-400">
-                                <span>ENGINE: AWS REKOGNITION v4</span>
-                                <span className="text-emerald-400">● ENCRYPTED BIOMETRIC STREAM</span>
-                                <span className="hidden sm:inline">SCHOOL ID: SAL-NG</span>
                             </div>
                         </div>
                     </div>
@@ -735,16 +692,13 @@ export default function HomePage() {
                                         </div>
                                         <div className="min-w-0">
                                             <p className="text-sm font-black text-white truncate" style={{ fontFamily: 'var(--font-outfit)' }}>
-                                                Verification Guide
+                                                How to Check In
                                             </p>
                                             <p className="text-[11px] text-slate-400 truncate">
-                                                3-step contactless check-in
+                                                Simple 3-step guide
                                             </p>
                                         </div>
                                     </div>
-                                    <span className="text-[10px] font-mono text-blue-300 font-bold px-2.5 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 whitespace-nowrap flex-shrink-0">
-                                        AUTO-MATCH
-                                    </span>
                                 </div>
 
                                 <div className="p-5 flex-1 flex flex-col">
@@ -757,14 +711,14 @@ export default function HomePage() {
                         {lastAttendance?.error && (
                             <div className="rounded-2xl p-4 bg-rose-500/10 border border-rose-500/30 animate-scale-in">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-sm">⚠️</span>
-                                    <p className="text-xs font-bold text-rose-300">Biometric Match Not Found</p>
+                                    <AnimatedIcon type="alert" size={16} className="text-rose-400 flex-shrink-0" />
+                                    <p className="text-xs font-bold text-rose-300">Face Not Recognized</p>
                                 </div>
                                 <p className="text-xs text-slate-300 leading-relaxed">{lastAttendance.message}</p>
                                 <p className="text-[11px] text-slate-400 mt-1.5">
                                     Ensure your face is clearly lit or{' '}
                                     <Link href="/register" className="text-emerald-400 font-bold underline">
-                                        enroll as a new student
+                                        register as a new student
                                     </Link>
                                     .
                                 </p>
@@ -789,21 +743,22 @@ export default function HomePage() {
                                     <h2 className="text-base font-black text-white" style={{ fontFamily: 'var(--font-outfit)' }}>
                                         Faculty Portal Sign In
                                     </h2>
-                                    <p className="text-xs text-emerald-400">Salvation Heritage Instructors &amp; Staff</p>
+                                    <p className="text-xs text-emerald-400">Salvation Heritage Teachers &amp; Staff</p>
                                 </div>
                             </div>
                             <button
                                 onClick={() => setShowFacultyModal(false)}
-                                className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                                className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer text-xs font-bold"
                             >
-                                ✕
+                                X
                             </button>
                         </div>
 
                         <div className="p-6 space-y-4">
                             {facultyError && (
-                                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold">
-                                    ⚠️ {facultyError}
+                                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-2">
+                                    <AnimatedIcon type="alert" size={15} className="text-rose-400 flex-shrink-0" />
+                                    <span>{facultyError}</span>
                                 </div>
                             )}
 
@@ -833,7 +788,7 @@ export default function HomePage() {
                                             onClick={() => setShowPass((v) => !v)}
                                             className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs cursor-pointer"
                                         >
-                                            {showPass ? '🙈' : '👁️'}
+                                            <AnimatedIcon type={showPass ? 'eye-off' : 'eye'} size={16} />
                                         </button>
                                     </div>
                                 </div>
@@ -842,7 +797,7 @@ export default function HomePage() {
                                     disabled={facultyLoading}
                                     className="w-full py-3.5 rounded-xl text-sm font-black text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-lg shadow-blue-600/30 transition-all disabled:opacity-50 cursor-pointer"
                                 >
-                                    {facultyLoading ? 'Authenticating...' : 'Sign In to Session Control →'}
+                                    {facultyLoading ? 'Signing in...' : 'Sign In'}
                                 </button>
                             </form>
 
@@ -853,8 +808,8 @@ export default function HomePage() {
                                     onClick={() => setShowFacultyPicker((v) => !v)}
                                     className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-300 bg-slate-950 border border-slate-800 hover:border-blue-500/40 transition-all cursor-pointer"
                                 >
-                                    <span>⚡ Quick-Select Nigerian Faculty Profile (13)</span>
-                                    <span>{showFacultyPicker ? '▲' : '▼'}</span>
+                                    <span>Select Faculty Profile (13)</span>
+                                    <span>{showFacultyPicker ? 'Hide' : 'Show'}</span>
                                 </button>
 
                                 {showFacultyPicker && (
@@ -867,7 +822,9 @@ export default function HomePage() {
                                                 className="w-full px-3 py-2 rounded-xl text-left hover:bg-blue-600/15 border border-transparent hover:border-blue-500/30 transition-all flex items-center justify-between gap-2 cursor-pointer"
                                             >
                                                 <div className="flex items-center gap-2.5 min-w-0">
-                                                    <span className="text-lg flex-shrink-0">{lec.avatar}</span>
+                                                    <span className="w-7 h-7 rounded-lg bg-slate-800 text-emerald-400 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                                                        {lec.avatar}
+                                                    </span>
                                                     <div className="min-w-0">
                                                         <p className="text-xs font-bold text-white truncate">{lec.full_name}</p>
                                                         <p className="text-[10px] text-slate-400 truncate">
@@ -876,7 +833,7 @@ export default function HomePage() {
                                                     </div>
                                                 </div>
                                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 flex-shrink-0">
-                                                    Use
+                                                    Select
                                                 </span>
                                             </button>
                                         ))}
@@ -888,11 +845,6 @@ export default function HomePage() {
                 </div>
             )}
 
-            {/* Diagnostics Console */}
-            {showDebugConsole && (
-                <DebugConsole onClose={() => setShowDebugConsole(false)} lastAttendance={lastAttendance} debugInfo={debugInfo} />
-            )}
-
             {/* ── Footer ── */}
             <footer className="border-t border-blue-500/15 bg-slate-950/95 py-6">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -901,15 +853,15 @@ export default function HomePage() {
                             SH
                         </div>
                         <span className="text-xs font-semibold text-slate-400">
-                            Salvation Heritage Smart Biometric Attendance · Powered by AWS Rekognition
+                            Salvation Heritage High School · Attendance System
                         </span>
                     </div>
                     <div className="flex items-center gap-4 text-xs">
                         <Link href="/register" className="text-slate-400 hover:text-white no-underline transition-colors">
-                            Student Enrollment
+                            Student Registration
                         </Link>
                         <Link href="/dashboard" className="text-slate-400 hover:text-white no-underline transition-colors">
-                            Admin Analytics
+                            Admin Dashboard
                         </Link>
                         <button onClick={handleFacultyAction} className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer">
                             Faculty Portal
@@ -926,7 +878,7 @@ export default function HomePage() {
                 </Link>
                 <Link href="/register" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
                     <AnimatedIcon type="register" size={20} />
-                    <span className="text-[10px] font-bold">Enroll</span>
+                    <span className="text-[10px] font-bold">Register</span>
                 </Link>
                 <button
                     onClick={handleFacultyAction}
