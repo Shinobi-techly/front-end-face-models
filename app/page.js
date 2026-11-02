@@ -7,6 +7,7 @@ import CameraCapture from '../components/CameraCapture';
 import DebugConsole from '../components/DebugConsole';
 import AOSInit from '../components/AOSInit';
 import AnimatedIcon from '../components/AnimatedIcon';
+import LottieAnimation from '../components/LottieAnimation';
 import { recognizeFace, getStats, loginLecturer, NIGERIAN_FACULTY } from '../lib/api';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -99,7 +100,7 @@ export default function HomePage() {
             const result = await recognizeFace(imageDataUrl);
             if (!isMounted.current) return;
             setDebugInfo({ status: 'Response received', result, time: new Date().toLocaleTimeString() });
-            
+
             if (result.success && result.student) {
                 const studentName = result.student.full_name || result.student.name || 'Student';
                 const isAlreadyMarked = result.already_marked === true || result.attendance_marked === false;
@@ -111,7 +112,7 @@ export default function HomePage() {
                         style: { border: '2px solid #f59e0b', background: '#0f172a', color: '#fef3c7', fontWeight: 600 },
                     });
                 } else {
-                    toast.success(result.message || `✅ Attendance marked for ${studentName}!`, { 
+                    toast.success(result.message || `✅ Attendance marked for ${studentName}!`, {
                         duration: 4000,
                         icon: '🎉'
                     });
@@ -278,7 +279,7 @@ export default function HomePage() {
             {/* ── Main Navbar ── */}
             <nav className="sticky top-0 z-40 w-full bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/40">
                 <div className="max-w-7xl mx-auto mobile-px-safe sm:px-6 h-14 sm:h-16 md:h-20 flex items-center justify-between gap-2 sm:gap-3">
-                    
+
                     {/* Brand */}
                     <Link href="/" className="flex items-center gap-2 sm:gap-3 no-underline group flex-shrink-0 min-w-0">
                         <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-emerald-500 flex items-center justify-center text-white font-black text-xs sm:text-sm md:text-base shadow-lg shadow-blue-600/30 group-hover:scale-105 transition-all">
@@ -516,16 +517,30 @@ export default function HomePage() {
                             </div>
                         </div>
 
-                        {/* Right — Scanner Visual with Frame */}
+                        {/* Right — Scanner Visual with Animated Illustration */}
                         <div className="flex-shrink-0 flex items-center justify-center lg:justify-end mt-4 lg:mt-0" data-aos="fade-left" data-aos-delay="200">
                             <div className="relative group w-64 sm:w-72 md:w-96 lg:w-[26rem] xl:w-[28rem]">
-                                <div className="absolute -inset-2 sm:-inset-4 rounded-2xl sm:rounded-3xl opacity-50 blur-2xl bg-gradient-to-r from-blue-600 via-emerald-500 to-teal-400" />
+                                <div className="absolute -inset-2 sm:-inset-4 rounded-2xl sm:rounded-3xl opacity-50 blur-2xl bg-gradient-to-r from-blue-600 via-emerald-500 to-teal-400 animate-pulse" />
                                 <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/30 sm:border-2 shadow-2xl bg-slate-900">
+                                    {/* Background Image */}
                                     <img src="/scanner.jpg" alt="Salvation Heritage Face Recognition"
                                         className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
-                                        style={{ filter: 'brightness(1.05) contrast(1.05)', minHeight: '200px' }} />
+                                        style={{ filter: 'brightness(0.85) contrast(1.05)', minHeight: '200px' }} />
+                                    
+                                    {/* Animated Face Scan Overlay */}
+                                    <div className="absolute inset-0 flex items-center justify-center p-8">
+                                        <div className="w-48 h-48 sm:w-64 sm:h-64">
+                                            <LottieAnimation
+                                                animationPath="/animations/face-scan.json"
+                                                loop={true}
+                                                autoplay={true}
+                                                style={{ width: '100%', height: '100%', filter: 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.6))' }}
+                                            />
+                                        </div>
+                                    </div>
+                                    
                                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
-                                    <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center bg-gradient-to-tr from-emerald-600 to-teal-500 border border-white/60 shadow-lg shadow-emerald-500/40">
+                                    <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center bg-gradient-to-tr from-emerald-600 to-teal-500 border border-white/60 shadow-lg shadow-emerald-500/40 animate-pulse">
                                         <span className="text-white text-sm sm:text-lg">✓</span>
                                     </div>
                                     <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 py-0.5 sm:py-1 bg-slate-950/80 backdrop-blur border border-emerald-400/40">
@@ -620,11 +635,10 @@ export default function HomePage() {
                                 </div>
 
                                 {/* Status Banner */}
-                                <div className={`rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold ${
-                                    lastAttendance.alreadyMarked
-                                        ? 'bg-amber-500/10 border border-amber-500/30 text-amber-300'
-                                        : 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
-                                }`}>
+                                <div className={`rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold ${lastAttendance.alreadyMarked
+                                    ? 'bg-amber-500/10 border border-amber-500/30 text-amber-300'
+                                    : 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
+                                    }`}>
                                     {lastAttendance.alreadyMarked
                                         ? '👋 Welcome back! Your attendance was already recorded today.'
                                         : `✅ Attendance successfully marked for ${lastAttendance.student.full_name}`

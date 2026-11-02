@@ -4,6 +4,8 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import AOSInit from '../../components/AOSInit';
 import CameraCapture from '../../components/CameraCapture';
+import AnimatedIcon from '../../components/AnimatedIcon';
+import LottieAnimation from '../../components/LottieAnimation';
 import { registerStudent, checkStudentId, checkFace } from '../../lib/api';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -368,22 +370,38 @@ export default function RegisterPage() {
                             </div>
                         </div>
 
-                        {/* Right Visual */}
+                        {/* Right Visual - Animated Illustration */}
                         <div className="flex-shrink-0 flex items-center justify-center lg:justify-end" data-aos="fade-left" data-aos-delay="200">
                             <div className="relative group w-80 sm:w-96 md:w-[26rem]">
-                                <div className="absolute -inset-4 rounded-3xl opacity-50 blur-2xl bg-gradient-to-r from-blue-600 via-emerald-500 to-teal-400" />
-                                <div className="relative rounded-3xl overflow-hidden border-2 border-white/30 shadow-2xl bg-slate-900">
-                                    <img src="/gily.jpg" alt="Salvation Heritage Student"
-                                        className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
-                                        style={{ filter: 'brightness(1.05) contrast(1.05)', minHeight: '340px' }} />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                                <div className="absolute -inset-4 rounded-3xl opacity-50 blur-2xl bg-gradient-to-r from-blue-600 via-emerald-500 to-teal-400 animate-pulse" />
+                                <div className="relative rounded-3xl overflow-hidden border-2 border-white/30 shadow-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+                                    {/* Beautiful Lottie Animation */}
+                                    <div className="w-full h-auto" style={{ minHeight: '340px' }}>
+                                        <LottieAnimation
+                                            animationPath="/animations/student-register.json"
+                                            loop={true}
+                                            autoplay={true}
+                                            style={{ width: '100%', height: '100%' }}
+                                        />
+                                    </div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none" />
+                                    
+                                    {/* Corner Frames */}
                                     {['top-3 left-3 border-t-2 border-l-2 rounded-tl-lg','top-3 right-3 border-t-2 border-r-2 rounded-tr-lg','bottom-3 left-3 border-b-2 border-l-2 rounded-bl-lg','bottom-3 right-3 border-b-2 border-r-2 rounded-br-lg'].map((cls, i) => (
                                         <div key={i} className={`absolute w-8 h-8 border-emerald-400/90 ${cls}`} />
                                     ))}
-                                    <div className="absolute bottom-4 right-4 w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-tr from-emerald-600 to-teal-500 border border-white/60 shadow-lg shadow-emerald-500/40">
+                                    
+                                    {/* Success Badge */}
+                                    <div className="absolute bottom-4 right-4 w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-tr from-emerald-600 to-teal-500 border border-white/60 shadow-lg shadow-emerald-500/40 animate-bounce">
                                         <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                         </svg>
+                                    </div>
+                                    
+                                    {/* Animated Badge */}
+                                    <div className="absolute top-4 left-4 flex items-center gap-2 rounded-full px-3 py-1.5 bg-slate-950/80 backdrop-blur border border-emerald-400/40">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                        <span className="text-emerald-300 text-xs font-black tracking-wider">ENROLLMENT</span>
                                     </div>
                                 </div>
                             </div>
