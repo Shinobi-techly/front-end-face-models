@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import AOSInit from '../../components/AOSInit';
+import AnimatedIcon from '../../components/AnimatedIcon';
 import StudentDirectoryIllustration from '../../components/StudentDirectoryIllustration';
 import { getStudents, deleteStudent } from '../../lib/api';
 import toast, { Toaster } from 'react-hot-toast';
@@ -12,107 +13,106 @@ const PHOTO = (id) =>
     `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost/face-attendance-api/api'}/get-student-photo.php?student_id=${id}`;
 
 function initials(name = '') {
-    return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-}
-
-function semColor(sem) {
-    const colors = [
-        '#2563eb',  // Term 1 - Royal Blue
-        '#10b981',  // Term 2 - Emerald Green
-        '#06b6d4',  // Term 3 - Cyan
-        '#8b5cf6',  // Purple
-        '#3b82f6',  // Blue
-        '#14b8a6'   // Teal
-    ];
-    return colors[(sem - 1) % colors.length] || '#2563eb';
+    return name
+        .split(' ')
+        .map((w) => w[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
 }
 
 function StudentCard({ student, onDelete }) {
     const [imgError, setImgError] = useState(false);
-    const col = semColor(student.semester);
     const reg = student.registered_at
-        ? new Date(student.registered_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' })
-        : '—';
+        ? new Date(student.registered_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+        : 'Active';
+    const termLabel =
+        Number(student.semester) === 1
+            ? '1st Term'
+            : Number(student.semester) === 2
+            ? '2nd Term'
+            : Number(student.semester) === 3
+            ? '3rd Term'
+            : `Term ${student.semester || 1}`;
 
     return (
-        <div className="group relative rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-2 cursor-pointer bg-slate-900 border border-blue-500/25 shadow-xl">
-            {/* Hover glow border */}
-            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                style={{ boxShadow: 'inset 0 0 0 1px rgba(16,185,129,0.5), 0 0 30px rgba(37,99,235,0.2)' }} />
+        <div className="group bento-card rounded-3xl overflow-hidden transition-all duration-300 hover:-translate-y-1.5 flex flex-col">
+            {/* Top Gradient Accent Bar */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 via-emerald-500 to-teal-400" />
 
-            {/* Top accent bar */}
-            <div className="h-1.5 w-full relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-emerald-500 to-teal-400" />
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
-                    style={{ animation: 'shimmer 2s infinite' }} />
-            </div>
-
-            {/* Photo */}
+            {/* Portrait Photo Viewport */}
             <div className="relative h-52 overflow-hidden bg-slate-950">
                 {!imgError ? (
-                    <img src={PHOTO(student.student_id)} alt={student.full_name}
-                        className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
-                        onError={() => setImgError(true)} />
+                    <img
+                        src={PHOTO(student.student_id)}
+                        alt={student.full_name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onError={() => setImgError(true)}
+                    />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-slate-950">
-                        <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-black text-white shadow-2xl bg-gradient-to-tr from-blue-600 to-emerald-500">
+                        <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-black text-white shadow-2xl bg-gradient-to-tr from-blue-600 to-emerald-500 border border-white/15">
                             {initials(student.full_name)}
                         </div>
                     </div>
                 )}
 
-                {/* Dark overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
 
-                {/* Hover overlay */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 bg-slate-950/85 backdrop-blur-sm">
-                    <div className="text-center px-4 space-y-2">
-                        <div className="bg-slate-900/90 rounded-2xl px-4 py-2 border border-blue-500/30">
-                            <p className="text-xs font-mono text-emerald-300 font-bold tracking-wider">{student.student_id}</p>
-                        </div>
-                        <p className="text-xs text-slate-300">Enrolled {reg}</p>
-                        <span className="inline-block text-xs font-semibold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                            Salvation Heritage Student
-                        </span>
-                    </div>
-                </div>
-
-                {/* Term badge */}
+                {/* Term Badge */}
                 <div className="absolute top-3 left-3 z-10">
-                    <span className="text-[10px] font-black px-2.5 py-1 rounded-xl text-white shadow-lg bg-slate-900/80 backdrop-blur border"
-                        style={{ borderColor: `${col}80` }}>
-                        {student.semester === 1 ? '1st Term' : student.semester === 2 ? '2nd Term' : student.semester === 3 ? '3rd Term' : `Term ${student.semester}`}
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-xl text-emerald-300 bg-slate-950/85 backdrop-blur border border-emerald-500/30 whitespace-nowrap">
+                        {termLabel}
                     </span>
                 </div>
 
-                {/* Class badge */}
+                {/* Class Badge */}
                 <div className="absolute top-3 right-3 z-10">
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-blue-600/90 text-white backdrop-blur border border-blue-400/40">
+                    <span className="text-[10px] font-black px-2.5 py-1 rounded-xl bg-blue-600/90 text-white backdrop-blur border border-blue-400/40 whitespace-nowrap">
                         {student.department}
+                    </span>
+                </div>
+
+                {/* Bottom ID Overlay */}
+                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
+                    <span className="px-2.5 py-1 rounded-lg bg-slate-950/90 border border-white/10 text-xs font-mono font-bold text-emerald-400">
+                        {student.student_id}
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-300 bg-slate-950/80 px-2 py-0.5 rounded-md">
+                        ✓ Biometric ID
                     </span>
                 </div>
             </div>
 
-            {/* Info */}
-            <div className="p-5">
+            {/* Student Details Body */}
+            <div className="p-5 flex-1 flex flex-col justify-between">
                 <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="min-w-0 flex-1">
-                        <h3 className="font-bold text-white text-base truncate group-hover:text-emerald-400 transition-colors">
+                        <h3 className="font-black text-white text-base truncate group-hover:text-emerald-400 transition-colors" style={{ fontFamily: 'var(--font-outfit)' }}>
                             {student.full_name}
                         </h3>
-                        <p className="text-xs font-mono text-slate-400 mt-0.5">{student.student_id}</p>
+                        <p className="text-xs text-slate-400 mt-0.5 truncate">
+                            Enrolled: {reg}
+                        </p>
                     </div>
                     <button
-                        onClick={(e) => { e.stopPropagation(); onDelete(student); }}
-                        className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30"
-                        title="Delete Student Record">
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(student);
+                        }}
+                        className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 transition-all flex-shrink-0 cursor-pointer"
+                        title="Delete Student Record"
+                    >
                         🗑️
                     </button>
                 </div>
 
-                <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-                    <span>Salvation Heritage</span>
-                    <span className="text-emerald-400 font-semibold">Active Profile</span>
+                <div className="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
+                    <span className="truncate">Salvation Heritage</span>
+                    <span className="text-emerald-400 font-bold flex items-center gap-1 whitespace-nowrap">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        Active Roster
+                    </span>
                 </div>
             </div>
         </div>
@@ -126,331 +126,375 @@ export default function StudentsPage() {
     const [filterDept, setFilterDept] = useState('all');
     const [filterSem, setFilterSem] = useState('all');
     const [view, setView] = useState('grid');
-    const [deletingId, setDeletingId] = useState(null);
     const [mobileOpen, setMobileOpen] = useState(false);
 
     const loadStudents = useCallback(() => {
         setLoading(true);
         getStudents()
-            .then(data => setStudents(data || []))
+            .then((data) => setStudents(data || []))
             .catch(() => toast.error('Failed to load students'))
             .finally(() => setLoading(false));
     }, []);
 
-    useEffect(() => { loadStudents(); }, [loadStudents]);
+    useEffect(() => {
+        loadStudents();
+    }, [loadStudents]);
 
     const handleDelete = useCallback(async (student) => {
-        if (!confirm(`Delete ${student.full_name}? This will remove them from the database and face collection.`)) return;
-        setDeletingId(student.student_id);
+        if (!confirm(`Delete ${student.full_name}? This will remove them from the database and biometric face collection.`)) return;
         try {
             const data = await deleteStudent(student.student_id);
             if (data.success) {
-                toast.success(`${student.full_name} deleted.`);
-                setStudents(prev => prev.filter(s => s.student_id !== student.student_id));
+                toast.success(`${student.full_name} removed.`);
+                setStudents((prev) => prev.filter((s) => s.student_id !== student.student_id));
             } else {
                 toast.error(data.message || 'Failed to delete');
             }
         } catch {
             toast.error('Network error');
-        } finally {
-            setDeletingId(null);
         }
     }, []);
 
-    // Filter & search
     const filtered = useMemo(() => {
-        return students.filter(s => {
+        return students.filter((s) => {
             const q = search.toLowerCase();
-            const matchSearch = !q ||
+            const matchSearch =
+                !q ||
                 s.full_name?.toLowerCase().includes(q) ||
                 s.student_id?.toLowerCase().includes(q) ||
                 s.department?.toLowerCase().includes(q);
             const matchDept = filterDept === 'all' || s.department === filterDept;
-            const matchSem  = filterSem  === 'all' || String(s.semester) === String(filterSem);
+            const matchSem = filterSem === 'all' || String(s.semester) === String(filterSem);
             return matchSearch && matchDept && matchSem;
         });
     }, [students, search, filterDept, filterSem]);
 
     const departments = useMemo(() => {
-        const set = new Set(students.map(s => s.department).filter(Boolean));
-        return Array.from(set).sort();
+        const set = new Set(['JSS1', 'JSS2', 'JSS3', 'SS1', 'SS2', 'SS3', ...students.map((s) => s.department).filter(Boolean)]);
+        return Array.from(set);
     }, [students]);
-
-    const semesters = useMemo(() => [1, 2, 3], []);
 
     return (
         <AdminGuard title="Salvation Heritage Student Directory">
-            <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col pb-24 md:pb-0" style={{ fontFamily: "'Inter','Segoe UI',sans-serif" }}>
+            <div
+                className="min-h-screen text-slate-100 flex flex-col pb-24 md:pb-0"
+                style={{
+                    background: 'radial-gradient(ellipse 100% 55% at 50% 0%, #0b1930 0%, #020617 65%)',
+                    fontFamily: 'var(--font-inter)',
+                }}
+            >
                 <AOSInit />
-                <style>{`
-                    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-                    @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
-                    .animate-float { animation: float 8s ease-in-out infinite; }
-                    select option { background-color: #0f172a !important; color: #fff !important; }
-                    select { color-scheme: dark; }
-                `}</style>
+                <Toaster
+                    position="top-right"
+                    toastOptions={{
+                        style: {
+                            borderRadius: 14,
+                            fontSize: 13,
+                            fontWeight: 600,
+                            background: '#0f172a',
+                            color: '#fff',
+                            border: '1px solid rgba(59,130,246,0.3)',
+                        },
+                    }}
+                />
 
-                <Toaster position="top-right" toastOptions={{
-                    style: { borderRadius: 14, fontSize: 13, fontWeight: 600, background: '#0f172a', color: '#fff', border: '1px solid rgba(59,130,246,0.3)' }
-                }} />
-
-                {/* ── Top School Banner ── */}
-                <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-emerald-950 text-white text-[11px] py-1.5 px-3 sm:px-4 font-semibold tracking-wide border-b border-white/10 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="flex-shrink-0">👥</span>
-                        <span className="truncate">Salvation Heritage Schools • Student Registry</span>
-                    </div>
-                    <div className="text-emerald-400 font-bold text-[10px] flex-shrink-0 hidden sm:block">
-                        Admin Authorization Active
-                    </div>
-                </div>
-
-                {/* ── Navbar ── */}
-                <nav className="sticky top-0 z-50 w-full bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/40">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
-                        <Link href="/" className="flex items-center gap-3 no-underline flex-shrink-0">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-lg shadow-blue-600/30 bg-gradient-to-tr from-blue-700 via-blue-600 to-emerald-500">
+                {/* ── Sticky Navigation Header ── */}
+                <header className="sticky top-0 z-40 w-full bg-slate-950/90 backdrop-blur-xl border-b border-blue-500/15 shadow-lg">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-3">
+                        <Link href="/" className="flex items-center gap-3 no-underline flex-shrink-0 min-w-0">
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-lg shadow-blue-600/30 bg-gradient-to-tr from-blue-600 to-emerald-500 flex-shrink-0">
                                 SH
                             </div>
                             <div className="min-w-0">
                                 <div className="flex items-center gap-2">
-                                    <span className="font-black text-white text-base sm:text-lg">Salvation Heritage</span>
-                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                    <span className="font-black text-white text-base sm:text-lg truncate" style={{ fontFamily: 'var(--font-outfit)' }}>
+                                        Salvation Heritage
+                                    </span>
+                                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 whitespace-nowrap">
                                         Directory
                                     </span>
                                 </div>
-                                <span className="hidden md:block text-slate-400 text-xs">Official Student Roster & Records</span>
+                                <span className="hidden md:block text-slate-400 text-xs truncate">
+                                    Official Biometric Student Roster &amp; Digital IDs
+                                </span>
                             </div>
                         </Link>
 
-                        {/* Desktop Navbar without Faculty */}
-                        <div className="hidden md:flex items-center gap-1 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800">
-                            <Link href="/" className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all no-underline">
-                                Kiosk
+                        {/* Desktop Nav Pill Dock */}
+                        <nav className="hidden md:flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800">
+                            <Link
+                                href="/"
+                                className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all no-underline flex items-center gap-1.5 whitespace-nowrap"
+                            >
+                                <AnimatedIcon type="scan" size={15} />
+                                <span>Kiosk</span>
                             </Link>
-                            <Link href="/dashboard" className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all no-underline">
-                                Dashboard
+                            <Link
+                                href="/dashboard"
+                                className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all no-underline flex items-center gap-1.5 whitespace-nowrap"
+                            >
+                                <AnimatedIcon type="dashboard" size={15} />
+                                <span>Analytics</span>
                             </Link>
-                            <Link href="/students" className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 shadow-md shadow-blue-600/30 no-underline">
-                                Students
+                            <Link
+                                href="/students"
+                                className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 shadow-md no-underline flex items-center gap-1.5 whitespace-nowrap"
+                            >
+                                <AnimatedIcon type="users" size={15} />
+                                <span>Directory</span>
                             </Link>
-                            <Link href="/register" className="px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/40 transition-all no-underline">
-                                + Register
+                            <Link
+                                href="/register"
+                                className="px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/40 transition-all no-underline flex items-center gap-1.5 whitespace-nowrap"
+                            >
+                                <AnimatedIcon type="register" size={15} />
+                                <span>+ Enroll</span>
                             </Link>
-                        </div>
+                        </nav>
 
-                        <div className="flex items-center gap-2">
-                            <Link href="/register"
-                                className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-lg shadow-blue-600/30 active:scale-95 transition-all no-underline flex-shrink-0">
-                                <span>+</span>
-                                <span>Add Student</span>
+                        <div className="flex items-center gap-2.5 flex-shrink-0">
+                            <Link
+                                href="/register"
+                                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-lg shadow-blue-600/25 no-underline whitespace-nowrap"
+                            >
+                                <span>+ Enroll Student</span>
                             </Link>
-                            <button onClick={() => setMobileOpen(v => !v)}
-                                aria-label="Toggle mobile menu"
-                                className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 text-slate-200 border border-slate-800 hover:bg-slate-800 transition-colors">
+                            <button
+                                onClick={() => setMobileOpen((v) => !v)}
+                                aria-label="Toggle Menu"
+                                className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 text-slate-200 border border-slate-800 cursor-pointer"
+                            >
                                 {mobileOpen ? '✕' : '☰'}
                             </button>
                         </div>
                     </div>
 
-                    {/* Mobile Navigation Dropdown */}
                     {mobileOpen && (
-                        <div className="md:hidden border-t border-slate-800 bg-slate-950 px-4 py-3 space-y-2">
+                        <div className="md:hidden border-t border-slate-800 bg-slate-950 px-4 py-3 space-y-1.5">
                             <Link href="/" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-900 no-underline">
                                 📸 Attendance Kiosk
                             </Link>
                             <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-900 no-underline">
-                                📊 Admin Dashboard
+                                📊 Admin Analytics
                             </Link>
                             <Link href="/students" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-xs font-bold text-white bg-blue-600 no-underline">
                                 👥 Student Directory
                             </Link>
                             <Link href="/register" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-xs font-bold text-emerald-400 hover:bg-slate-900 no-underline">
-                                📝 Register Student
+                                📝 Enroll Student
                             </Link>
                         </div>
                     )}
-                </nav>
+                </header>
 
-                {/* ── Blue-Emerald School Hero Section ── */}
-                <div className="relative text-white overflow-hidden py-12 sm:py-16 px-4 sm:px-6 bg-gradient-to-br from-[#0B192C] via-[#1E3E62] to-[#042f2e] border-b border-blue-500/20">
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full opacity-25 bg-blue-500 blur-3xl animate-float" />
-                        <div className="absolute top-10 right-1/3 w-80 h-80 rounded-full opacity-20 bg-emerald-400 blur-3xl" style={{ animation: 'float 10s ease-in-out infinite 2s' }} />
-                        <div className="absolute -bottom-16 right-10 w-96 h-96 rounded-full opacity-25 bg-teal-500 blur-3xl" style={{ animation: 'float 12s ease-in-out infinite 1s' }} />
-                    </div>
-
+                {/* ── Hero Section ── */}
+                <section className="relative overflow-hidden py-10 sm:py-14 px-4 sm:px-6 border-b border-blue-500/15 cyber-grid-bg">
                     <div className="max-w-7xl mx-auto relative z-10">
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-                            <div className="flex-1 min-w-0" data-aos="fade-right">
-                                <div className="flex items-center gap-2.5 mb-4 flex-wrap">
-                                    <div className="flex items-center gap-2 rounded-full px-4 py-1.5 bg-slate-950/60 border border-emerald-400/30 backdrop-blur-md">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-md shadow-emerald-400/80"></div>
-                                        <span className="text-emerald-300 text-xs font-bold uppercase tracking-wider">Student Roster</span>
-                                    </div>
-                                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md shadow-blue-500/20">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                            <div className="lg:col-span-7 space-y-5" data-aos="fade-right">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold uppercase tracking-wider whitespace-nowrap">
+                                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                        Biometric Student Registry
+                                    </span>
+                                    <span className="text-[11px] font-bold px-3.5 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 whitespace-nowrap">
                                         Salvation Heritage
                                     </span>
                                 </div>
 
-                                <h1 className="font-black tracking-tight leading-none mb-4">
-                                    <span className="block text-4xl sm:text-6xl lg:text-7xl text-white font-serif">Student</span>
-                                    <span className="block text-4xl sm:text-6xl lg:text-7xl bg-gradient-to-r from-blue-300 via-emerald-200 to-white bg-clip-text text-transparent">Directory</span>
+                                <h1
+                                    className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.08]"
+                                    style={{ fontFamily: 'var(--font-outfit)' }}
+                                >
+                                    Official Student{' '}
+                                    <span className="block mt-1 bg-gradient-to-r from-blue-400 via-emerald-300 to-teal-200 bg-clip-text text-transparent">
+                                        Biometric Directory
+                                    </span>
                                 </h1>
 
-                                <p className="text-slate-200 text-base sm:text-lg max-w-xl leading-relaxed mb-6 font-medium">
-                                    Browse, search, and manage enrolled students with biometric credentials across Salvation Heritage schools.
+                                <p className="text-slate-300 text-sm sm:text-base max-w-xl leading-relaxed">
+                                    Browse, search, and manage enrolled students and their facial biometric credentials across all Salvation Heritage classes.
                                 </p>
 
-                                <div className="flex flex-wrap gap-2.5 sm:gap-3">
+                                <div className="grid grid-cols-3 gap-3 pt-1">
                                     {[
-                                        { icon: '👥', val: students.length, label: 'Enrolled Students' },
-                                        { icon: '🏫', val: Math.max(0, departments.length - 1), label: 'Active Classes' },
-                                        { icon: '📚', val: Math.max(0, semesters.length - 1), label: 'Academic Terms' },
+                                        { icon: '👥', val: students.length, label: 'Enrolled IDs' },
+                                        { icon: '🏫', val: 6, label: 'Active Classes' },
+                                        { icon: '📚', val: 3, label: 'Academic Terms' },
                                     ].map((s, i) => (
-                                        <div key={i} className="flex-1 min-w-[120px] xs:min-w-[130px] flex items-center gap-2.5 sm:gap-3 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 bg-slate-950/60 border border-white/15 backdrop-blur-md transition-all duration-300 hover:scale-105 cursor-default">
-                                            <span className="text-xl sm:text-2xl">{s.icon}</span>
-                                            <div>
-                                                <p className="text-white font-black text-lg sm:text-xl leading-none">{s.val}</p>
-                                                <p className="text-emerald-300 text-[11px] sm:text-xs mt-0.5 whitespace-nowrap">{s.label}</p>
+                                        <div key={i} className="bento-card rounded-2xl p-3.5 sm:p-4 flex items-center gap-3">
+                                            <span className="text-xl sm:text-2xl flex-shrink-0">{s.icon}</span>
+                                            <div className="min-w-0">
+                                                <p className="text-white font-black text-lg sm:text-2xl leading-none" style={{ fontFamily: 'var(--font-outfit)' }}>
+                                                    {s.val}
+                                                </p>
+                                                <p className="text-emerald-300 text-[10px] sm:text-xs font-semibold mt-1 truncate">{s.label}</p>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="flex-shrink-0 flex items-center justify-center lg:justify-end" data-aos="fade-left" data-aos-delay="200">
+                            <div className="lg:col-span-5 flex items-center justify-center" data-aos="fade-left" data-aos-delay="150">
                                 <StudentDirectoryIllustration />
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                {/* ── Filter & Search Bar ── */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-                    <div className="rounded-2xl sm:rounded-3xl p-4 sm:p-5 mb-8 bg-slate-900/90 border border-blue-500/25 shadow-xl">
+                {/* ── Filter & Directory Content ── */}
+                <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex-1 w-full">
+                    {/* Command Filter Bar */}
+                    <div className="bento-card rounded-3xl p-4 sm:p-6 mb-8 space-y-4">
                         <div className="flex flex-col md:flex-row gap-3 sm:gap-4 items-stretch md:items-center justify-between">
-                            {/* Search */}
-                            <div className="relative w-full md:w-96">
+                            {/* Search Input */}
+                            <div className="relative flex-1">
                                 <input
                                     type="text"
                                     value={search}
-                                    onChange={e => setSearch(e.target.value)}
-                                    placeholder="Search by name, student ID, or class..."
-                                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-2xl text-xs bg-slate-950 text-white placeholder-slate-500 border border-slate-700 focus:outline-none focus:border-emerald-500 transition-colors"
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="Search by student name, SAL-XXXX ID, or class..."
+                                    className="input-premium pl-10 py-3 text-xs sm:text-sm"
                                 />
-                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">🔍</span>
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
                             </div>
 
-                            {/* Filters */}
-                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
-                                <select
-                                    value={filterDept}
-                                    onChange={e => setFilterDept(e.target.value)}
-                                    className="flex-1 sm:flex-initial px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl text-xs bg-slate-950 text-white border border-slate-700 focus:outline-none focus:border-emerald-500">
-                                    <option value="all">All Classes</option>
-                                    {departments.filter(d => d !== 'all').map(d => (
-                                        <option key={d} value={d}>{d}</option>
-                                    ))}
-                                </select>
-
+                            {/* Term Filter & View Switcher */}
+                            <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
                                 <select
                                     value={filterSem}
-                                    onChange={e => setFilterSem(e.target.value)}
-                                    className="flex-1 sm:flex-initial px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl text-xs bg-slate-950 text-white border border-slate-700 focus:outline-none focus:border-emerald-500">
-                                    <option value="all">All Terms</option>
-                                    {semesters.filter(s => s !== 'all').map(s => (
-                                        <option key={s} value={s}>{s === 1 ? '1st Term' : s === 2 ? '2nd Term' : s === 3 ? '3rd Term' : `Term ${s}`}</option>
-                                    ))}
+                                    onChange={(e) => setFilterSem(e.target.value)}
+                                    className="flex-1 sm:flex-initial px-4 py-3 rounded-xl text-xs font-bold bg-slate-950 text-white border border-blue-500/30 focus:outline-none focus:border-emerald-500"
+                                >
+                                    <option value="all">All Academic Terms</option>
+                                    <option value="1">1st Term</option>
+                                    <option value="2">2nd Term</option>
+                                    <option value="3">3rd Term</option>
                                 </select>
 
-                                {/* View Switcher */}
-                                <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-2xl border border-slate-800">
+                                <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
                                     <button
                                         onClick={() => setView('grid')}
-                                        className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                                            view === 'grid' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
-                                        }`}>
-                                        Grid
+                                        className={`px-3 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                            view === 'grid'
+                                                ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow'
+                                                : 'text-slate-400 hover:text-white'
+                                        }`}
+                                    >
+                                        ⊞ Cards
                                     </button>
                                     <button
-                                        onClick={() => setView('list')}
-                                        className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${
-                                            view === 'list' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
-                                        }`}>
-                                        Table
+                                        onClick={() => setView('table')}
+                                        className={`px-3 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                            view === 'table'
+                                                ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow'
+                                                : 'text-slate-400 hover:text-white'
+                                        }`}
+                                    >
+                                        ☰ Table
                                     </button>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Quick Class Filter Pills */}
+                        <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/10 flex-wrap">
+                            <div className="flex items-center gap-2 overflow-x-auto py-1">
+                                {['all', ...departments].map((cls) => {
+                                    const active = filterDept === cls;
+                                    return (
+                                        <button
+                                            key={cls}
+                                            onClick={() => setFilterDept(cls)}
+                                            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                                                active
+                                                    ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md'
+                                                    : 'bg-slate-950/90 text-slate-400 hover:text-white border border-slate-800'
+                                            }`}
+                                        >
+                                            {cls === 'all' ? 'All Classes' : cls}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            <span className="text-xs font-mono text-slate-400">
+                                Showing <strong className="text-emerald-400">{filtered.length}</strong> of {students.length} students
+                            </span>
                         </div>
                     </div>
 
-                    {/* ── Student List / Grid ── */}
+                    {/* Directory Roster Display */}
                     {loading ? (
-                        <div className="py-20 text-center">
-                            <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4" />
-                            <p className="text-slate-400 text-sm font-medium">Loading Salvation Heritage student records...</p>
-                        </div>
-                    ) : filtered.length === 0 ? (
-                        <div className="rounded-3xl p-16 text-center bg-slate-900/80 border border-slate-800">
-                            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-slate-950 border border-slate-800 text-2xl">
-                                🔍
-                            </div>
-                            <h3 className="text-xl font-bold text-white mb-1">No Students Found</h3>
-                            <p className="text-slate-400 text-xs mb-6">No matching records found for the selected search and filter criteria.</p>
-                            <button onClick={() => { setSearch(''); setFilterDept('all'); setFilterSem('all'); }}
-                                className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600">
-                                Reset Filters
-                            </button>
-                        </div>
-                    ) : view === 'grid' ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                            {filtered.map(s => (
-                                <div key={s.student_id || s.id} className={deletingId === s.student_id ? 'opacity-40 pointer-events-none scale-95 transition-all' : ''}>
-                                    <StudentCard student={s} onDelete={handleDelete} />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                                <div key={n} className="bento-card rounded-3xl h-80 animate-pulse p-5 flex flex-col justify-between">
+                                    <div className="h-44 rounded-2xl bg-slate-800/60" />
+                                    <div className="space-y-2">
+                                        <div className="h-4 w-2/3 rounded bg-slate-800" />
+                                        <div className="h-3 w-1/3 rounded bg-slate-800" />
+                                    </div>
                                 </div>
                             ))}
                         </div>
+                    ) : filtered.length === 0 ? (
+                        <div className="bento-card rounded-3xl p-12 text-center">
+                            <div className="text-4xl mb-3">🔍</div>
+                            <h3 className="text-lg font-black text-white">No Students Found</h3>
+                            <p className="text-xs text-slate-400 mt-1 mb-5">
+                                No enrolled student matches your current search or class filter.
+                            </p>
+                            <Link
+                                href="/register"
+                                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 no-underline shadow-lg"
+                            >
+                                + Enroll New Student
+                            </Link>
+                        </div>
+                    ) : view === 'grid' ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6">
+                            {filtered.map((student) => (
+                                <StudentCard key={student.student_id || student.id} student={student} onDelete={handleDelete} />
+                            ))}
+                        </div>
                     ) : (
-                        <div className="rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 shadow-xl">
+                        <div className="bento-card rounded-3xl overflow-hidden">
                             <div className="overflow-x-auto">
-                                <table className="w-full text-sm min-w-[600px]">
+                                <table className="w-full text-sm">
                                     <thead>
-                                        <tr className="bg-slate-950/80 border-b border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-400">
-                                            <th className="text-left px-6 py-4">Student</th>
-                                            <th className="text-left px-6 py-4">Class</th>
-                                            <th className="text-left px-6 py-4">Term</th>
-                                            <th className="text-left px-6 py-4">Enrolled</th>
-                                            <th className="text-right px-6 py-4">Actions</th>
+                                        <tr className="border-b border-slate-800 bg-slate-950/60 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                            <th className="text-left py-4 px-5">Student</th>
+                                            <th className="text-left py-4 px-5">Student ID</th>
+                                            <th className="text-left py-4 px-5">Class</th>
+                                            <th className="text-left py-4 px-5">Term</th>
+                                            <th className="text-right py-4 px-5">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-800/60">
-                                        {filtered.map(s => (
-                                            <tr key={s.student_id || s.id} className="hover:bg-slate-800/40 transition-colors">
-                                                <td className="px-6 py-4">
+                                        {filtered.map((s) => (
+                                            <tr key={s.student_id || s.id} className="hover:bg-slate-900/60 transition-colors">
+                                                <td className="py-3.5 px-5">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex-shrink-0">
-                                                            <img src={PHOTO(s.student_id)} alt={s.full_name} className="w-full h-full object-cover" />
+                                                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-950 border border-blue-500/30 flex-shrink-0 flex items-center justify-center font-bold text-xs text-emerald-400">
+                                                            {initials(s.full_name)}
                                                         </div>
-                                                        <div>
-                                                            <p className="font-bold text-white text-sm">{s.full_name}</p>
-                                                            <p className="text-xs text-slate-400 font-mono">{s.student_id}</p>
-                                                        </div>
+                                                        <span className="font-bold text-white">{s.full_name}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4 text-xs font-bold text-slate-300">{s.department}</td>
-                                                <td className="px-6 py-4">
-                                                    <span className="text-xs font-bold px-2.5 py-1 rounded-xl text-white bg-blue-600/80">
-                                                        {s.semester === 1 ? '1st Term' : s.semester === 2 ? '2nd Term' : s.semester === 3 ? '3rd Term' : `Term ${s.semester}`}
+                                                <td className="py-3.5 px-5 font-mono text-xs font-bold text-emerald-400">{s.student_id}</td>
+                                                <td className="py-3.5 px-5">
+                                                    <span className="px-2.5 py-1 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-300 text-xs font-bold">
+                                                        {s.department}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 text-xs text-slate-400">
-                                                    {s.registered_at ? new Date(s.registered_at).toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                                                <td className="py-3.5 px-5 text-xs text-slate-300">
+                                                    {s.semester === 1 ? '1st Term' : s.semester === 2 ? '2nd Term' : s.semester === 3 ? '3rd Term' : `Term ${s.semester}`}
                                                 </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <button onClick={() => handleDelete(s)} disabled={deletingId === s.student_id}
-                                                        className="text-xs px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all font-bold">
-                                                        {deletingId === s.student_id ? '...' : 'Delete'}
+                                                <td className="py-3.5 px-5 text-right">
+                                                    <button
+                                                        onClick={() => handleDelete(s)}
+                                                        className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold transition-all cursor-pointer"
+                                                    >
+                                                        Delete
                                                     </button>
                                                 </td>
                                             </tr>
@@ -460,39 +504,39 @@ export default function StudentsPage() {
                             </div>
                         </div>
                     )}
-                </div>
+                </main>
 
                 {/* ── Footer ── */}
-                <footer className="mt-16 py-6 border-t border-slate-800 bg-slate-950 text-slate-500 text-xs">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-between gap-3">
+                <footer className="border-t border-blue-500/15 bg-slate-950/95 py-6 text-xs text-slate-400">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-black bg-gradient-to-tr from-blue-700 to-emerald-500">
+                            <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-black bg-gradient-to-tr from-blue-600 to-emerald-500">
                                 SH
                             </div>
                             <span className="font-semibold text-slate-300">Salvation Heritage Student Registry</span>
                         </div>
-                        <Link href="/dashboard" className="text-blue-400 hover:text-blue-300 no-underline">
+                        <Link href="/dashboard" className="text-blue-400 hover:text-blue-300 font-semibold no-underline">
                             ← Return to Analytics Dashboard
                         </Link>
                     </div>
                 </footer>
 
-                {/* Mobile Bottom Bar */}
-                <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 py-2 px-3 flex items-center justify-around shadow-2xl shadow-black">
+                {/* ── Mobile Bottom Bar ── */}
+                <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 py-2 px-3 flex items-center justify-around shadow-2xl">
                     <Link href="/" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
-                        <span className="text-xl">📸</span>
+                        <AnimatedIcon type="scan" size={20} />
                         <span className="text-[10px] font-bold">Kiosk</span>
                     </Link>
                     <Link href="/register" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
-                        <span className="text-xl">📝</span>
-                        <span className="text-[10px] font-bold">Register</span>
+                        <AnimatedIcon type="register" size={20} />
+                        <span className="text-[10px] font-bold">Enroll</span>
                     </Link>
                     <Link href="/dashboard" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
-                        <span className="text-xl">📊</span>
+                        <AnimatedIcon type="dashboard" size={20} />
                         <span className="text-[10px] font-bold">Admin</span>
                     </Link>
-                    <Link href="/students" className="flex flex-col items-center gap-1 py-1 px-3 text-cyan-400 font-black no-underline">
-                        <span className="text-xl">👥</span>
+                    <Link href="/students" className="flex flex-col items-center gap-1 py-1 px-3 text-emerald-400 font-black no-underline">
+                        <AnimatedIcon type="users" size={20} />
                         <span className="text-[10px] font-bold">Students</span>
                     </Link>
                 </div>

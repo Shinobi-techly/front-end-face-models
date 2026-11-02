@@ -178,7 +178,7 @@ function LoginScreen({ onLogin }) {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between" style={{ fontFamily: "'Inter','Segoe UI',sans-serif" }}>
+        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between cyber-grid-bg" style={{ background: 'radial-gradient(ellipse 100% 55% at 50% 0%, #0b1930 0%, #020617 65%)', fontFamily: "var(--font-inter)" }}>
             <AOSInit />
             <Toaster position="top-center" toastOptions={{
                 style: { borderRadius: 14, fontSize: 13, fontWeight: 600, background: '#0f172a', color: '#fff', border: '1px solid rgba(59,130,246,0.3)' },
@@ -186,42 +186,42 @@ function LoginScreen({ onLogin }) {
             }} />
 
             {/* Top School Banner */}
-            <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-emerald-950 text-white text-[11px] py-1.5 px-3 sm:px-4 font-semibold tracking-wide border-b border-white/10 flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 min-w-0">
-                    <AnimatedIcon type="school" size={14} className="text-emerald-300 flex-shrink-0" />
-                    <span className="truncate">Salvation Heritage Schools • Faculty Portal</span>
+            <div className="bg-slate-950/90 text-white text-[11px] py-2 px-4 font-semibold tracking-wide border-b border-blue-500/15 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+                    <span className="truncate">Salvation Heritage High School • Faculty Session Terminal</span>
                 </div>
-                <div className="text-slate-400 text-[10px] flex-shrink-0 hidden sm:block">
-                    13 Faculty Members
+                <div className="text-emerald-400 font-mono text-[10px] flex-shrink-0 hidden sm:block">
+                    13 FACULTY PROFILES ACTIVE
                 </div>
             </div>
 
             {/* Navbar */}
-            <nav className="sticky top-0 z-50 w-full bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/40">
+            <nav className="sticky top-0 z-50 w-full bg-slate-950/90 backdrop-blur-xl border-b border-blue-500/15 shadow-lg">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
-                    <Link href="/" className="flex items-center gap-3 no-underline flex-shrink-0">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-lg shadow-blue-600/30 bg-gradient-to-tr from-blue-700 via-blue-600 to-emerald-500">
+                    <Link href="/" className="flex items-center gap-3 no-underline flex-shrink-0 min-w-0">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-lg shadow-blue-600/30 bg-gradient-to-tr from-blue-600 to-emerald-500 flex-shrink-0">
                             SH
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                                <span className="font-black text-white text-base sm:text-lg">Salvation Heritage</span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                                <span className="font-black text-white text-base sm:text-lg truncate" style={{ fontFamily: 'var(--font-outfit)' }}>Salvation Heritage</span>
+                                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 whitespace-nowrap">
                                     Faculty Portal
                                 </span>
                             </div>
-                            <span className="hidden md:block text-slate-400 text-xs">Instructor Session Terminal</span>
+                            <span className="hidden md:block text-slate-400 text-xs">Instructor Roll Call &amp; Class Session Control</span>
                         </div>
                     </Link>
-                    <Link href="/" className="px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all no-underline">
+                    <Link href="/" className="px-4 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white bg-slate-900 border border-slate-800 hover:border-blue-500/40 transition-all no-underline whitespace-nowrap flex-shrink-0">
                         ← Back to Kiosk
                     </Link>
                 </div>
             </nav>
 
             {/* Login Card */}
-            <div className="flex-1 flex items-center justify-center px-3 sm:px-4 py-8 sm:py-12">
-                <div className="w-full max-w-md bg-slate-900 border border-blue-500/30 rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-8 relative overflow-hidden" data-aos="zoom-in">
+            <div className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
+                <div className="w-full max-w-md bento-card rounded-3xl p-5 sm:p-8 relative overflow-hidden" data-aos="zoom-in">
                     <div className="text-center mb-6">
                         <LecturerSessionIllustration className="mb-4" />
                         <h2 className="text-2xl font-black text-white" style={{ fontFamily: 'var(--font-outfit)' }}>Faculty Sign In</h2>

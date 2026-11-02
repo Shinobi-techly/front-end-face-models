@@ -7,8 +7,6 @@ import CameraCapture from '../components/CameraCapture';
 import DebugConsole from '../components/DebugConsole';
 import AOSInit from '../components/AOSInit';
 import AnimatedIcon from '../components/AnimatedIcon';
-import LottieAnimation from '../components/LottieAnimation';
-import FaceScanIllustration from '../components/FaceScanIllustration';
 import BiometricHeroIllustration from '../components/BiometricHeroIllustration';
 import KioskGuideIllustration from '../components/KioskGuideIllustration';
 import AttendanceSuccessIllustration from '../components/AttendanceSuccessIllustration';
@@ -21,7 +19,7 @@ const PHOTO_URL = (id) =>
 
 const FALLBACK_SVG = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230f172a"/><text x="50" y="58" text-anchor="middle" fill="%2334d399" font-size="38" font-family="sans-serif">?</text></svg>`;
 
-/* ── Animated live clock ── */
+/* ── Animated Live Telemetry Clock ── */
 function LiveClock() {
     const [time, setTime] = useState(null);
     useEffect(() => {
@@ -29,70 +27,137 @@ function LiveClock() {
         const t = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(t);
     }, []);
-    if (!time) return null;
+
+    if (!time) {
+        return (
+            <div className="h-14 flex items-center justify-center">
+                <span className="text-xs font-mono text-slate-500 animate-pulse">SYNCING SYSTEM CLOCK...</span>
+            </div>
+        );
+    }
+
     return (
-        <div className="text-center">
-            <p className="tabular-nums text-3xl xs:text-4xl sm:text-5xl font-black text-white tracking-tight"
-               style={{ fontFamily: 'var(--font-mono)', letterSpacing: '-1px' }}>
-                {time.toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+        <div>
+            <div className="flex items-center justify-between gap-2 mb-1">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5 whitespace-nowrap">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    SYSTEM TELEMETRY TIME
+                </span>
+                <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30 whitespace-nowrap">
+                    WAT (UTC+1)
+                </span>
+            </div>
+            <p
+                className="tabular-nums text-2xl sm:text-3xl font-black text-white tracking-tight leading-none my-1"
+                style={{ fontFamily: 'var(--font-mono)' }}
+            >
+                {time.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </p>
-            <p className="text-emerald-400 text-[10px] sm:text-xs mt-1 font-semibold tracking-wider sm:tracking-widest uppercase">
-                {time.toLocaleDateString('en-MY', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+            <p className="text-emerald-400 text-[11px] font-semibold tracking-wide truncate">
+                {time.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}
             </p>
         </div>
     );
 }
 
-/* ── Animated counter ── */
-function AnimatedCounter({ value, duration = 1200 }) {
+/* ── Animated Counter ── */
+function AnimatedCounter({ value, duration = 1000 }) {
     const [display, setDisplay] = useState(0);
     useEffect(() => {
         let start = 0;
-        const step = value / (duration / 16);
+        const target = Number(value) || 0;
+        if (target === 0) {
+            setDisplay(0);
+            return;
+        }
+        const step = Math.max(1, target / (duration / 16));
         const timer = setInterval(() => {
             start += step;
-            if (start >= value) { setDisplay(value); clearInterval(timer); }
-            else setDisplay(Math.floor(start));
+            if (start >= target) {
+                setDisplay(target);
+                clearInterval(timer);
+            } else {
+                setDisplay(Math.floor(start));
+            }
         }, 16);
         return () => clearInterval(timer);
     }, [value, duration]);
     return <>{display}</>;
 }
 
-/* ── Stat card ── */
-function StatCard({ icon, value, label, color, delay = 0 }) {
-    const colors = {
-        emerald: { border: 'rgba(16,185,129,0.25)', glow: 'rgba(16,185,129,0.08)', icon: '#34d399', text: '#6ee7b7', bg: 'rgba(16,185,129,0.08)' },
-        blue:    { border: 'rgba(59,116,247,0.25)', glow: 'rgba(59,116,247,0.08)', icon: '#60a5fa', text: '#93c5fd', bg: 'rgba(59,116,247,0.08)' },
-        violet:  { border: 'rgba(139,92,246,0.25)', glow: 'rgba(139,92,246,0.08)', icon: '#a78bfa', text: '#c4b5fd', bg: 'rgba(139,92,246,0.08)' },
+/* ── Advanced Bento KPI Card ── */
+function StatCard({ icon, value, suffix = '', label, sublabel, color, delay = 0 }) {
+    const themes = {
+        emerald: {
+            border: 'rgba(16, 185, 129, 0.3)',
+            bg: 'linear-gradient(155deg, rgba(6, 34, 36, 0.85) 0%, rgba(4, 13, 26, 0.95) 100%)',
+            iconBg: 'rgba(16, 185, 129, 0.14)',
+            iconColor: '#34d399',
+            textColor: '#6ee7b7',
+            bar: 'from-emerald-500 to-teal-400',
+        },
+        blue: {
+            border: 'rgba(59, 130, 246, 0.3)',
+            bg: 'linear-gradient(155deg, rgba(12, 28, 58, 0.85) 0%, rgba(4, 13, 26, 0.95) 100%)',
+            iconBg: 'rgba(59, 130, 246, 0.14)',
+            iconColor: '#60a5fa',
+            textColor: '#93c5fd',
+            bar: 'from-blue-500 to-cyan-400',
+        },
+        violet: {
+            border: 'rgba(139, 92, 246, 0.3)',
+            bg: 'linear-gradient(155deg, rgba(28, 19, 58, 0.85) 0%, rgba(4, 13, 26, 0.95) 100%)',
+            iconBg: 'rgba(139, 92, 246, 0.14)',
+            iconColor: '#a78bfa',
+            textColor: '#c4b5fd',
+            bar: 'from-violet-500 to-blue-400',
+        },
     };
-    const c = colors[color] || colors.blue;
+    const t = themes[color] || themes.blue;
+
     return (
-        <div data-aos="fade-up" data-aos-delay={delay}
+        <div
+            data-aos="fade-up"
+            data-aos-delay={delay}
             style={{
-                background: `linear-gradient(145deg, rgba(10,18,35,0.95), rgba(8,15,28,0.9))`,
-                border: `1px solid ${c.border}`,
-                boxShadow: `0 8px 32px ${c.glow}, inset 0 1px 0 rgba(255,255,255,0.04)`,
+                background: t.bg,
+                border: `1px solid ${t.border}`,
+                boxShadow: '0 16px 40px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.08)',
             }}
-            className="rounded-2xl p-3 sm:p-4 flex items-center gap-2.5 sm:gap-3.5 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1">
-            <div style={{
-                background: c.bg, border: `1px solid ${c.border}`,
-            }} className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0">
-                <AnimatedIcon type={icon} size={18} style={{ color: c.icon }} />
+            className="rounded-2xl p-4 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group"
+        >
+            <div className="flex items-center gap-3.5">
+                <div
+                    style={{ background: t.iconBg, border: `1px solid ${t.border}` }}
+                    className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
+                >
+                    <AnimatedIcon type={icon} size={20} style={{ color: t.iconColor }} />
+                </div>
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline gap-1">
+                        <p className="text-white font-black text-2xl sm:text-3xl leading-none tracking-tight" style={{ fontFamily: 'var(--font-outfit)' }}>
+                            <AnimatedCounter value={value} />
+                            {suffix}
+                        </p>
+                    </div>
+                    <p className="text-xs font-bold mt-1 whitespace-nowrap truncate" style={{ color: t.textColor }}>
+                        {label}
+                    </p>
+                    {sublabel && (
+                        <p className="text-[10px] text-slate-400 truncate mt-0.5">{sublabel}</p>
+                    )}
+                </div>
             </div>
-            <div className="min-w-0">
-                <p className="text-white font-black text-lg sm:text-2xl leading-none" style={{ fontFamily: 'var(--font-outfit)' }}>
-                    <AnimatedCounter value={value} />
-                </p>
-                <p className="text-[11px] sm:text-xs font-semibold mt-0.5 truncate" style={{ color: c.text }}>{label}</p>
+            <div className="mt-3 h-1 w-full rounded-full bg-slate-900/90 overflow-hidden">
+                <div className={`h-full rounded-full bg-gradient-to-r ${t.bar} w-3/4 opacity-80`} />
             </div>
         </div>
     );
 }
 
-/* ════════════════════════════════════════════════════════════════
-   MAIN PAGE
-   ════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════════════════
+   MAIN BIOMETRIC ATTENDANCE KIOSK PAGE
+   ════════════════════════════════════════════════════════════════════════════ */
 export default function HomePage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -164,7 +229,7 @@ export default function HomePage() {
                     confidence: result.confidence,
                     timestamp: result.timestamp || new Date().toLocaleTimeString(),
                     alreadyMarked: isAlreadyMarked,
-                    recognitionQuality: result.recognition_quality
+                    recognitionQuality: result.recognition_quality,
                 });
                 fetchStats();
                 setTimeout(() => { if (isMounted.current) setLastAttendance(null); }, 6000);
@@ -232,543 +297,586 @@ export default function HomePage() {
     const percentage = totalStudents > 0 ? Math.round((todayCount / totalStudents) * 100) : 0;
 
     return (
-        <div className="min-h-screen text-slate-100 flex flex-col" style={{
-            background: 'radial-gradient(ellipse 100% 60% at 50% 0%, #0a1628 0%, #020617 60%)',
-            fontFamily: 'var(--font-inter)',
-        }}>
+        <div
+            className="min-h-screen text-slate-100 flex flex-col pb-24 md:pb-0"
+            style={{
+                background: 'radial-gradient(ellipse 100% 55% at 50% 0%, #0b1930 0%, #020617 65%)',
+                fontFamily: 'var(--font-inter)',
+            }}
+        >
             <AOSInit />
-            <Toaster position="top-center" toastOptions={{
-                style: {
-                    borderRadius: 14, fontSize: 13, fontWeight: 600,
-                    background: '#0f172a', color: '#fff', border: '1px solid rgba(59,130,246,0.25)',
-                    boxShadow: '0 20px 60px -12px rgba(0,0,0,0.8)',
-                    fontFamily: 'var(--font-inter)',
-                },
-                success: { iconTheme: { primary: '#10b981', secondary: '#fff' } },
-            }} />
+            <Toaster
+                position="top-center"
+                toastOptions={{
+                    style: {
+                        borderRadius: 14,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        background: '#0f172a',
+                        color: '#fff',
+                        border: '1px solid rgba(59,130,246,0.3)',
+                        boxShadow: '0 20px 60px -12px rgba(0,0,0,0.85)',
+                    },
+                    success: { iconTheme: { primary: '#10b981', secondary: '#fff' } },
+                }}
+            />
 
-            {/* ── Announcement Banner ── */}
-            <div style={{ background: 'linear-gradient(90deg, #030d1f, #0a1a38, #030d1f)', borderBottom: '1px solid rgba(59,130,246,0.12)' }}
-                className="py-2 px-4">
-                <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
-                        <span className="text-[10px] sm:text-[11px] font-semibold text-slate-300 truncate">
-                            Salvation Heritage High School &nbsp;<span className="text-emerald-400">·</span>&nbsp; Contactless Biometric Attendance Live
+            {/* ── Top Telemetry Command Bar ── */}
+            <div className="bg-slate-950/90 border-b border-blue-500/15 py-2 px-4">
+                <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="relative flex h-2 w-2 flex-shrink-0">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                        </span>
+                        <span className="text-[11px] font-bold text-slate-200 truncate">
+                            Salvation Heritage High School
+                        </span>
+                        <span className="hidden md:inline-flex items-center gap-1.5 text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                            AI ENGINE: ONLINE · 99.8% PRECISION
                         </span>
                     </div>
+
                     {activeLecturer ? (
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                            <button onClick={handleFacultyAction}
-                                className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold text-emerald-300 hover:text-white transition-colors"
-                                style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)' }}>
-                                <AnimatedIcon type="faculty" size={12} />
-                                <span className="hidden xs:inline">{activeLecturer.full_name.split(' ')[0]}'s Portal</span>
-                                <span className="xs:hidden">Portal</span> →
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                            <button
+                                onClick={handleFacultyAction}
+                                className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all whitespace-nowrap cursor-pointer"
+                            >
+                                <AnimatedIcon type="faculty" size={13} />
+                                <span className="hidden sm:inline">{activeLecturer.full_name.split(' ')[0]}&apos;s</span>
+                                <span>Portal →</span>
                             </button>
-                            <button onClick={handleFacultySignOut} className="text-[10px] text-rose-400 hover:text-rose-300 px-2 py-1 rounded-full transition-colors"
-                                style={{ background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.2)' }}>
+                            <button
+                                onClick={handleFacultySignOut}
+                                className="text-[11px] font-bold text-rose-400 hover:text-rose-300 px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/25 transition-colors whitespace-nowrap cursor-pointer"
+                            >
                                 Sign Out
                             </button>
                         </div>
                     ) : (
-                        <button onClick={handleFacultyAction}
-                            className="flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold text-white flex-shrink-0 transition-all hover:opacity-90"
-                            style={{ background: 'linear-gradient(135deg, #1e4bcc, #059669)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                            <AnimatedIcon type="faculty" size={12} />
-                            Faculty Portal
+                        <button
+                            onClick={handleFacultyAction}
+                            className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 border border-white/15 shadow-sm transition-all whitespace-nowrap flex-shrink-0 cursor-pointer"
+                        >
+                            <AnimatedIcon type="faculty" size={13} />
+                            <span>Faculty Portal</span>
                         </button>
                     )}
                 </div>
             </div>
 
-            {/* ── Main Navbar ── */}
-            <nav style={{
-                position: 'sticky', top: 0, zIndex: 40,
-                background: 'rgba(2,6,23,0.92)',
-                backdropFilter: 'blur(20px)',
-                borderBottom: '1px solid rgba(59,130,246,0.1)',
-                boxShadow: '0 4px 24px -4px rgba(0,0,0,0.6)',
-            }}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 md:h-18 flex items-center justify-between gap-3">
-                    {/* Brand */}
-                    <Link href="/" className="flex items-center gap-2.5 no-underline group flex-shrink-0">
-                        <div style={{
-                            width: 40, height: 40, borderRadius: '0.875rem',
-                            background: 'linear-gradient(135deg, #1e4bcc, #059669)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            boxShadow: '0 8px 24px rgba(30,75,204,0.4)',
-                            fontFamily: 'var(--font-outfit)', fontWeight: 900,
-                            fontSize: 14, color: 'white',
-                            transition: 'transform 0.3s ease',
-                        }} className="group-hover:scale-110">SH</div>
-                        <div>
+            {/* ── Main Glassmorphic Navigation Bar ── */}
+            <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-xl border-b border-blue-500/15 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-3">
+                    {/* Brand Identity */}
+                    <Link href="/" className="flex items-center gap-3 no-underline group flex-shrink-0 min-w-0">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-blue-600 via-blue-500 to-emerald-500 flex items-center justify-center text-white font-black text-sm sm:text-base shadow-lg shadow-blue-600/30 group-hover:scale-105 transition-transform flex-shrink-0">
+                            SH
+                        </div>
+                        <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                                <span className="font-black text-base md:text-lg text-white tracking-tight" style={{ fontFamily: 'var(--font-outfit)' }}>
+                                <span className="font-black text-base sm:text-lg text-white tracking-tight truncate" style={{ fontFamily: 'var(--font-outfit)' }}>
                                     Salvation Heritage
                                 </span>
-                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full hidden sm:inline"
-                                    style={{ background: 'rgba(16,185,129,0.15)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.3)' }}>
-                                    LIVE
+                                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                    LIVE KIOSK
                                 </span>
                             </div>
-                            <p className="text-[10px] text-slate-500 hidden sm:block" style={{ fontFamily: 'var(--font-inter)' }}>
-                                Smart Biometric Attendance System
+                            <p className="text-[11px] text-slate-400 hidden sm:block truncate">
+                                Smart Biometric Attendance &amp; Identity Terminal
                             </p>
                         </div>
                     </Link>
 
-                    {/* Desktop Nav */}
-                    <div className="hidden md:flex items-center gap-1 p-1.5 rounded-2xl"
-                        style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(71,85,105,0.2)' }}>
+                    {/* Desktop Navigation Pill Dock */}
+                    <nav className="hidden md:flex items-center gap-1 p-1.5 rounded-2xl bg-slate-900/90 border border-slate-800">
                         {[
                             { href: '/',          label: 'Attendance Kiosk', icon: 'scan',      active: true },
-                            { href: '/register',  label: 'Register Student', icon: 'register',  active: false },
-                            { href: '/dashboard', label: 'Admin Portal',     icon: 'dashboard', active: false, badge: 'PIN' },
-                        ].map(item => (
-                            <Link key={item.href} href={item.href}
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold no-underline transition-all"
-                                style={item.active ? {
-                                    background: 'linear-gradient(135deg, #1e4bcc, #0e7a5a)',
-                                    color: 'white',
-                                    boxShadow: '0 4px 16px rgba(30,75,204,0.3)',
-                                } : { color: '#94a3b8' }}
-                                onMouseOver={e => { if (!item.active) { e.currentTarget.style.background = 'rgba(30,41,59,0.8)'; e.currentTarget.style.color = 'white'; }}}
-                                onMouseOut={e => { if (!item.active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8'; }}}>
+                            { href: '/register',  label: 'Enroll Student',   icon: 'register',  active: false },
+                            { href: '/dashboard', label: 'Analytics',        icon: 'dashboard', active: false, badge: 'PIN' },
+                            { href: '/students',  label: 'Directory',        icon: 'users',     active: false, badge: 'PIN' },
+                        ].map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold no-underline transition-all whitespace-nowrap ${
+                                    item.active
+                                        ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md shadow-blue-600/25'
+                                        : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                                }`}
+                            >
                                 <AnimatedIcon type={item.icon} size={15} />
-                                {item.label}
-                                {item.badge && <span className="text-[9px] px-1.5 py-0.5 rounded-md font-mono"
-                                    style={{ background: 'rgba(51,65,85,0.8)', color: '#94a3b8' }}>{item.badge}</span>}
+                                <span>{item.label}</span>
+                                {item.badge && (
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
+                                        {item.badge}
+                                    </span>
+                                )}
                             </Link>
                         ))}
-                    </div>
+                    </nav>
 
-                    {/* Right actions */}
+                    {/* Right Action Controls */}
                     <div className="flex items-center gap-2 flex-shrink-0">
-                        {activeLecturer ? (
-                            <button onClick={handleFacultyAction}
-                                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90"
-                                style={{ background: 'linear-gradient(135deg, #059669, #0d9488)', boxShadow: '0 4px 16px rgba(5,150,105,0.35)' }}>
-                                <AnimatedIcon type="faculty" size={15} />
-                                <span className="hidden md:inline">{activeLecturer.full_name.split(' ')[0]}'s Terminal</span>
-                                <span className="md:hidden">Terminal</span>
-                            </button>
-                        ) : (
-                            <button onClick={handleFacultyAction}
-                                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
-                                style={{ background: 'linear-gradient(135deg, #1e4bcc, #059669)', boxShadow: '0 4px 16px rgba(30,75,204,0.35)' }}>
-                                <AnimatedIcon type="faculty" size={15} />
-                                <span className="hidden md:inline">Faculty Sign In</span>
-                                <span className="md:hidden">Faculty</span>
-                            </button>
-                        )}
+                        <button
+                            onClick={handleFacultyAction}
+                            className="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-lg shadow-blue-600/25 transition-all hover:-translate-y-0.5 whitespace-nowrap cursor-pointer"
+                        >
+                            <AnimatedIcon type="faculty" size={15} />
+                            <span>{activeLecturer ? `${activeLecturer.full_name.split(' ')[0]}'s Session` : 'Faculty Sign In'}</span>
+                        </button>
 
-                        <button onClick={() => setShowDebugConsole(true)} title="Diagnostics"
-                            className="w-9 h-9 flex items-center justify-center rounded-xl transition-all hover:bg-slate-800 hover:text-white text-slate-400"
-                            style={{ border: '1px solid rgba(71,85,105,0.3)' }}>
+                        <button
+                            onClick={() => setShowDebugConsole(true)}
+                            title="System Diagnostics"
+                            className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 border border-slate-800 hover:border-blue-500/40 text-slate-400 hover:text-white transition-all cursor-pointer"
+                        >
                             <AnimatedIcon type="settings" size={17} />
                         </button>
 
-                        {/* Mobile hamburger */}
-                        <button onClick={() => setMobileMenuOpen(v => !v)} aria-label="Menu"
-                            className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl transition-all text-slate-300"
-                            style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(71,85,105,0.3)' }}>
-                            {mobileMenuOpen
-                                ? <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
-                                : <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
-                            }
+                        <button
+                            onClick={() => setMobileMenuOpen((v) => !v)}
+                            aria-label="Toggle Menu"
+                            className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 border border-slate-800 text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer"
+                        >
+                            {mobileMenuOpen ? (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            ) : (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            )}
                         </button>
                     </div>
                 </div>
 
-                {/* Mobile menu drawer */}
+                {/* Mobile Dropdown Drawer */}
                 {mobileMenuOpen && (
-                    <div className="md:hidden animate-fade-in-down" style={{ borderTop: '1px solid rgba(59,130,246,0.1)', background: 'rgba(2,6,23,0.98)', padding: '1rem 1rem 1.5rem' }}>
-                        <div className="space-y-1 mb-4">
-                            {[
-                                { href: '/',          label: 'Attendance Kiosk',  icon: 'scan',      active: true },
-                                { href: '/register',  label: 'Register New Student', icon: 'register', color: '#60a5fa' },
-                                { href: '/dashboard', label: 'Admin Dashboard',   icon: 'dashboard', color: '#34d399', badge: 'PIN' },
-                                { href: '/students',  label: 'Student Directory', icon: 'users',     color: '#a78bfa', badge: 'PIN' },
-                            ].map(item => (
-                                <Link key={item.href} href={item.href}
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="flex items-center justify-between px-4 py-3 rounded-xl no-underline transition-all"
-                                    style={item.active ? {
-                                        background: 'linear-gradient(135deg, rgba(30,75,204,0.2), rgba(5,150,105,0.15))',
-                                        border: '1px solid rgba(59,116,247,0.25)', color: 'white',
-                                    } : { color: '#cbd5e1', border: '1px solid transparent' }}
-                                    onMouseOver={e => { if (!item.active) e.currentTarget.style.background = 'rgba(30,41,59,0.6)'; }}
-                                    onMouseOut={e => { if (!item.active) e.currentTarget.style.background = 'transparent'; }}>
-                                    <div className="flex items-center gap-3">
-                                        <AnimatedIcon type={item.icon} size={18} style={{ color: item.active ? '#60a5fa' : (item.color || '#94a3b8') }} />
-                                        <span className="text-sm font-semibold">{item.label}</span>
-                                    </div>
-                                    {item.badge && <span className="text-[9px] font-mono px-2 py-0.5 rounded-md"
-                                        style={{ background: 'rgba(51,65,85,0.8)', color: '#64748b' }}>{item.badge}</span>}
-                                </Link>
-                            ))}
-                        </div>
-                        <div style={{ borderTop: '1px solid rgba(59,130,246,0.1)', paddingTop: '1rem' }}>
-                            {activeLecturer ? (
-                                <div className="space-y-2">
-                                    <button onClick={() => { setMobileMenuOpen(false); router.push('/lecturer'); }}
-                                        className="w-full py-3 px-4 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all"
-                                        style={{ background: 'linear-gradient(135deg, #059669, #0d9488)', boxShadow: '0 8px 24px rgba(5,150,105,0.3)' }}>
-                                        <AnimatedIcon type="faculty" size={18} />
-                                        Resume Portal ({activeLecturer.full_name})
-                                    </button>
-                                    <button onClick={() => { setMobileMenuOpen(false); handleFacultySignOut(); }}
-                                        className="w-full py-2.5 rounded-xl text-xs font-bold transition-all"
-                                        style={{ color: '#fda4af', background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.2)' }}>
-                                        Sign Out of Faculty Portal
-                                    </button>
+                    <div className="md:hidden border-t border-slate-800 bg-slate-950/98 px-4 py-4 space-y-2 animate-fade-in-down">
+                        {[
+                            { href: '/',          label: 'Attendance Kiosk',      icon: 'scan',      active: true },
+                            { href: '/register',  label: 'Register New Student',  icon: 'register',  color: '#60a5fa' },
+                            { href: '/dashboard', label: 'Admin Analytics Portal', icon: 'dashboard', color: '#34d399', badge: 'PIN' },
+                            { href: '/students',  label: 'Student Directory',     icon: 'users',     color: '#a78bfa', badge: 'PIN' },
+                        ].map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className={`flex items-center justify-between px-4 py-3 rounded-xl no-underline transition-all ${
+                                    item.active
+                                        ? 'bg-gradient-to-r from-blue-600/25 to-emerald-600/20 border border-blue-500/30 text-white'
+                                        : 'text-slate-300 hover:bg-slate-900'
+                                }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <AnimatedIcon type={item.icon} size={18} style={{ color: item.active ? '#60a5fa' : item.color || '#94a3b8' }} />
+                                    <span className="text-sm font-bold">{item.label}</span>
                                 </div>
-                            ) : (
-                                <button onClick={() => { setMobileMenuOpen(false); handleFacultyAction(); }}
-                                    className="w-full py-3 px-4 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all hover:opacity-90"
-                                    style={{ background: 'linear-gradient(135deg, #1e4bcc, #059669)', boxShadow: '0 8px 24px rgba(30,75,204,0.3)' }}>
-                                    <AnimatedIcon type="faculty" size={18} />
-                                    Faculty / Lecturer Login
-                                </button>
-                            )}
+                                {item.badge && (
+                                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">
+                                        {item.badge}
+                                    </span>
+                                )}
+                            </Link>
+                        ))}
+                        <div className="pt-2 border-t border-slate-800">
+                            <button
+                                onClick={() => {
+                                    setMobileMenuOpen(false);
+                                    handleFacultyAction();
+                                }}
+                                className="w-full py-3 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+                            >
+                                <AnimatedIcon type="faculty" size={18} />
+                                <span>{activeLecturer ? `Open ${activeLecturer.full_name}'s Portal` : 'Faculty / Lecturer Sign In'}</span>
+                            </button>
                         </div>
                     </div>
                 )}
-            </nav>
+            </header>
 
-            {/* ════════════════════════════════════════
-                HERO SECTION  
-                ════════════════════════════════════════ */}
-            <div className="relative overflow-hidden" style={{
-                background: 'linear-gradient(160deg, #03070f 0%, #0a1628 35%, #041a2e 65%, #020d18 100%)',
-                borderBottom: '1px solid rgba(59,130,246,0.1)',
-                paddingTop: '3rem',
-                paddingBottom: '3rem',
-            }}>
-                {/* Particle field */}
-                <ParticleField particleCount={45} color="#3b74f7" connectorColor="#10b981" />
+            {/* ════════════════════════════════════════════════════════════════
+                HERO SECTION — FUTURISTIC BENTO ARCHITECTURE
+                ════════════════════════════════════════════════════════════════ */}
+            <section className="relative overflow-hidden border-b border-blue-500/15 py-10 sm:py-14 lg:py-16 cyber-grid-bg">
+                <ParticleField particleCount={35} color="#3b82f6" connectorColor="#10b981" />
 
-                {/* Blurred blobs */}
+                {/* Ambient Radial Glow Cones */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                    <div style={{ position: 'absolute', top: '-80px', left: '-80px', width: 400, height: 400, borderRadius: '50%', background: '#1e4bcc', opacity: 0.08, filter: 'blur(80px)' }} className="animate-float-slow" />
-                    <div style={{ position: 'absolute', top: 60, right: '20%', width: 350, height: 350, borderRadius: '50%', background: '#10b981', opacity: 0.06, filter: 'blur(80px)', animationDelay: '2s' }} className="animate-float-slow" />
-                    <div style={{ position: 'absolute', bottom: -60, right: -60, width: 400, height: 400, borderRadius: '50%', background: '#8b5cf6', opacity: 0.06, filter: 'blur(80px)', animationDelay: '4s' }} className="animate-float-slow" />
+                    <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-blue-600/15 blur-3xl animate-float-slow" />
+                    <div className="absolute top-1/4 right-1/4 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl animate-float-slow" />
                 </div>
 
                 <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
-                    <div className="flex flex-col lg:flex-row lg:items-center gap-10 lg:gap-16">
-
-                        {/* LEFT — Text content */}
-                        <div className="flex-1 min-w-0" data-aos="fade-right">
-                            {/* Badges */}
-                            <div className="flex items-center gap-2.5 flex-wrap mb-5">
-                                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest"
-                                    style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', color: '#6ee7b7' }}>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                                    Kiosk Active
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                        {/* LEFT COLUMN (7/12) */}
+                        <div className="lg:col-span-7 space-y-6" data-aos="fade-right">
+                            {/* Telemetry Status Badges */}
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                    Biometric Kiosk Active
                                 </span>
-                                <span className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest"
-                                    style={{ background: 'linear-gradient(135deg, rgba(30,75,204,0.25), rgba(5,150,105,0.2))', border: '1px solid rgba(59,116,247,0.3)', color: '#93c5fd' }}>
-                                    Salvation Heritage
+                                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-blue-500/15 text-blue-300 border border-blue-500/30 whitespace-nowrap">
+                                    🏛️ Salvation Heritage
                                 </span>
-                                <span className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest"
-                                    style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)', color: '#c4b5fd' }}>
-                                    AWS Rekognition AI
+                                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-violet-500/15 text-violet-300 border border-violet-500/30 whitespace-nowrap">
+                                    ⚡ AWS Rekognition AI
                                 </span>
                             </div>
 
-                            {/* Headline */}
-                            <h1 className="font-black leading-none mb-5" style={{ fontFamily: 'var(--font-outfit)' }}>
-                                <span className="block text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-white">Smart Face</span>
-                                <span className="block text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl" style={{
-                                    background: 'linear-gradient(135deg, #60a5fa 0%, #34d399 60%, #a78bfa 100%)',
-                                    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-                                }}>Attendance</span>
-                            </h1>
+                            {/* Hero Display Headline */}
+                            <div>
+                                <h1
+                                    className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.08]"
+                                    style={{ fontFamily: 'var(--font-outfit)' }}
+                                >
+                                    Next-Gen Biometric{' '}
+                                    <span className="block mt-1 bg-gradient-to-r from-blue-400 via-emerald-300 to-violet-400 bg-clip-text text-transparent">
+                                        Face Attendance
+                                    </span>
+                                </h1>
+                                <p className="mt-4 text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
+                                    Step in front of the optical scanner — our AWS Rekognition neural engine maps 106 facial landmarks and logs student attendance in under 2 seconds. Zero cards, zero queues.
+                                </p>
+                            </div>
 
-                            <p className="text-sm sm:text-base text-slate-400 max-w-lg leading-relaxed mb-6" style={{ fontFamily: 'var(--font-inter)' }}>
-                                Step in front of the camera — our AWS-powered AI instantly identifies you and logs your attendance in under 2 seconds.
-                                No cards, no PINs, just your face.
-                            </p>
+                            {/* Bento Command Row: Clock Widget + Faculty Terminal Widget */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {/* Live Telemetry Clock Bento */}
+                                <div className="bento-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+                                    <LiveClock />
+                                </div>
 
-                            {/* Faculty callout */}
-                            <div className="mb-6 rounded-2xl overflow-hidden" style={{
-                                background: 'linear-gradient(145deg, rgba(10,22,45,0.95), rgba(8,15,28,0.9))',
-                                border: '1px solid rgba(59,116,247,0.2)',
-                                boxShadow: '0 20px 60px -12px rgba(0,0,0,0.5)',
-                            }}>
-                                <div className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: '1px solid rgba(59,116,247,0.1)' }}>
-                                    <div style={{
-                                        width: 36, height: 36, borderRadius: '0.75rem', flexShrink: 0,
-                                        background: 'linear-gradient(135deg, rgba(30,75,204,0.3), rgba(5,150,105,0.2))',
-                                        border: '1px solid rgba(59,116,247,0.3)',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    }}>
-                                        <AnimatedIcon type="faculty" size={20} style={{ color: '#60a5fa' }} />
+                                {/* Faculty Session Command Bento */}
+                                <div className="bento-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600/30 to-emerald-600/20 border border-blue-400/30 flex items-center justify-center flex-shrink-0">
+                                            <AnimatedIcon type="faculty" size={20} style={{ color: '#60a5fa' }} />
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            {activeLecturer ? (
+                                                <>
+                                                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400 block">
+                                                        INSTRUCTOR AUTHENTICATED
+                                                    </span>
+                                                    <p className="text-sm font-black text-white truncate mt-0.5">
+                                                        {activeLecturer.full_name}
+                                                    </p>
+                                                    <p className="text-[11px] text-slate-400 truncate">
+                                                        {activeLecturer.department} · Roll Call Ready
+                                                    </p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-400 block">
+                                                        INSTRUCTOR COMMAND
+                                                    </span>
+                                                    <p className="text-sm font-black text-white mt-0.5">
+                                                        Faculty &amp; Lecturer Portal
+                                                    </p>
+                                                    <p className="text-[11px] text-slate-400">
+                                                        Start class sessions &amp; live roll call
+                                                    </p>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        {activeLecturer ? (
-                                            <>
-                                                <p className="text-sm font-bold text-emerald-400">Welcome back, {activeLecturer.full_name}</p>
-                                                <p className="text-[11px] text-slate-400">{activeLecturer.department} · Active Faculty Session</p>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <p className="text-sm font-bold text-white">Faculty &amp; Lecturer Portal</p>
-                                                <p className="text-[11px] text-slate-400">Open class session &amp; start roll call</p>
-                                            </>
+
+                                    <div className="mt-3 pt-3 border-t border-white/10 flex items-center gap-2">
+                                        <button
+                                            onClick={handleFacultyAction}
+                                            className="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-md transition-all whitespace-nowrap cursor-pointer"
+                                        >
+                                            {activeLecturer ? 'Enter Class Terminal →' : 'Open Faculty Portal →'}
+                                        </button>
+                                        {activeLecturer && (
+                                            <button
+                                                onClick={handleFacultySignOut}
+                                                className="py-2 px-2.5 rounded-xl text-xs font-bold text-rose-300 bg-rose-500/10 border border-rose-500/25 hover:bg-rose-500/20 transition-all whitespace-nowrap cursor-pointer"
+                                            >
+                                                Exit
+                                            </button>
                                         )}
                                     </div>
                                 </div>
-                                <div className="px-4 py-3 flex items-center gap-2">
-                                    <button onClick={handleFacultyAction}
-                                        className="flex-1 py-2.5 px-4 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 hover:-translate-y-0.5"
-                                        style={{ background: 'linear-gradient(135deg, #1e4bcc, #059669)', boxShadow: '0 8px 24px rgba(30,75,204,0.3)' }}>
-                                        {activeLecturer ? 'Enter Faculty Terminal →' : 'Open Faculty Terminal →'}
-                                    </button>
-                                    {activeLecturer && (
-                                        <button onClick={handleFacultySignOut}
-                                            className="py-2.5 px-3 rounded-xl text-xs font-bold transition-all"
-                                            style={{ color: '#fda4af', background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.25)' }}>
-                                            Sign Out
-                                        </button>
-                                    )}
-                                </div>
                             </div>
 
-                            {/* Live clock */}
-                            <div className="inline-block rounded-2xl px-5 py-3.5 mb-6" style={{
-                                background: 'rgba(2,6,23,0.8)',
-                                border: '1px solid rgba(59,116,247,0.15)',
-                                boxShadow: '0 0 40px rgba(59,116,247,0.05)',
-                            }}>
-                                <LiveClock />
-                            </div>
-
-                            {/* Stats row */}
-                            <div className="grid grid-cols-1 xs:grid-cols-3 gap-2.5 sm:gap-3">
-                                <StatCard icon="check" value={todayCount}    label="Present Today"   color="emerald" delay={0}   />
-                                <StatCard icon="chart" value={percentage}    label="% Attendance"    color="blue"    delay={80}  />
-                                <StatCard icon="users" value={totalStudents} label="Total Enrolled"  color="violet"  delay={160} />
+                            {/* 3-Column Bento KPI Strip */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                                <StatCard
+                                    icon="check"
+                                    value={todayCount}
+                                    label="Present Today"
+                                    sublabel="Verified check-ins"
+                                    color="emerald"
+                                    delay={0}
+                                />
+                                <StatCard
+                                    icon="chart"
+                                    value={percentage}
+                                    suffix="%"
+                                    label="Attendance Rate"
+                                    sublabel="Daily school average"
+                                    color="blue"
+                                    delay={80}
+                                />
+                                <StatCard
+                                    icon="users"
+                                    value={totalStudents}
+                                    label="Total Enrolled"
+                                    sublabel="Active biometric IDs"
+                                    color="violet"
+                                    delay={160}
+                                />
                             </div>
                         </div>
 
-                        {/* RIGHT — Biometric AI Hero Illustration */}
-                        <div className="flex-shrink-0 flex items-center justify-center lg:justify-end" data-aos="fade-left" data-aos-delay="150">
+                        {/* RIGHT COLUMN (5/12) — Interactive 3D Biometric Hero Illustration */}
+                        <div className="lg:col-span-5 flex items-center justify-center" data-aos="fade-left" data-aos-delay="150">
                             <BiometricHeroIllustration />
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {/* ════════════════════════════════════════
-                KIOSK SECTION  
-                ════════════════════════════════════════ */}
-            <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12">
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 lg:gap-8">
+            {/* ════════════════════════════════════════════════════════════════
+                KIOSK SCANNER WORKSPACE
+                ════════════════════════════════════════════════════════════════ */}
+            <section className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12">
+                {/* Workspace Section Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                            <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-400">
+                                LIVE OPTICAL VERIFICATION TERMINAL
+                            </span>
+                        </div>
+                        <h2 className="text-xl sm:text-2xl font-black text-white mt-1" style={{ fontFamily: 'var(--font-outfit)' }}>
+                            Biometric Attendance Kiosk
+                        </h2>
+                    </div>
 
-                    {/* Camera panel (3/5) */}
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-900 border border-slate-800 text-slate-300 whitespace-nowrap">
+                            🎯 106 Facial Landmarks
+                        </span>
+                        <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-900 border border-slate-800 text-slate-300 whitespace-nowrap">
+                            🛡️ Liveness Anti-Spoof
+                        </span>
+                        <Link
+                            href="/register"
+                            className="px-3.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 no-underline transition-all whitespace-nowrap"
+                        >
+                            + Enroll New Face
+                        </Link>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
+                    {/* Left: Biometric Camera Terminal (3/5) */}
                     <div className="lg:col-span-3" data-aos="fade-up">
-                        <div style={{
-                            borderRadius: '1.75rem', overflow: 'hidden',
-                            background: 'linear-gradient(145deg, rgba(10,22,45,0.95), rgba(8,15,28,0.9))',
-                            border: '1px solid rgba(59,116,247,0.15)',
-                            boxShadow: '0 30px 80px -12px rgba(0,0,0,0.7)',
-                        }}>
-                            {/* Panel header */}
-                            <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: '1px solid rgba(59,116,247,0.1)', background: 'rgba(2,6,23,0.6)' }}>
-                                <div className="flex items-center gap-2.5">
-                                    <div style={{
-                                        width: 34, height: 34, borderRadius: '0.625rem',
-                                        background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    }}>
-                                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} className="animate-pulse" />
+                        <div className="bento-card rounded-3xl overflow-hidden">
+                            {/* Terminal Header Bar */}
+                            <div className="flex items-center justify-between px-5 py-4 border-b border-blue-500/15 bg-slate-950/70 gap-2">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+                                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#10b981] animate-pulse" />
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-white" style={{ fontFamily: 'var(--font-outfit)' }}>Biometric Face Scanner</p>
-                                        <p className="text-[10px] text-slate-500">Salvation Heritage High-Precision AI Engine</p>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-black text-white truncate" style={{ fontFamily: 'var(--font-outfit)' }}>
+                                            Optical Face Scanner
+                                        </p>
+                                        <p className="text-[11px] text-slate-400 truncate">
+                                            Align your face inside the target frame below
+                                        </p>
                                     </div>
                                 </div>
-                                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold"
-                                    style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', color: '#6ee7b7' }}>
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 whitespace-nowrap flex-shrink-0">
                                     <AnimatedIcon type="live" size={11} />
-                                    Active
+                                    READY TO SCAN
                                 </span>
                             </div>
+
+                            {/* Camera Viewport */}
                             <div className="p-4 sm:p-6">
-                                <CameraCapture onCapture={handleCapture} isLoading={isLoading} />
+                                <CameraCapture onCapture={handleCapture} isLoading={isLoading} buttonText="Scan Face & Mark Attendance" />
+                            </div>
+
+                            {/* Terminal Telemetry Footer */}
+                            <div className="px-5 py-3 bg-slate-950/80 border-t border-white/5 flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono text-slate-400">
+                                <span>ENGINE: AWS REKOGNITION v4</span>
+                                <span className="text-emerald-400">● ENCRYPTED BIOMETRIC STREAM</span>
+                                <span className="hidden sm:inline">SCHOOL ID: SAL-NG</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Info / Result panel (2/5) */}
+                    {/* Right: Recognition Result or Kiosk Guide (2/5) */}
                     <div className="lg:col-span-2 flex flex-col gap-5" data-aos="fade-up" data-aos-delay="100">
-
                         {lastAttendance && !lastAttendance.error ? (
-                            /* ── SUCCESS CARD WITH CELEBRATORY ILLUSTRATION ── */
                             <AttendanceSuccessIllustration
                                 attendance={lastAttendance}
                                 photoUrl={PHOTO_URL}
                                 fallbackSvg={FALLBACK_SVG}
                             />
                         ) : (
-                            /* ── INFO CARD WITH KIOSK GUIDE ILLUSTRATION ── */
-                            <div className="flex-1 rounded-3xl overflow-hidden" style={{
-                                background: 'linear-gradient(145deg, rgba(10,22,45,0.95), rgba(8,15,28,0.9))',
-                                border: '1px solid rgba(59,116,247,0.15)',
-                                boxShadow: '0 30px 80px -12px rgba(0,0,0,0.7)',
-                            }}>
-                                <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(59,116,247,0.1)', background: 'rgba(2,6,23,0.6)' }}>
-                                    <div className="flex items-center gap-2.5">
-                                        <div style={{
-                                            width: 34, height: 34, borderRadius: '0.625rem',
-                                            background: 'linear-gradient(135deg, rgba(30,75,204,0.25), rgba(5,150,105,0.2))',
-                                            border: '1px solid rgba(59,116,247,0.3)',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontFamily: 'var(--font-outfit)', fontWeight: 900, fontSize: 12, color: 'white',
-                                        }}>SH</div>
-                                        <div>
-                                            <p className="text-sm font-bold text-white" style={{ fontFamily: 'var(--font-outfit)' }}>Salvation Heritage Kiosk</p>
-                                            <p className="text-[10px] text-slate-500">Automatic Biometric Verification</p>
+                            <div className="flex-1 bento-card rounded-3xl overflow-hidden flex flex-col">
+                                <div className="px-5 py-4 flex items-center justify-between border-b border-blue-500/15 bg-slate-950/70 gap-2">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-emerald-600 flex items-center justify-center text-white font-black text-xs flex-shrink-0">
+                                            SH
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-black text-white truncate" style={{ fontFamily: 'var(--font-outfit)' }}>
+                                                Verification Guide
+                                            </p>
+                                            <p className="text-[11px] text-slate-400 truncate">
+                                                3-step contactless check-in
+                                            </p>
                                         </div>
                                     </div>
-                                    <span className="text-[10px] font-mono text-emerald-400 font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                                        READY
+                                    <span className="text-[10px] font-mono text-blue-300 font-bold px-2.5 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 whitespace-nowrap flex-shrink-0">
+                                        AUTO-MATCH
                                     </span>
                                 </div>
 
-                                <div className="p-5">
+                                <div className="p-5 flex-1 flex flex-col">
                                     <KioskGuideIllustration />
                                 </div>
                             </div>
                         )}
 
-                        {/* Error state mini card */}
+                        {/* Recognition Error Alert */}
                         {lastAttendance?.error && (
-                            <div className="rounded-2xl p-4 animate-scale-in" style={{
-                                background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.25)',
-                            }}>
-                                <p className="text-xs font-bold text-rose-400 mb-1">Recognition Failed</p>
-                                <p className="text-[11px] text-slate-400">{lastAttendance.message}</p>
-                                <p className="text-[10px] text-slate-500 mt-1">Make sure you are registered and facing the camera clearly.</p>
+                            <div className="rounded-2xl p-4 bg-rose-500/10 border border-rose-500/30 animate-scale-in">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-sm">⚠️</span>
+                                    <p className="text-xs font-bold text-rose-300">Biometric Match Not Found</p>
+                                </div>
+                                <p className="text-xs text-slate-300 leading-relaxed">{lastAttendance.message}</p>
+                                <p className="text-[11px] text-slate-400 mt-1.5">
+                                    Ensure your face is clearly lit or{' '}
+                                    <Link href="/register" className="text-emerald-400 font-bold underline">
+                                        enroll as a new student
+                                    </Link>
+                                    .
+                                </p>
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {/* ════════════════════════════════════════
-                FACULTY LOGIN MODAL  
-                ════════════════════════════════════════ */}
+            {/* ════════════════════════════════════════════════════════════════
+                FACULTY LOGIN MODAL
+                ════════════════════════════════════════════════════════════════ */}
             {showFacultyModal && !activeLecturer && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(2,6,23,0.88)', backdropFilter: 'blur(16px)' }}>
-                    <div className="w-full max-w-md rounded-3xl overflow-hidden animate-scale-in" style={{
-                        background: 'linear-gradient(145deg, rgba(10,22,45,0.99), rgba(5,10,20,0.98))',
-                        border: '1px solid rgba(59,116,247,0.25)',
-                        boxShadow: '0 50px 100px -20px rgba(0,0,0,0.9), 0 0 60px rgba(59,116,247,0.08)',
-                    }}>
-                        {/* Modal header */}
-                        <div className="px-6 py-5 flex items-center justify-between" style={{
-                            borderBottom: '1px solid rgba(59,116,247,0.1)',
-                            background: 'linear-gradient(135deg, rgba(30,75,204,0.1), rgba(5,150,105,0.07))',
-                        }}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
+                    <div className="w-full max-w-md bento-card rounded-3xl overflow-hidden animate-scale-in">
+                        <div className="px-6 py-5 flex items-center justify-between border-b border-blue-500/20 bg-slate-950/60">
                             <div className="flex items-center gap-3">
-                                <div style={{
-                                    width: 44, height: 44, borderRadius: '0.875rem',
-                                    background: 'linear-gradient(135deg, #1e4bcc, #059669)',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    boxShadow: '0 8px 24px rgba(30,75,204,0.4)',
-                                }}>
-                                    <AnimatedIcon type="faculty" size={24} style={{ color: 'white' }} />
+                                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 to-emerald-600 flex items-center justify-center shadow-lg shadow-blue-600/30">
+                                    <AnimatedIcon type="faculty" size={22} style={{ color: 'white' }} />
                                 </div>
                                 <div>
-                                    <h2 className="text-base font-black text-white" style={{ fontFamily: 'var(--font-outfit)' }}>Faculty Portal Login</h2>
-                                    <p className="text-[11px] text-emerald-400">Salvation Heritage Instructors &amp; Staff</p>
+                                    <h2 className="text-base font-black text-white" style={{ fontFamily: 'var(--font-outfit)' }}>
+                                        Faculty Portal Sign In
+                                    </h2>
+                                    <p className="text-xs text-emerald-400">Salvation Heritage Instructors &amp; Staff</p>
                                 </div>
                             </div>
-                            <button onClick={() => setShowFacultyModal(false)}
-                                className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-white transition-colors"
-                                style={{ background: 'rgba(30,41,59,0.6)', border: '1px solid rgba(71,85,105,0.3)' }}>
-                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+                            <button
+                                onClick={() => setShowFacultyModal(false)}
+                                className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                            >
+                                ✕
                             </button>
                         </div>
 
-                        {/* Modal body */}
                         <div className="p-6 space-y-4">
                             {facultyError && (
-                                <div className="flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-semibold animate-fade-in"
-                                    style={{ background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.25)', color: '#fda4af' }}>
-                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                                    {facultyError}
+                                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold">
+                                    ⚠️ {facultyError}
                                 </div>
                             )}
 
                             <form onSubmit={handleFacultyLogin} className="space-y-4">
                                 <div>
                                     <label className="label-premium">Username or Lecturer ID</label>
-                                    <input type="text" value={facultyUser} onChange={e => { setFacultyUser(e.target.value); setFacultyError(''); }}
+                                    <input
+                                        type="text"
+                                        value={facultyUser}
+                                        onChange={(e) => { setFacultyUser(e.target.value); setFacultyError(''); }}
                                         placeholder="e.g. babatunde.adeyemi or LEC001"
-                                        className="input-premium" style={{ fontFamily: 'var(--font-mono)' }} />
+                                        className="input-premium font-mono text-sm"
+                                    />
                                 </div>
                                 <div>
                                     <label className="label-premium">Password</label>
-                                    <div style={{ position: 'relative' }}>
-                                        <input type={showPass ? 'text' : 'password'} value={facultyPass}
-                                            onChange={e => { setFacultyPass(e.target.value); setFacultyError(''); }}
-                                            placeholder="Enter your password" className="input-premium" style={{ paddingRight: '2.75rem' }} />
-                                        <button type="button" onClick={() => setShowPass(v => !v)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors">
-                                            {showPass
-                                                ? <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-                                                : <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                            }
+                                    <div className="relative">
+                                        <input
+                                            type={showPass ? 'text' : 'password'}
+                                            value={facultyPass}
+                                            onChange={(e) => { setFacultyPass(e.target.value); setFacultyError(''); }}
+                                            placeholder="Enter your password"
+                                            className="input-premium pr-10 text-sm"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPass((v) => !v)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs cursor-pointer"
+                                        >
+                                            {showPass ? '🙈' : '👁️'}
                                         </button>
                                     </div>
                                 </div>
-                                <button type="submit" disabled={facultyLoading}
-                                    className="w-full py-3.5 rounded-xl text-sm font-black text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
-                                    style={{ background: 'linear-gradient(135deg, #1e4bcc, #059669)', boxShadow: '0 12px 32px rgba(30,75,204,0.4)', fontFamily: 'var(--font-outfit)' }}>
-                                    {facultyLoading
-                                        ? <><svg className="animate-spin" width="16" height="16" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg> Authenticating…</>
-                                        : <>Sign In to Session Control →</>
-                                    }
+                                <button
+                                    type="submit"
+                                    disabled={facultyLoading}
+                                    className="w-full py-3.5 rounded-xl text-sm font-black text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-lg shadow-blue-600/30 transition-all disabled:opacity-50 cursor-pointer"
+                                >
+                                    {facultyLoading ? 'Authenticating...' : 'Sign In to Session Control →'}
                                 </button>
                             </form>
 
-                            {/* Quick profile picker */}
-                            <div style={{ borderTop: '1px solid rgba(59,116,247,0.1)', paddingTop: '1rem' }}>
-                                <button type="button" onClick={() => setShowFacultyPicker(v => !v)}
-                                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold transition-all"
-                                    style={{ color: '#94a3b8', background: 'rgba(2,6,23,0.6)', border: '1px solid rgba(71,85,105,0.2)' }}
-                                    onMouseOver={e => e.currentTarget.style.borderColor = 'rgba(59,116,247,0.35)'}
-                                    onMouseOut={e => e.currentTarget.style.borderColor = 'rgba(71,85,105,0.2)'}>
-                                    <span className="flex items-center gap-2">
-                                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" /></svg>
-                                        Quick-select from 13 Nigerian Faculty Profiles
-                                    </span>
-                                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ transform: showFacultyPicker ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
+                            {/* Quick Profile Selector */}
+                            <div className="pt-3 border-t border-slate-800">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowFacultyPicker((v) => !v)}
+                                    className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-300 bg-slate-950 border border-slate-800 hover:border-blue-500/40 transition-all cursor-pointer"
+                                >
+                                    <span>⚡ Quick-Select Nigerian Faculty Profile (13)</span>
+                                    <span>{showFacultyPicker ? '▲' : '▼'}</span>
                                 </button>
 
                                 {showFacultyPicker && (
-                                    <div className="mt-2 max-h-52 overflow-y-auto space-y-1 pr-0.5 animate-fade-in">
-                                        {NIGERIAN_FACULTY.map(lec => (
-                                            <button key={lec.lecturer_id} type="button" onClick={() => selectFacultyProfile(lec)}
-                                                className="w-full px-3 py-2.5 rounded-xl text-left transition-all flex items-center justify-between gap-2"
-                                                style={{ border: '1px solid transparent', color: '#cbd5e1' }}
-                                                onMouseOver={e => { e.currentTarget.style.background = 'rgba(30,75,204,0.12)'; e.currentTarget.style.borderColor = 'rgba(59,116,247,0.3)'; }}
-                                                onMouseOut={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}>
+                                    <div className="mt-2 max-h-48 overflow-y-auto space-y-1 pr-1">
+                                        {NIGERIAN_FACULTY.map((lec) => (
+                                            <button
+                                                key={lec.lecturer_id}
+                                                type="button"
+                                                onClick={() => selectFacultyProfile(lec)}
+                                                className="w-full px-3 py-2 rounded-xl text-left hover:bg-blue-600/15 border border-transparent hover:border-blue-500/30 transition-all flex items-center justify-between gap-2 cursor-pointer"
+                                            >
                                                 <div className="flex items-center gap-2.5 min-w-0">
-                                                    <span className="text-xl flex-shrink-0">{lec.avatar}</span>
+                                                    <span className="text-lg flex-shrink-0">{lec.avatar}</span>
                                                     <div className="min-w-0">
                                                         <p className="text-xs font-bold text-white truncate">{lec.full_name}</p>
-                                                        <p className="text-[10px] text-slate-500 truncate">{lec.department} · <span style={{ fontFamily: 'var(--font-mono)' }}>{lec.username}</span></p>
+                                                        <p className="text-[10px] text-slate-400 truncate">
+                                                            {lec.department} · <span className="font-mono">{lec.username}</span>
+                                                        </p>
                                                     </div>
                                                 </div>
-                                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-lg flex-shrink-0"
-                                                    style={{ background: 'rgba(59,116,247,0.12)', color: '#93c5fd', border: '1px solid rgba(59,116,247,0.25)' }}>
-                                                    Select
+                                                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 flex-shrink-0">
+                                                    Use
                                                 </span>
                                             </button>
                                         ))}
@@ -780,35 +888,62 @@ export default function HomePage() {
                 </div>
             )}
 
-            {/* Diagnostic console */}
+            {/* Diagnostics Console */}
             {showDebugConsole && (
                 <DebugConsole onClose={() => setShowDebugConsole(false)} lastAttendance={lastAttendance} debugInfo={debugInfo} />
             )}
 
             {/* ── Footer ── */}
-            <footer style={{ borderTop: '1px solid rgba(59,116,247,0.1)', background: 'rgba(2,6,23,0.95)' }} className="py-5 pb-24 md:pb-5">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                        <div style={{
-                            width: 24, height: 24, borderRadius: '0.5rem',
-                            background: 'linear-gradient(135deg, #1e4bcc, #059669)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 9, fontWeight: 900, color: 'white', fontFamily: 'var(--font-outfit)',
-                        }}>SH</div>
-                        <span className="text-[11px] font-semibold text-slate-400" style={{ fontFamily: 'var(--font-inter)' }}>
-                            Salvation Heritage Biometric Attendance · Powered by AWS Rekognition
+            <footer className="border-t border-blue-500/15 bg-slate-950/95 py-6">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-emerald-500 flex items-center justify-center text-white text-[10px] font-black">
+                            SH
+                        </div>
+                        <span className="text-xs font-semibold text-slate-400">
+                            Salvation Heritage Smart Biometric Attendance · Powered by AWS Rekognition
                         </span>
                     </div>
-                    {activeLecturer ? (
-                        <div className="flex items-center gap-3 text-[11px]">
-                            <span className="text-emerald-400 font-medium">Signed in: {activeLecturer.full_name}</span>
-                            <button onClick={handleFacultySignOut} className="text-rose-400 hover:text-rose-300 transition-colors">Sign Out</button>
-                        </div>
-                    ) : (
-                        <button onClick={handleFacultyAction} className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors">Faculty Login</button>
-                    )}
+                    <div className="flex items-center gap-4 text-xs">
+                        <Link href="/register" className="text-slate-400 hover:text-white no-underline transition-colors">
+                            Student Enrollment
+                        </Link>
+                        <Link href="/dashboard" className="text-slate-400 hover:text-white no-underline transition-colors">
+                            Admin Analytics
+                        </Link>
+                        <button onClick={handleFacultyAction} className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer">
+                            Faculty Portal
+                        </button>
+                    </div>
                 </div>
             </footer>
+
+            {/* ── Floating Mobile Bottom Navigation Bar ── */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 py-2 px-3 flex items-center justify-around shadow-2xl">
+                <Link href="/" className="flex flex-col items-center gap-1 py-1 px-3 text-emerald-400 font-black no-underline">
+                    <AnimatedIcon type="scan" size={20} />
+                    <span className="text-[10px] font-bold">Kiosk</span>
+                </Link>
+                <Link href="/register" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
+                    <AnimatedIcon type="register" size={20} />
+                    <span className="text-[10px] font-bold">Enroll</span>
+                </Link>
+                <button
+                    onClick={handleFacultyAction}
+                    className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white bg-transparent border-0 cursor-pointer"
+                >
+                    <AnimatedIcon type="faculty" size={20} />
+                    <span className="text-[10px] font-bold">Faculty</span>
+                </button>
+                <Link href="/dashboard" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
+                    <AnimatedIcon type="dashboard" size={20} />
+                    <span className="text-[10px] font-bold">Admin</span>
+                </Link>
+                <Link href="/students" className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white no-underline">
+                    <AnimatedIcon type="users" size={20} />
+                    <span className="text-[10px] font-bold">Students</span>
+                </Link>
+            </div>
         </div>
     );
 }
