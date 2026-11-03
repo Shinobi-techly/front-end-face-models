@@ -10,6 +10,7 @@ import BiometricHeroIllustration from '../components/BiometricHeroIllustration';
 import KioskGuideIllustration from '../components/KioskGuideIllustration';
 import AttendanceSuccessIllustration from '../components/AttendanceSuccessIllustration';
 import StopSessionModal from '../components/StopSessionModal';
+import WrongPasswordModal from '../components/WrongPasswordModal';
 import ParticleField from '../components/ParticleField';
 import { recognizeFace, getStats, loginLecturer, stopSession, NIGERIAN_FACULTY } from '../lib/api';
 import toast, { Toaster } from 'react-hot-toast';
@@ -173,6 +174,7 @@ export default function HomePage() {
     const [showStopWarning, setShowStopWarning] = useState(false);
     const [activeSessionToStop, setActiveSessionToStop] = useState(null);
     const [stoppingSession, setStoppingSession] = useState(false);
+    const [showWrongModal, setShowWrongModal] = useState(false);
     const isMounted = useRef(true);
 
     useEffect(() => {
@@ -307,10 +309,12 @@ export default function HomePage() {
                 setShowFacultyModal(false);
                 router.push('/lecturer');
             } else {
-                setFacultyError(res.message || 'Invalid credentials.');
+                setFacultyError('Wrong password. Please try again or meet the Admin.');
+                setShowWrongModal(true);
             }
         } catch (err) {
             setFacultyError(err.message || 'Login failed.');
+            setShowWrongModal(true);
         } finally {
             setFacultyLoading(false);
         }
@@ -891,6 +895,12 @@ export default function HomePage() {
                 }}
                 onStopSession={handleStopSessionFromHome}
                 loading={stoppingSession}
+            />
+
+            <WrongPasswordModal
+                open={showWrongModal}
+                roleLabel="Faculty Portal"
+                onClose={() => setShowWrongModal(false)}
             />
 
             {/* ── Footer ── */}

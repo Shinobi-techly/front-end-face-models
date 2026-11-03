@@ -2,20 +2,20 @@
 
 /**
  * StudentDirectoryIllustration
- * Illustrated visual for the Salvation Heritage Student Directory page.
+ * Displays the /student.webm video illustration on the Salvation Heritage Student Directory page.
  */
 export default function StudentDirectoryIllustration() {
     return (
-        <div className="relative group w-full max-w-[20rem] sm:max-w-sm md:max-w-md mx-auto select-none">
+        <div className="relative group w-full max-w-[22rem] sm:max-w-md lg:max-w-lg mx-auto select-none">
             <div
-                className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 shadow-2xl p-4 sm:p-6"
+                className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-emerald-500/25 shadow-[0_24px_60px_rgba(0,0,0,0.75)] p-3 sm:p-5"
                 style={{
                     background: 'linear-gradient(155deg, rgba(15, 23, 42, 0.95) 0%, rgba(3, 10, 22, 0.98) 100%)',
                     backdropFilter: 'blur(16px)',
                 }}
             >
                 <div className="relative z-10 flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/80 border border-emerald-400/40">
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/85 border border-emerald-400/40">
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                         <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wide">
                             Student Roster · JSS1 – SS3
@@ -23,11 +23,17 @@ export default function StudentDirectoryIllustration() {
                     </div>
                 </div>
 
-                <div className="relative w-full aspect-[4/3] flex items-center justify-center rounded-xl sm:rounded-2xl overflow-hidden bg-slate-950/40 border border-white/5 p-2">
-                    <img
-                        src="/illustrations/students-group.svg"
-                        alt="Salvation Heritage Students"
-                        className="w-full h-full object-contain"
+                <div className="relative w-full aspect-[4/3] flex items-center justify-center rounded-xl sm:rounded-2xl overflow-hidden bg-slate-950 border border-white/10">
+                    <video
+                        src="/student.webm"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        onLoadedMetadata={(e) => {
+                            e.currentTarget.play().catch(() => {});
+                        }}
+                        className="w-full h-full object-cover rounded-xl sm:rounded-2xl"
                     />
                 </div>
 

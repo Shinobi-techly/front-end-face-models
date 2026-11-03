@@ -6,6 +6,7 @@ import AOSInit from '../../components/AOSInit';
 import AnimatedIcon from '../../components/AnimatedIcon';
 import LecturerSessionIllustration from '../../components/LecturerSessionIllustration';
 import StopSessionModal from '../../components/StopSessionModal';
+import WrongPasswordModal from '../../components/WrongPasswordModal';
 import toast, { Toaster } from 'react-hot-toast';
 import { startSession, stopSession, getSessionStatus, getLecturerHistory, loginLecturer, NIGERIAN_FACULTY } from '../../lib/api';
 
@@ -157,6 +158,7 @@ function LoginScreen({ onLogin }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPicker, setShowPicker] = useState(false);
+    const [showWrongModal, setShowWrongModal] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -180,7 +182,8 @@ function LoginScreen({ onLogin }) {
             toast.success(res.message || `Welcome, ${res.lecturer.full_name}!`);
             onLogin(res.lecturer);
         } else {
-            setError(res.message || 'Invalid username or password.');
+            setError('Wrong password. Please try again or meet the Admin.');
+            setShowWrongModal(true);
         }
     };
 
@@ -344,6 +347,12 @@ function LoginScreen({ onLogin }) {
             <footer className="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
                 Salvation Heritage High School
             </footer>
+
+            <WrongPasswordModal
+                open={showWrongModal}
+                roleLabel="Faculty Portal"
+                onClose={() => setShowWrongModal(false)}
+            />
         </div>
     );
 }

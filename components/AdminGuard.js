@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AnimatedIcon from './AnimatedIcon';
+import WrongPasswordModal from './WrongPasswordModal';
 
 export default function AdminGuard({ children, title = 'Administrative Portal' }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [pin, setPin] = useState('');
     const [error, setError] = useState('');
+    const [showWrongModal, setShowWrongModal] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -29,8 +31,10 @@ export default function AdminGuard({ children, title = 'Administrative Portal' }
             sessionStorage.setItem('fa_admin_auth', 'true');
             setIsAuthenticated(true);
             setError('');
+            setShowWrongModal(false);
         } else {
-            setError('Invalid Administrator Passcode.');
+            setError('Wrong password. Please try again or meet the Admin.');
+            setShowWrongModal(true);
         }
     };
 
@@ -163,6 +167,12 @@ export default function AdminGuard({ children, title = 'Administrative Portal' }
                 <div className="text-center text-xs text-slate-500 py-3">
                     Salvation Heritage High School
                 </div>
+
+                <WrongPasswordModal
+                    open={showWrongModal}
+                    roleLabel="Administrator"
+                    onClose={() => setShowWrongModal(false)}
+                />
             </div>
         );
     }
