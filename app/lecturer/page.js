@@ -5,6 +5,7 @@ import Link from 'next/link';
 import AOSInit from '../../components/AOSInit';
 import AnimatedIcon from '../../components/AnimatedIcon';
 import LecturerSessionIllustration from '../../components/LecturerSessionIllustration';
+import StopSessionModal from '../../components/StopSessionModal';
 import toast, { Toaster } from 'react-hot-toast';
 import { startSession, stopSession, getSessionStatus, getLecturerHistory, loginLecturer, NIGERIAN_FACULTY } from '../../lib/api';
 
@@ -406,6 +407,7 @@ function SessionPanel({ lecturer, onLogout }) {
     const [expandedSessionId, setExpandedSessionId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedStudent, setSelectedStudent] = useState(null);
+    const [showStopWarning, setShowStopWarning] = useState(false);
     const pollRef = useRef(null);
 
     const inputCls = (field) =>
@@ -480,6 +482,59 @@ function SessionPanel({ lecturer, onLogout }) {
         return () => clearInterval(pollRef.current);
     }, [activeSession, pollStatus]);
 
+    // Guard against refresh, tab close, or browser back while session is active
+    useEffect(() => {
+        if (!activeSession) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'r')) {
+                e.preventDefault();
+                setShowStopWarning(true);
+            }
+        };
+
+        const handleBeforeUnload = (e) => {
+            setShowStopWarning(true);
+            e.preventDefault();
+            e.returnValue = 'Please stop the active class session before leaving or refreshing.';
+            return e.returnValue;
+        };
+
+        window.history.pushState({ sessionGuard: true }, '');
+        const handlePopState = () => {
+            window.history.pushState({ sessionGuard: true }, '');
+            setShowStopWarning(true);
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener('popstate', handlePopState);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [activeSession]);
+
+    const handleAttemptLeave = (e) => {
+        if (activeSession) {
+            if (e) e.preventDefault();
+            setShowStopWarning(true);
+            return false;
+        }
+        return true;
+    };
+
+    const handleAttemptLogout = (e) => {
+        if (e) e.preventDefault();
+        if (activeSession) {
+            setShowStopWarning(true);
+            return;
+        }
+        onLogout();
+    };
+
     const validate = () => {
         const e = {};
         if (!form.department) e.department = 'Required';
@@ -535,6 +590,7 @@ function SessionPanel({ lecturer, onLogout }) {
             const data = await stopSession({ session_id: activeSession.id, lecturer_id: lecturer.lecturer_id });
             if (data.success) {
                 setActiveSession(null);
+                setShowStopWarning(false);
                 sessionStorage.removeItem('fa_session');
                 toast.success('Session stopped. Attendance recorded.', { duration: 5000 });
                 loadHistory();
@@ -581,6 +637,15 @@ function SessionPanel({ lecturer, onLogout }) {
             {/* Student Detail Modal */}
             <StudentModal student={selectedStudent} onClose={() => setSelectedStudent(null)} />
 
+            {/* Stop Session Warning Modal (/stop.webm) */}
+            <StopSessionModal
+                isOpen={showStopWarning}
+                session={activeSession}
+                isStopping={loading}
+                onStopSession={handleStop}
+                onClose={() => setShowStopWarning(false)}
+            />
+
             {/* Top School Banner */}
             <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-emerald-950 text-white text-[11px] py-1.5 px-3 sm:px-4 font-semibold tracking-wide border-b border-white/10 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5 min-w-0">
@@ -595,7 +660,7 @@ function SessionPanel({ lecturer, onLogout }) {
             {/* Navbar */}
             <nav className="sticky top-0 z-50 w-full bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/40">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
-                    <Link href="/" className="flex items-center gap-2 sm:gap-3 no-underline flex-shrink-0 min-w-0">
+                    <Link href="/" onClick={handleAttemptLeave} className="flex items-center gap-2 sm:gap-3 no-underline flex-shrink-0 min-w-0">
                         <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-white font-black text-xs sm:text-sm shadow-lg shadow-blue-600/30 bg-gradient-to-tr from-blue-700 via-blue-600 to-emerald-500 flex-shrink-0">
                             SH
                         </div>
@@ -619,7 +684,7 @@ function SessionPanel({ lecturer, onLogout }) {
                             </p>
                         </div>
                         <button
-                            onClick={onLogout}
+                            onClick={handleAttemptLogout}
                             className="px-3 py-2 rounded-xl text-xs font-bold text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 whitespace-nowrap cursor-pointer"
                         >
                             <AnimatedIcon type="logout" size={14} />
@@ -697,6 +762,7 @@ function SessionPanel({ lecturer, onLogout }) {
                         </div>
                         <Link
                             href="/"
+                            onClick={handleAttemptLeave}
                             className="px-4 py-3 rounded-2xl text-xs font-bold text-white bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/40 transition-all flex items-center gap-1.5 no-underline"
                         >
                             <AnimatedIcon type="scan" size={16} className="text-white" />
@@ -1175,7 +1241,7 @@ function SessionPanel({ lecturer, onLogout }) {
                         </div>
                         <span className="font-semibold text-slate-300">Salvation Heritage Faculty Portal</span>
                     </div>
-                    <button onClick={onLogout} className="text-rose-400 hover:underline cursor-pointer">
+                    <button onClick={handleAttemptLogout} className="text-rose-400 hover:underline cursor-pointer">
                         Sign Out
                     </button>
                 </div>

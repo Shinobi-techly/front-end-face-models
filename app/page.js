@@ -9,8 +9,9 @@ import AnimatedIcon from '../components/AnimatedIcon';
 import BiometricHeroIllustration from '../components/BiometricHeroIllustration';
 import KioskGuideIllustration from '../components/KioskGuideIllustration';
 import AttendanceSuccessIllustration from '../components/AttendanceSuccessIllustration';
+import StopSessionModal from '../components/StopSessionModal';
 import ParticleField from '../components/ParticleField';
-import { recognizeFace, getStats, loginLecturer, NIGERIAN_FACULTY } from '../lib/api';
+import { recognizeFace, getStats, loginLecturer, stopSession, NIGERIAN_FACULTY } from '../lib/api';
 import toast, { Toaster } from 'react-hot-toast';
 
 const PHOTO_URL = (id) =>
@@ -169,6 +170,9 @@ export default function HomePage() {
     const [showFacultyPicker, setShowFacultyPicker] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [showPass, setShowPass] = useState(false);
+    const [showStopWarning, setShowStopWarning] = useState(false);
+    const [activeSessionToStop, setActiveSessionToStop] = useState(null);
+    const [stoppingSession, setStoppingSession] = useState(false);
     const isMounted = useRef(true);
 
     useEffect(() => {
@@ -249,10 +253,43 @@ export default function HomePage() {
 
     const handleFacultySignOut = (e) => {
         if (e) e.stopPropagation();
+        try {
+            const savedSess = sessionStorage.getItem('fa_session');
+            if (savedSess) {
+                const parsed = JSON.parse(savedSess);
+                if (parsed && parsed.id) {
+                    setActiveSessionToStop(parsed);
+                    setShowStopWarning(true);
+                    return;
+                }
+            }
+        } catch { /* ignore */ }
         localStorage.removeItem('fa_lecturer');
         sessionStorage.removeItem('fa_session');
         setActiveLecturer(null);
         toast.success('Signed out from Faculty Portal.', { duration: 3000 });
+    };
+
+    const handleStopSessionFromHome = async () => {
+        if (!activeSessionToStop) return;
+        setStoppingSession(true);
+        try {
+            await stopSession({
+                session_id: activeSessionToStop.id,
+                lecturer_id: activeLecturer?.lecturer_id,
+            });
+            sessionStorage.removeItem('fa_session');
+            localStorage.removeItem('fa_lecturer');
+            setActiveSessionToStop(null);
+            setShowStopWarning(false);
+            setActiveLecturer(null);
+            toast.success('Class session stopped and signed out.', { duration: 3500 });
+        } catch (err) {
+            toast.error(err.message || 'Could not stop session. Opening Faculty Portal...');
+            router.push('/lecturer');
+        } finally {
+            setStoppingSession(false);
+        }
     };
 
     const handleFacultyLogin = async (e) => {
@@ -844,6 +881,17 @@ export default function HomePage() {
                     </div>
                 </div>
             )}
+
+            <StopSessionModal
+                open={showStopWarning}
+                courseName={activeSessionToStop?.course}
+                onClose={() => {
+                    setShowStopWarning(false);
+                    router.push('/lecturer');
+                }}
+                onStopSession={handleStopSessionFromHome}
+                loading={stoppingSession}
+            />
 
             {/* ── Footer ── */}
             <footer className="border-t border-blue-500/15 bg-slate-950/95 py-6">
