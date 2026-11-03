@@ -1,6 +1,8 @@
-const CACHE_NAME = 'salvation-heritage-pwa-v1';
+const CACHE_NAME = 'benx-visionx-pwa-v2';
 const PRECACHE_ASSETS = [
-    '/',
+    '/offline.html',
+    '/faceapk.png',
+    '/loading.webm',
     '/icon-192x192.png',
     '/icon-512x512.png',
     '/apple-touch-icon.png',
@@ -35,7 +37,15 @@ self.addEventListener('fetch', (event) => {
     const { request } = event;
     if (request.method !== 'GET') return;
 
-    // Network-first with cache fallback for navigation and assets
+    if (request.mode === 'navigate') {
+        event.respondWith(
+            fetch(request).catch(() =>
+                caches.match('/offline.html').then((offlinePage) => offlinePage || caches.match(request))
+            )
+        );
+        return;
+    }
+
     event.respondWith(
         fetch(request)
             .then((response) => {
@@ -52,7 +62,6 @@ self.addEventListener('fetch', (event) => {
                 }
                 return response;
             })
-            .catch(() => caches.match(request).then((cached) => cached || caches.match('/')))
+            .catch(() => caches.match(request))
     );
 });
-

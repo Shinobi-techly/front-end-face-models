@@ -1,8 +1,8 @@
 export default function manifest() {
     return {
-        name: 'Salvation Heritage — Smart Attendance System',
-        short_name: 'Salvation Heritage',
-        description: 'Salvation Heritage High School Smart Face Attendance and Student Information Management System.',
+        name: 'BENX VisionX — Smart Attendance',
+        short_name: 'BENX Attend',
+        description: 'Smart Face Recognition Attendance and Student Information Management System.',
         id: '/',
         start_url: '/',
         scope: '/',
@@ -12,6 +12,12 @@ export default function manifest() {
         theme_color: '#020617',
         categories: ['education', 'productivity', 'utilities'],
         icons: [
+            {
+                src: '/faceapk.png',
+                sizes: '512x512',
+                type: 'image/png',
+                purpose: 'any',
+            },
             {
                 src: '/icon-192x192.png',
                 sizes: '192x192',
@@ -39,4 +45,3 @@ export default function manifest() {
         ],
     };
 }
-

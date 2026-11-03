@@ -65,12 +65,14 @@ export default function PWARegister() {
     return (
         <div className="fixed bottom-20 md:bottom-5 right-4 left-4 sm:left-auto sm:w-96 z-50 rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-emerald-500/35 shadow-[0_20px_50px_rgba(0,0,0,0.85)] p-3.5 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-emerald-500 flex items-center justify-center text-white font-black text-xs flex-shrink-0 shadow-md">
-                    SH
-                </div>
+                <img
+                    src="/faceapk.png"
+                    alt="BENX VisionX"
+                    className="w-10 h-10 rounded-xl object-cover flex-shrink-0 shadow-md"
+                />
                 <div className="min-w-0">
                     <p className="text-xs font-black text-white truncate">
-                        Install Salvation Heritage App
+                        Install BENX VisionX App
                     </p>
                     <p className="text-[11px] text-slate-400 truncate">
                         Add to home screen for fast access
