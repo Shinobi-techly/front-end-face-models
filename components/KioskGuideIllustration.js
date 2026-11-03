@@ -20,6 +20,9 @@ export default function KioskGuideIllustration() {
                         loop
                         muted
                         playsInline
+                        onLoadedMetadata={(e) => {
+                            e.currentTarget.play().catch(() => {});
+                        }}
                         className="w-full h-full object-cover rounded-xl"
                     />
                     <div className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-slate-950/85 backdrop-blur border border-emerald-400/40 text-[9px] font-bold text-emerald-300 flex items-center gap-1.5 shadow-lg">

@@ -56,6 +56,9 @@ export default function StudentRegisterIllustration() {
                         loop
                         muted
                         playsInline
+                        onLoadedMetadata={(e) => {
+                            e.currentTarget.play().catch(() => {});
+                        }}
                         className="w-full h-full object-cover rounded-xl sm:rounded-2xl"
                     />
                 </div>

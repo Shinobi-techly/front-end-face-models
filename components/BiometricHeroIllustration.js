@@ -74,6 +74,9 @@ export default function BiometricHeroIllustration({ className = '' }) {
                         loop
                         muted
                         playsInline
+                        onLoadedMetadata={(e) => {
+                            e.currentTarget.play().catch(() => {});
+                        }}
                         className="w-full h-full object-cover rounded-xl sm:rounded-2xl"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none" />

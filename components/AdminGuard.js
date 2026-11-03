@@ -80,57 +80,81 @@ export default function AdminGuard({ children, title = 'Administrative Portal' }
                     </Link>
                 </div>
 
-                {/* Security PIN Vault Card */}
-                <div className="max-w-md mx-auto w-full my-auto py-8">
-                    <div className="bento-card rounded-3xl p-6 sm:p-8 relative overflow-hidden">
-                        <div className="text-center mb-6">
-                            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-blue-600 via-blue-500 to-emerald-500 flex items-center justify-center text-white shadow-xl shadow-blue-600/30">
-                                <AnimatedIcon type="shield" size={30} />
-                            </div>
-                            <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                                STAFF ACCESS ONLY
-                            </span>
-                            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-3" style={{ fontFamily: 'var(--font-outfit)' }}>
-                                Staff Authorization
-                            </h1>
-                            <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
-                                Enter your staff security passcode to access {title}.
-                            </p>
-                        </div>
-
-                        <form onSubmit={handleLogin} className="space-y-4">
-                            <div>
-                                <label className="label-premium text-center">Staff Passcode</label>
-                                <input
-                                    type="password"
-                                    value={pin}
-                                    onChange={(e) => setPin(e.target.value)}
-                                    placeholder="Enter passcode"
-                                    autoFocus
-                                    className="input-premium text-center tracking-widest font-mono text-base"
-                                />
-                            </div>
-
-                            {error && (
-                                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center justify-center gap-2">
-                                    <AnimatedIcon type="alert" size={15} />
-                                    <span>{error}</span>
+                {/* Admin Authorization Showcase & Login Form */}
+                <div className="max-w-4xl mx-auto w-full my-auto py-6 sm:py-10">
+                    <div className="bento-card rounded-3xl p-5 sm:p-8 lg:p-10 relative overflow-hidden">
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-center">
+                            {/* Left / Top: Boss Animation (/boss.webm) */}
+                            <div className="md:col-span-6 flex flex-col items-center">
+                                <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-950 border border-emerald-500/30 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+                                    <video
+                                        src="/boss.webm"
+                                        autoPlay
+                                        loop
+                                        muted
+                                        playsInline
+                                        onLoadedMetadata={(e) => {
+                                            e.currentTarget.play().catch(() => {});
+                                        }}
+                                        className="w-full h-full object-cover rounded-2xl"
+                                    />
+                                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-slate-950/85 backdrop-blur border border-emerald-400/40 text-[10px] font-bold text-emerald-300 flex items-center gap-1.5 shadow-lg">
+                                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                        ADMINISTRATION
+                                    </div>
                                 </div>
-                            )}
+                            </div>
 
-                            <button
-                                type="submit"
-                                className="w-full py-3.5 rounded-xl font-black text-sm text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                            >
-                                <AnimatedIcon type="lock" size={16} />
-                                <span>Unlock Portal</span>
-                            </button>
-                        </form>
+                            {/* Right / Bottom: Login Form */}
+                            <div className="md:col-span-6">
+                                <div className="text-center md:text-left mb-6">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                                        <AnimatedIcon type="shield" size={12} />
+                                        <span>STAFF ACCESS ONLY</span>
+                                    </span>
+                                    <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-3" style={{ fontFamily: 'var(--font-outfit)' }}>
+                                        Admin Sign In
+                                    </h1>
+                                    <p className="text-xs sm:text-sm text-slate-400 mt-1.5 leading-relaxed">
+                                        Enter your administrator passcode to unlock {title}.
+                                    </p>
+                                </div>
 
-                        <div className="mt-6 pt-5 border-t border-white/10 text-center">
-                            <Link href="/" className="text-xs font-bold text-blue-400 hover:text-blue-300 no-underline">
-                                Return to Student Attendance Kiosk
-                            </Link>
+                                <form onSubmit={handleLogin} className="space-y-4">
+                                    <div>
+                                        <label className="label-premium text-center md:text-left">Admin Passcode</label>
+                                        <input
+                                            type="password"
+                                            value={pin}
+                                            onChange={(e) => setPin(e.target.value)}
+                                            placeholder="Enter passcode"
+                                            autoFocus
+                                            className="input-premium text-center md:text-left tracking-widest font-mono text-base"
+                                        />
+                                    </div>
+
+                                    {error && (
+                                        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center justify-center md:justify-start gap-2">
+                                            <AnimatedIcon type="alert" size={15} />
+                                            <span>{error}</span>
+                                        </div>
+                                    )}
+
+                                    <button
+                                        type="submit"
+                                        className="w-full py-3.5 rounded-xl font-black text-sm text-white bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                                    >
+                                        <AnimatedIcon type="lock" size={16} />
+                                        <span>Unlock Portal</span>
+                                    </button>
+                                </form>
+
+                                <div className="mt-6 pt-5 border-t border-white/10 text-center md:text-left">
+                                    <Link href="/" className="text-xs font-bold text-blue-400 hover:text-blue-300 no-underline">
+                                        Return to Student Attendance Kiosk
+                                    </Link>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
