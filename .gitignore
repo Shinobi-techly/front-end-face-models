@@ -43,3 +43,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# APK build artifacts & private signing keys
+/apk-package/
+*.zip
+*.keystore
+*.aab
+signing-key-info.txt
+/BENX-VisionX.apk
