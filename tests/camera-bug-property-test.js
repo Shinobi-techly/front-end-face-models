@@ -1,3 +1,4 @@
+
 /**
  * Property-Based Test for Camera Startup Bug
  * 
@@ -21,7 +22,7 @@ if (typeof window === 'undefined') {
       }
     }
   };
-  
+
   // Mock DOMException for Node.js
   if (typeof DOMException === 'undefined') {
     global.DOMException = class DOMException extends Error {
@@ -46,18 +47,18 @@ class SystemState {
     this.networkAvailable = true;
     this.modelsUrlAccessible = false;
   }
-  
+
   // Check if bug condition exists
   isBugCondition() {
     // Bug condition: camera should start but doesn't
-    return this.cameraPermissionGranted && 
-           this.faceApiLoaded && 
-           this.modelsAccessible && 
-           this.cameraHardwareAvailable && 
-           this.networkAvailable && 
-           !this.cameraStarted;
+    return this.cameraPermissionGranted &&
+      this.faceApiLoaded &&
+      this.modelsAccessible &&
+      this.cameraHardwareAvailable &&
+      this.networkAvailable &&
+      !this.cameraStarted;
   }
-  
+
   // Simulate camera startup
   async startCamera() {
     try {
@@ -65,11 +66,11 @@ class SystemState {
       if (!this.cameraPermissionGranted) {
         throw new DOMException('Permission denied', 'NotAllowedError');
       }
-      
+
       if (!this.cameraHardwareAvailable) {
         throw new DOMException('Hardware not found', 'NotFoundError');
       }
-      
+
       this.cameraStarted = true;
       return true;
     } catch (error) {
@@ -85,20 +86,20 @@ class SystemState {
  */
 async function testCameraPermissionDenied() {
   console.log('\n=== Test 1: Camera Permission Denied ===');
-  
+
   const system = new SystemState();
   system.cameraPermissionGranted = false;
   system.faceApiLoaded = true;
   system.modelsAccessible = true;
   system.cameraHardwareAvailable = true;
-  
+
   const started = await system.startCamera();
-  
+
   if (started) {
     console.log('❌ FAIL: Camera started without permission');
     return false;
   }
-  
+
   console.log('✅ Camera correctly failed to start without permission');
   return true;
 }
@@ -109,20 +110,20 @@ async function testCameraPermissionDenied() {
  */
 async function testFaceApiNotLoaded() {
   console.log('\n=== Test 2: Face API Not Loaded ===');
-  
+
   const system = new SystemState();
   system.cameraPermissionGranted = true;
   system.faceApiLoaded = false; // Face API not loaded
   system.modelsAccessible = true;
   system.cameraHardwareAvailable = true;
-  
+
   const started = await system.startCamera();
-  
+
   if (started) {
     console.log('❌ Camera started without Face API');
     return false;
   }
-  
+
   console.log('✅ Camera correctly blocked by missing Face API');
   return true;
 }
@@ -133,20 +134,20 @@ async function testFaceApiNotLoaded() {
  */
 async function testModelsNotAccessible() {
   console.log('\n=== Test 3: Model Files Not Accessible ===');
-  
+
   const system = new SystemState();
   system.cameraPermissionGranted = true;
   system.faceApiLoaded = true;
   system.modelsAccessible = false; // Models not accessible
   system.cameraHardwareAvailable = true;
-  
+
   const started = await system.startCamera();
-  
+
   if (started) {
     console.log('❌ Camera started without model files');
     return false;
   }
-  
+
   console.log('✅ Camera correctly blocked by missing model files');
   return true;
 }
@@ -157,20 +158,20 @@ async function testModelsNotAccessible() {
  */
 async function testCameraHardwareUnavailable() {
   console.log('\n=== Test 4: Camera Hardware Unavailable ===');
-  
+
   const system = new SystemState();
   system.cameraPermissionGranted = true;
   system.faceApiLoaded = true;
   system.modelsAccessible = true;
   system.cameraHardwareAvailable = false; // No camera hardware
-  
+
   const started = await system.startCamera();
-  
+
   if (started) {
     console.log('❌ Camera started without hardware');
     return false;
   }
-  
+
   console.log('✅ Camera correctly failed without hardware');
   return true;
 }
@@ -181,21 +182,21 @@ async function testCameraHardwareUnavailable() {
  */
 async function testNetworkUnavailable() {
   console.log('\n=== Test 5: Network Unavailable ===');
-  
+
   const system = new SystemState();
   system.cameraPermissionGranted = true;
   system.faceApiLoaded = true;
   system.modelsAccessible = false; // Network issue
   system.cameraHardwareAvailable = true;
   system.networkAvailable = false;
-  
+
   const started = await system.startCamera();
-  
+
   if (started) {
     console.log('❌ Camera started without network');
     return false;
   }
-  
+
   console.log('✅ Camera correctly blocked by network issues');
   return true;
 }
@@ -206,18 +207,18 @@ async function testNetworkUnavailable() {
  */
 async function testCameraInUse() {
   console.log('\n=== Test 6: Camera Already in Use ===');
-  
+
   const system = new SystemState();
   system.cameraPermissionGranted = true;
   system.faceApiLoaded = true;
   system.modelsAccessible = true;
   system.cameraHardwareAvailable = true;
-  
+
   // Simulate camera in use by throwing specific error
-  system.startCamera = async function() {
+  system.startCamera = async function () {
     throw new DOMException('Camera in use', 'NotReadableError');
   };
-  
+
   try {
     await system.startCamera();
     console.log('❌ Camera started when it should be in use');
@@ -238,7 +239,7 @@ async function testCameraInUse() {
 async function runPropertyTests() {
   console.log('=== Camera Bug Condition Property Tests ===\n');
   console.log('Testing bug conditions for camera startup failure...\n');
-  
+
   const tests = [
     testCameraPermissionDenied,
     testFaceApiNotLoaded,
@@ -247,10 +248,10 @@ async function runPropertyTests() {
     testNetworkUnavailable,
     testCameraInUse
   ];
-  
+
   let passed = 0;
   let failed = 0;
-  
+
   for (const test of tests) {
     try {
       const result = await test();
@@ -264,18 +265,18 @@ async function runPropertyTests() {
       failed++;
     }
   }
-  
+
   console.log('\n=== Test Summary ===');
   console.log(`Total Tests: ${tests.length}`);
   console.log(`Passed: ${passed}`);
   console.log(`Failed: ${failed}`);
-  
+
   if (failed > 0) {
     console.log('\n❌ BUG DETECTED: Camera startup bug conditions confirmed');
     console.log('The bug condition exists: camera fails to start under certain conditions');
     return false; // Test "fails" as expected (bug exists)
   }
-  
+
   console.log('\n✅ All tests passed (no bugs detected)');
   return true;
 }

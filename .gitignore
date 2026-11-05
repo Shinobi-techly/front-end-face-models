@@ -49,5 +49,6 @@ next-env.d.ts
 *.zip
 *.keystore
 *.aab
+*.pdf
 signing-key-info.txt
 /BENX-VisionX.apk
